@@ -3,8 +3,6 @@ import { Routes, Route, Router } from "react-router-dom";
 import { routes } from "./routes/routers";
 import DefaultComponent from "./components/DefaultComponent/DefaultComponent";
 import { Fragment } from "react";
-import { isJsonString } from "./utils/convertJSON";
-import jwt_decode from "jwt-decode";
 
 function App() {
   return (
