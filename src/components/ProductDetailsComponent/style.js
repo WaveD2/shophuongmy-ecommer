@@ -14,9 +14,10 @@ export const WrapperStyleColImage = styled(Col)`
 export const WrapperStyleNameProduct = styled.h1`
   color: rgb(36, 36, 36);
   font-size: 24px;
-  font-weight: 300;
+  font-weight: 700;
   line-height: 32px;
   word-break: break-word;
+  text-transform: capitalize;
 `;
 
 export const WrapperStyleTextSell = styled.span`
@@ -35,11 +36,12 @@ export const WrapperPriceTextProduct = styled.h1`
   line-height: 40px;
   margin-right: 8px;
   font-weight: 500;
-  padding: 10px;
   margin-top: 10px;
 `;
 
 export const WrapperAddressProduct = styled.div`
+  margin: 10px 0;
+
   span.address {
     text-decoration: underline;
     font-size: 15px;
@@ -47,7 +49,7 @@ export const WrapperAddressProduct = styled.div`
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsisl;
+    text-overflow: ellipsis;
   }
   span.change-address {
     color: rgb(11, 116, 229);
@@ -75,4 +77,17 @@ export const WrapperInputNumber = styled(InputNumber)`
       display: none !important;
     }
   }
+  & > .ant-input-number-input {
+    text-align: center;
+  }
+`;
+
+export const BoxInDecrease = styled.div`
+  margin: 10px 0 20px;
+  padding: 10px 0;
+  border-top: 1px solid #e5e5e5;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  gap: 12px;
+  align-items: center;
 `;

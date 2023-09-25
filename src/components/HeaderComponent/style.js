@@ -2,6 +2,13 @@ import { Row } from "antd";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
+export const ContainerHeader = styled.div`
+  display: flex;
+  background: #1e1e1e;
+  justify-content: center;
+  height: 70px;
+`;
+
 export const WrapperHeader = styled(Row)`
   background-color: var(--primary-color);
   align-items: center;
@@ -56,4 +63,29 @@ export const ContainerBoxAccount = styled.div`
   padding: 6px 10px;
   width: max-content;
   z-index: 999;
+`;
+export const WrapperTippy = styled.div`
+  width: 460px;
+  max-height: 280px;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  gap: 6px;
+  z-index: 999;
+  background: #fff;
+  overflow-y: scroll;
+  border-radius: 4px;
+  padding-bottom: 12px;
+`;
+export const BoxTippy = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  border-radius: 2px;
+  flex-shrink: 1;
+  background: rgb(204, 204, 204);
+
+  &:hover {
+    background: "#e7d0d0";
+  }
 `;

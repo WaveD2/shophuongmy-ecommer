@@ -22,6 +22,7 @@ const TypeProduct = ({ item }) => {
         <WrapperMenuItem>
           {item.menuItem.map((item, index) => (
             <h3
+              key={index}
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(item.href);

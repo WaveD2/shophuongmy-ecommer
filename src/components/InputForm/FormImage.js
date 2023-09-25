@@ -1,13 +1,19 @@
 import React from "react";
 import { LabelInput, WrapperUploadFile } from "./style";
 import { UploadOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import { Button, Modal } from "antd";
 
 const FormImage = ({
   maxCount,
   isImages,
   srcAvatar,
   onchangeAvatar,
+  fileList,
+  previewOpen,
+  previewTitle,
+  srcPreviewImage,
+  handleCancelPreview,
+  handlePreview,
   ...rest
 }) => {
   return (
@@ -15,10 +21,32 @@ const FormImage = ({
       <LabelInput htmlFor="avatar">Avatar</LabelInput>
       <WrapperUploadFile
         onChange={onchangeAvatar}
+        onPreview={handlePreview}
+        multiple
         maxCount={maxCount}
+        fileList={fileList}
         {...rest}>
-        <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+        {fileList?.length < 6 && (
+          <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+        )}
       </WrapperUploadFile>
+
+      {previewOpen && srcPreviewImage && (
+        <Modal
+          open={previewOpen}
+          title={previewTitle}
+          footer={null}
+          onCancel={handleCancelPreview}>
+          <img
+            alt="example"
+            style={{
+              width: "100%",
+            }}
+            src={srcPreviewImage}
+          />
+        </Modal>
+      )}
+
       {srcAvatar && (
         <img
           id="avatar"

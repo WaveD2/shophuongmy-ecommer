@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { WrapperHeader, WrapperForm } from "./style";
 import * as UserService from "../../services/UserService";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
-import * as message from "../../components/Message/Message";
+import Message from "../../components/Message/Message";
 import { resetUser, updateUser } from "../../redux/Slice/userSlice";
 import { getBase64 } from "../../utils/getBase64";
 import { useMutationHooks } from "../../hooks/useMutationHook";
@@ -27,18 +27,25 @@ const ProfilePage = () => {
 
     const { id, access_token, ...rests } = data;
 
-    await UserService.UpdateUser(id, access_token, rests);
+    await UserService.UpdateUser({
+      id,
+      accessToken: access_token,
+      data: rests,
+    });
   });
-  const { variables, isLoading, isSuccess, isError } = mutation;
+  const { variables, isLoading, isSuccess, isError, error } = mutation;
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (isSuccess) {
-      message.success();
+      Message({ typeMes: "success", mes: "Cập nhật thành công" });
       dispatch(updateUser(variables));
     } else if (isError) {
-      message.error();
+      Message({
+        typeMes: "error",
+        mes: "Cập nhật thất bại",
+      });
     }
   }, [isSuccess, isError]);
 
@@ -54,12 +61,15 @@ const ProfilePage = () => {
     setOpenModal(false);
     const res = await UserService.DeleteUser(user.id, user.access_token);
     if (res.status === "OK") {
-      message.success(res.message);
+      Message({ typeMes: "success" });
       await UserService.Logout();
       dispatch(resetUser());
       navigate("/");
     } else {
-      message.success("Error");
+      Message({
+        typeMes: "error",
+        mes: res?.message,
+      });
     }
   };
 
@@ -73,7 +83,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div style={{ width: "1270px", margin: "0 auto", height: "500px" }}>
+    <div className="containerBoxPage">
       <WrapperHeader>Thông tin người dùng</WrapperHeader>
       <WrapperForm>
         <FormImage

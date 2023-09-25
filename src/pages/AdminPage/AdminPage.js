@@ -9,9 +9,7 @@ import {
 import HeaderComponent from "../../components/HeaderComponent/HeaderComponent";
 import AdminUser from "../../components/Admin/AdminUser/AdminUser";
 import AdminProduct from "../../components/Admin/AdminProduct/AdminProduct";
-
-// import OrderAdmin from "../../components/OrderAdmin/OrderAmin";
-// import * as OrderService from "../../services/OrderService";
+import * as OrderService from "../../services/OrderService";
 import * as ProductService from "../../services/ProductService";
 import * as UserService from "../../services/UserService";
 import Content from "./Components/Content";
@@ -19,6 +17,8 @@ import { useSelector } from "react-redux";
 import { useQueries } from "@tanstack/react-query";
 import { useMemo } from "react";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
+import AdminOrder from "../../components/Admin/AdminOrder/AdminOrder";
+import { ContainerAdminPage, WrapperMenuLeft } from "./style";
 
 const AdminPage = () => {
   const user = useSelector((state) => state?.user);
@@ -30,20 +30,20 @@ const AdminPage = () => {
   ];
 
   const [keySelected, setKeySelected] = useState("");
-  // const getAllOrder = async () => {
-  //   const res = await OrderService.getAllOrder(user?.access_token);
-  //   return { data: res?.data, key: "orders" };
-  // };
+  const getAllOrder = async () => {
+    const res = await OrderService.getAllOrder(user?.access_token);
+    return { data: res?.data, key: "orders" };
+  };
 
   const getAllProducts = async () => {
-    const res = await ProductService.getAllProduct();
-    console.log("res1", res);
+    const res = await ProductService.getAllProduct({
+      token: user?.access_token,
+    });
     return { data: res?.data, key: "products" };
   };
 
   const getAllUsers = async () => {
     const res = await UserService.GetAllUser(user?.access_token);
-    console.log("res", res);
     return { data: res?.data, key: "users" };
   };
 
@@ -53,9 +53,9 @@ const AdminPage = () => {
       { queryKey: ["users"], queryFn: getAllUsers, staleTime: 1000 * 60 },
       // { queryKey: ["orders"], queryFn: getAllOrder, staleTime: 1000 * 60 },
     ],
+    refetchOnWindowFocus: false,
+    enabled: false,
   });
-
-  console.log("queries", queries);
 
   const memoCount = useMemo(() => {
     const result = {};
@@ -83,7 +83,7 @@ const AdminPage = () => {
       case "products":
         return <AdminProduct />;
       // case "orders":
-      //   return <OrderAdmin />;
+      //   return <AdminOrder />;
       default:
         return <></>;
     }
@@ -92,27 +92,15 @@ const AdminPage = () => {
   const handleOnCLick = ({ key }) => {
     setKeySelected(key);
   };
-  console.log("memoCount", memoCount);
   return (
     <>
       <HeaderComponent isHiddenSearch isHiddenCart />
-      <div style={{ display: "flex", overflowX: "hidden" }}>
-        <Menu
-          mode="inline"
-          style={{
-            width: 256,
-            boxShadow: "1px 1px 2px #ccc",
-          }}
-          items={items}
-          onClick={handleOnCLick}
-        />
+      <ContainerAdminPage>
+        <WrapperMenuLeft>
+          <Menu mode="inline" items={items} onClick={handleOnCLick} />
+        </WrapperMenuLeft>
         <div style={{ flex: 1, padding: "15px 0 15px 15px" }}>
-          {/* <Loading
-            isLoading={
-              memoCount &&
-              Object.keys(memoCount) &&
-              Object.keys(memoCount).length !== 3
-            }>
+          <Loading isLoading={!memoCount && !Object.keys(memoCount)}>
             {!keySelected && (
               <Content
                 data={memoCount}
@@ -120,10 +108,10 @@ const AdminPage = () => {
                 setKeySelected={setKeySelected}
               />
             )}
-          </Loading> */}
+          </Loading>
           {renderPage(keySelected)}
         </div>
-      </div>
+      </ContainerAdminPage>
     </>
   );
 };

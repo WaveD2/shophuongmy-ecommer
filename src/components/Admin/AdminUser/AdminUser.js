@@ -12,50 +12,54 @@ import TableComponent from "../../TableComponent/TableComponent";
 import DrawerComponent from "../../DrawerComponent/DrawerComponent";
 import ModalComponent from "../../ModalComponent/ModalComponent";
 import { getBase64 } from "../../../utils/getBase64";
-import * as message from "../../Message/Message";
+import Message from "../../Message/Message";
 import { useMutationHooks } from "../../../hooks/useMutationHook";
 import * as UserService from "../../../services/UserService";
 import InputComponent from "../../InputComponent/InputComponent";
 import Loading from "../../LoadingComponent/LoadingComponent";
-import { SignUpSchema } from "../../../utils/YubSchema";
+import {
+  InfoUserSchema,
+  SignUpSchema,
+  fieldsInfoUser,
+} from "../../../utils/YubSchema";
+import FormFormik from "../../InputForm/FormFormik";
+import FormImage from "../../InputForm/FormImage";
 
 const AdminUser = () => {
-  const [rowSelected, setRowSelected] = useState("");
+  const [rowSelected, setRowSelected] = useState();
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
-  const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
+  const [avatarUser, setAvatarUser] = useState();
+  const [tableUser, setTableUser] = useState();
+  const [stateUserDetails, setStateUserDetails] = useState({});
+
   const user = useSelector((state) => state?.user);
 
   const searchInput = useRef(null);
 
-  const [stateUserDetails, setStateUserDetails] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    isAdmin: false,
-    avatar: "",
-    address: "",
-  });
-
-  const [form] = Form.useForm();
-
   const mutationUpdate = useMutationHooks((data) => {
-    console.log("data mutationUpdate", data);
-
     const { id, token, ...rests } = data;
-    const res = UserService.UpdateUser(id, token, { ...rests });
+    const res = UserService.UpdateUser({
+      id,
+      accessToken: token,
+      data: rests,
+    });
     return res;
   });
 
   const mutationDeletedMany = useMutationHooks((data) => {
-    const { token, ...ids } = data;
-    const res = UserService.DeleteManyUser(ids, token);
+    const { token, ids } = data;
+    const res = UserService.DeleteManyUser({
+      ids,
+      accessToken: token,
+    });
     return res;
   });
 
   const handleDeleteManyUsers = (ids) => {
     mutationDeletedMany.mutate(
-      { ids: ids, token: user?.access_token },
+      { ids, token: user?.access_token },
       {
         onSettled: () => {
           queryClient.invalidateQueries(["users"]);
@@ -71,33 +75,23 @@ const AdminUser = () => {
   });
 
   const fetchGetDetailsUser = async (rowSelected) => {
-    const res = await UserService.GetDetailsUser(
-      rowSelected,
-      user.access_token
-    );
+    const res = await UserService.GetDetailsUser({
+      id: rowSelected,
+      accessToken: user.access_token,
+    });
     if (res?.data) {
       setStateUserDetails({
         name: res?.data?.name,
         email: res?.data?.email,
         phone: res?.data?.phone,
-        isAdmin: res?.data?.isAdmin,
-        address: res?.data?.address,
-        avatar: res.data?.avatar,
+        address: res?.data?.address || "",
+        city: res?.data?.city || "",
       });
+
+      setAvatarUser(res.data?.avatar);
     }
-    setIsLoadingUpdate(false);
+    setIsLoading(false);
   };
-
-  useEffect(() => {
-    form.setFieldsValue(stateUserDetails);
-  }, [form, stateUserDetails]);
-
-  useEffect(() => {
-    if (rowSelected && isOpenDrawer) {
-      setIsLoadingUpdate(true);
-      fetchGetDetailsUser(rowSelected);
-    }
-  }, [rowSelected, isOpenDrawer]);
 
   const handleDetailsProduct = () => {
     setIsOpenDrawer(true);
@@ -109,12 +103,14 @@ const AdminUser = () => {
     isSuccess: isSuccessUpdated,
     isError: isErrorUpdated,
   } = mutationUpdate;
+
   const {
     data: dataDeleted,
     isLoading: isLoadingDeleted,
     isSuccess: isSuccessDelete,
     isError: isErrorDeleted,
   } = mutationDeleted;
+
   const {
     data: dataDeletedMany,
     isLoading: isLoadingDeleteMany,
@@ -124,18 +120,16 @@ const AdminUser = () => {
 
   const queryClient = useQueryClient();
   const users = queryClient.getQueryData(["users"]);
-
-  console.log("users query", users);
-
   const isFetchingUser = useIsFetching(["users"]);
 
-  console.log("isFetchingUser", isFetchingUser);
   const renderAction = () => {
     return (
       <div>
         <DeleteOutlined
           style={{ color: "red", fontSize: "30px", cursor: "pointer" }}
-          onClick={() => setIsModalOpenDelete(true)}
+          onClick={() => {
+            setIsModalOpenDelete(true);
+          }}
         />
         <EditOutlined
           style={{ color: "orange", fontSize: "30px", cursor: "pointer" }}
@@ -209,46 +203,41 @@ const AdminUser = () => {
         }}
       />
     ),
-    onFilter: (value, record) =>
-      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    onFilter: (value, record) => {
+      record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
+    },
     onFilterDropdownOpenChange: (visible) => {
       if (visible) {
         setTimeout(() => searchInput.current?.select(), 100);
       }
     },
-    // render: (text) =>
-    //   searchedColumn === dataIndex ? (
-    //     // <Highlighter
-    //     //   highlightStyle={{
-    //     //     backgroundColor: '#ffc069',
-    //     //     padding: 0,
-    //     //   }}
-    //     //   searchWords={[searchText]}
-    //     //   autoEscape
-    //     //   textToHighlight={text ? text.toString() : ''}
-    //     // />
-    //   ) : (
-    //     text
-    //   ),
   });
 
   const columns = [
     {
       title: "Name",
       dataIndex: "name",
-      sorter: (a, b) => a.name.length - b.name.length,
+      sorter: (a, b) => a?.name?.length - b?.name?.length,
       ...getColumnSearchProps("name"),
     },
     {
       title: "Email",
       dataIndex: "email",
-      sorter: (a, b) => a.email.length - b.email.length,
+      sorter: (a, b) => {
+        return a.email?.length - b.email?.length;
+      },
       ...getColumnSearchProps("email"),
     },
     {
       title: "Address",
       dataIndex: "address",
-      sorter: (a, b) => a.address.length - b.address.length,
+      sorter: (a, b) => {
+        if (!a.address && !b.address) {
+          a.address = "";
+          b.address = "";
+        }
+        return a?.address?.length - b?.address?.length;
+      },
       ...getColumnSearchProps("address"),
     },
     {
@@ -268,7 +257,7 @@ const AdminUser = () => {
     {
       title: "Phone",
       dataIndex: "phone",
-      sorter: (a, b) => a.phone - b.phone,
+      sorter: (a, b) => a?.phone - b?.phone,
       ...getColumnSearchProps("phone"),
     },
     {
@@ -277,50 +266,54 @@ const AdminUser = () => {
       render: renderAction,
     },
   ];
-  const dataTable =
-    users?.data?.length > 0 &&
-    users?.data?.map((user) => {
-      return {
-        ...user,
-        key: user._id,
-        isAdmin: user.isAdmin ? "TRUE" : "FALSE",
-      };
-    });
+
+  useEffect(() => {
+    const dataTable =
+      users?.data?.length > 0 &&
+      users?.data?.map((user) => {
+        return {
+          ...user,
+          key: user._id,
+          isAdmin: user.isAdmin ? "TRUE" : "FALSE",
+        };
+      });
+    setTableUser(dataTable);
+  }, [users || isLoadingDeleteMany]);
 
   useEffect(() => {
     if (isSuccessDelete && dataDeleted?.status === "OK") {
-      message.success();
+      Message({ typeMes: "success", mes: dataDeleted.message });
       handleCancelDelete();
     } else if (isErrorDeleted) {
-      message.error();
+      Message({ typeMes: "error", mes: dataDeleted.message });
     }
   }, [isSuccessDelete]);
 
   useEffect(() => {
     if (isSuccessDeleteMany && dataDeletedMany?.status === "OK") {
-      message.success();
+      Message({ typeMes: "success", mes: dataDeletedMany.message });
     } else if (isErrorDeletedMany) {
-      message.error();
+      Message({ typeMes: "error", mes: dataDeletedMany.message });
     }
   }, [isSuccessDeleteMany]);
 
   const handleCloseDrawer = () => {
     setIsOpenDrawer(false);
-    setStateUserDetails({
-      name: "",
-      email: "",
-      phone: "",
-      isAdmin: false,
-    });
-    form.resetFields();
+    setStateUserDetails({});
+    setAvatarUser();
+    setRowSelected();
   };
 
   useEffect(() => {
+    if (!isOpenDrawer) handleCloseDrawer();
+  }, [isOpenDrawer]);
+
+  useEffect(() => {
     if (isSuccessUpdated && dataUpdated?.status === "OK") {
-      message.success();
+      Message({ typeMes: "success", mes: dataUpdated?.message });
       handleCloseDrawer();
     } else if (isErrorUpdated) {
-      message.error();
+      Message({ typeMes: "error", mes: dataUpdated?.message });
     }
   }, [isSuccessUpdated]);
 
@@ -339,26 +332,22 @@ const AdminUser = () => {
     );
   };
 
-  const handleOnchangeDetails = (e) => {
-    setStateUserDetails({
-      ...stateUserDetails,
-      [e.target.name]: e.target.value,
-    });
-  };
-
   const handleOnchangeAvatarDetails = async ({ fileList }) => {
     const file = fileList[0];
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
     }
-    setStateUserDetails({
-      ...stateUserDetails,
-      avatar: file.preview,
-    });
+    setAvatarUser(file.preview);
   };
-  const onUpdateUser = () => {
+  const onUpdateUser = (values) => {
+    setIsLoading(true);
     mutationUpdate.mutate(
-      { id: rowSelected, token: user?.access_token, ...stateUserDetails },
+      {
+        id: rowSelected,
+        token: user?.access_token,
+        avatar: avatarUser || "",
+        ...values,
+      },
       {
         onSettled: () => {
           queryClient.invalidateQueries(["users"]);
@@ -366,114 +355,47 @@ const AdminUser = () => {
       }
     );
   };
-
   return (
     <div>
       <WrapperHeader>Quản lý người dùng</WrapperHeader>
       <div style={{ marginTop: "20px" }}>
         <TableComponent
-          handleDelteMany={handleDeleteManyUsers}
+          handleDeleteMany={handleDeleteManyUsers}
           columns={columns}
-          isLoading={isFetchingUser}
-          data={dataTable}
+          isLoading={isFetchingUser || isLoadingUpdated || isLoadingDeleteMany}
+          data={tableUser}
           onRow={(record, rowIndex) => {
             return {
               onClick: (event) => {
+                setIsLoading(true);
+                fetchGetDetailsUser(record._id);
                 setRowSelected(record._id);
               },
             };
           }}
         />
       </div>
+
       <DrawerComponent
         title="Chi tiết người dùng"
         isOpen={isOpenDrawer}
-        onClose={() => setIsOpenDrawer(false)}
+        onClose={handleCloseDrawer}
         width="50%">
-        <Loading isLoading={isLoadingUpdate || isLoadingUpdated}>
-          <Form
-            name="basic"
-            labelCol={{ span: 2 }}
-            wrapperCol={{ span: 22 }}
-            onFinish={onUpdateUser}
-            autoComplete="on"
-            form={form}>
-            <Form.Item
-              label="Name"
-              name="name"
-              rules={[{ required: true, message: "Please input your name!" }]}>
-              <InputComponent
-                value={stateUserDetails["name"]}
-                onChange={handleOnchangeDetails}
-                name="name"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="Email"
-              name="email"
-              rules={[{ required: true, message: "Please input your email!" }]}>
-              <InputComponent
-                value={stateUserDetails["email"]}
-                onChange={handleOnchangeDetails}
-                name="email"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Phone"
-              name="phone"
-              rules={[
-                { required: true, message: "Please input your  phone!" },
-              ]}>
-              <InputComponent
-                value={stateUserDetails.phone}
-                onChange={handleOnchangeDetails}
-                name="phone"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="Adress"
-              name="address"
-              rules={[
-                { required: true, message: "Please input your  address!" },
-              ]}>
-              <InputComponent
-                value={stateUserDetails.address}
-                onChange={handleOnchangeDetails}
-                name="address"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="Avatar"
-              name="avatar"
-              rules={[{ required: true, message: "Please input your image!" }]}>
-              <WrapperUploadFile
-                onChange={handleOnchangeAvatarDetails}
-                maxCount={1}>
-                <Button>Select File</Button>
-                {stateUserDetails?.avatar && (
-                  <img
-                    src={stateUserDetails?.avatar}
-                    style={{
-                      height: "60px",
-                      width: "60px",
-                      borderRadius: "50%",
-                      objectFit: "cover",
-                      marginLeft: "10px",
-                    }}
-                    alt="avatar"
-                  />
-                )}
-              </WrapperUploadFile>
-            </Form.Item>
-            <Form.Item wrapperCol={{ offset: 20, span: 16 }}>
-              <Button type="primary" htmlType="submit">
-                Apply
-              </Button>
-            </Form.Item>
-          </Form>
+        <Loading isLoading={isLoading}>
+          <FormImage
+            maxCount={1}
+            srcAvatar={avatarUser}
+            onchangeAvatar={handleOnchangeAvatarDetails}
+          />
+          {Object.keys(stateUserDetails).length !== 0 && (
+            <FormFormik
+              initialValues={stateUserDetails}
+              validationSchema={InfoUserSchema}
+              onSubmit={onUpdateUser}
+              fields={fieldsInfoUser.fields}
+              textButton1={"Thay đổi"}
+            />
+          )}
         </Loading>
       </DrawerComponent>
       <ModalComponent
@@ -481,8 +403,19 @@ const AdminUser = () => {
         open={isModalOpenDelete}
         onCancel={handleCancelDelete}
         onOk={handleDeleteUser}>
-        <Loading isLoading={isLoadingDeleted}>
-          <div>Bạn có chắc xóa tài khoản này không?</div>
+        <Loading isLoading={isLoadingDeleted || isLoading}>
+          <div>
+            Bạn có chắc xóa tài khoản{" "}
+            <span
+              style={{
+                fontSize: "18px",
+                color: "#df3939",
+                textDecoration: "uppercase",
+              }}>
+              {stateUserDetails.name}
+            </span>{" "}
+            này không?
+          </div>
         </Loading>
       </ModalComponent>
     </div>

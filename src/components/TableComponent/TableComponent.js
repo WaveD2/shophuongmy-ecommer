@@ -22,6 +22,7 @@ const TableComponent = (props) => {
     onChange: (selectedRowKeys, selectedRows) => {
       setRowSelectedKeys(selectedRowKeys);
     },
+
     // getCheckboxProps: (record) => ({
     //   disabled: record.name === 'Disabled User',
     //   // Column configuration not to be checked
@@ -30,6 +31,7 @@ const TableComponent = (props) => {
   };
   const handleDeleteAll = () => {
     handleDeleteMany(rowSelectedKeys);
+    setRowSelectedKeys([]);
   };
   const exportExcel = () => {
     const excel = new Excel();
@@ -41,13 +43,12 @@ const TableComponent = (props) => {
       })
       .saveAs("Excel.xlsx");
   };
-
   return (
     <Loading isLoading={isLoading}>
-      {!!rowSelectedKeys.length && (
+      {rowSelectedKeys.length > 0 && (
         <div
           style={{
-            background: "#1d1ddd",
+            background: "#1ccc",
             color: "#fff",
             fontWeight: "bold",
             padding: "10px",
@@ -57,7 +58,34 @@ const TableComponent = (props) => {
           Xóa tất cả
         </div>
       )}
-      <button onClick={exportExcel}>Export Excel</button>
+      <div
+        style={{
+          display: "flex",
+          gap: "12px",
+        }}>
+        <button
+          onClick={exportExcel}
+          style={{
+            padding: "6px",
+            borderRadius: "4px",
+            border: "2px solid #ccc",
+            background: "#ccc",
+            margin: "12px 0",
+          }}>
+          Export Excel
+        </button>
+        <button
+          type="primary"
+          style={{
+            padding: "6px",
+            borderRadius: "4px",
+            border: "2px solid #ccc",
+            background: "#ccc",
+            margin: "12px 0",
+          }}>
+          Reload
+        </button>
+      </div>
       <Table
         rowSelection={{
           type: selectionType,

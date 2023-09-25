@@ -1,5 +1,11 @@
 import styled from "styled-components";
-import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
+
+export const ContainerHome = styled.div`
+  max-width: 1270px;
+  margin: 0px auto;
+  overflow: hidden;
+  min-height: 70vh;
+`;
 
 export const WrapperTypeProduct = styled.div`
   display: flex;
@@ -9,7 +15,7 @@ export const WrapperTypeProduct = styled.div`
   height: 44px;
 `;
 
-export const WrapperButtonMore = styled(ButtonComponent)`
+export const WrapperButtonMore = styled.div`
   &:hover {
     color: #fff;
     background: #9255fd;
@@ -20,12 +26,14 @@ export const WrapperButtonMore = styled(ButtonComponent)`
   width: 100%;
   color: #9255fd;
   text-align: center;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointers")};
+`;
+
+export const ContainerProducts = styled.div`
+  margin: 24px;
 `;
 
 export const WrapperProducts = styled.div`
   display: flex;
-  gap: 14px;
-  margin-top: 20px;
+  gap: 10px;
   flex-wrap: wrap;
 `;

@@ -1,4 +1,14 @@
-import { Badge, Button, Col, Popover } from "antd";
+import {
+  AutoComplete,
+  Avatar,
+  Badge,
+  Button,
+  Col,
+  Input,
+  Modal,
+  Popover,
+  Spin,
+} from "antd";
 import React from "react";
 import {
   WrapperContentPopup,
@@ -8,28 +18,45 @@ import {
   WrapperTextHeaderSmall,
   WrapperBoxAccount,
   ContainerBoxAccount,
+  ContainerHeader,
+  BoxTippy,
+  WrapperTippy,
 } from "./style";
 import {
   UserOutlined,
   CaretDownOutlined,
   ShoppingCartOutlined,
+  HeartOutlined,
 } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import * as UserService from "../../services/UserService";
+import * as ProductService from "../../services/ProductService";
 import { resetUser } from "../../redux/Slice/userSlice";
 import Loading from "../LoadingComponent/LoadingComponent";
 import ButtonInputSearch from "../ButtonInputSearch/ButttonInputSearch";
-//import { searchProduct } from "../../redux/slides/productSlide";
+import { isJsonString } from "../../utils/convert";
+import jwt_decode from "jwt-decode";
+import { useHistoryListener } from "../../utils/useHistory";
+import TooltipComponent from "../TooltipComponent/TooltipComponent";
+import { searchProduct } from "../../redux/Slice/productSlide";
+
 const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
+
   const user = useSelector((state) => state.user);
-  console.log(user);
+  const order = useSelector((state) => state.order);
+  const [search, setSearch] = useState("");
   const [userAvatar, setUserAvatar] = useState();
   const [isOpenPopup, setIsOpenPopup] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResult, setSearchResult] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isTippy, setIsTippy] = useState(false);
 
   const handleNavigateLogin = () => {
     navigate("/sign-in");
@@ -39,7 +66,10 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
     setLoading(true);
     await UserService.Logout();
     dispatch(resetUser());
-
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("name");
+    localStorage.removeItem("avatar");
     setLoading(false);
     navigate("/");
   };
@@ -47,6 +77,10 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   useEffect(() => {
     setUserAvatar(user.avatar);
   }, [user.avatar]);
+
+  const handleOpenChange = (newOpen) => {
+    setIsOpenPopup(newOpen);
+  };
 
   const content = (
     <div>
@@ -85,97 +119,197 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
     setIsOpenPopup(false);
   };
 
-  const onSearch = (e) => {
-    // setSearch(e.target.value);
-    // dispatch(searchProduct(e.target.value));
+  const onSearch = (value) => {
+    //e.target.value
+    if (value) {
+      setSearchTerm(value);
+    } else {
+      setSearchResult([]);
+    }
   };
 
+  useEffect(() => {
+    let timer;
+    const fetchData = async () => {
+      setIsLoading(true);
+
+      if (searchTerm) {
+        const data = await ProductService.getAllProduct({
+          search: searchTerm,
+          limit: 10,
+          page: 0,
+        });
+        if (data?.data?.length > 0) {
+          setSearchResult(data);
+          setIsTippy(true);
+        }
+        setIsLoading(false);
+      }
+    };
+    if (searchTerm) {
+      timer = setTimeout(() => {
+        fetchData();
+      }, 1200);
+    }
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchTerm]);
+
+  console.log("searchResult", searchResult);
   return (
-    <div
-      style={{
-        width: "100%",
-        display: "flex",
-        background: "#9255FD",
-        justifyContent: "center",
-        padding: "4px 0",
-      }}>
-      <WrapperHeader
-        gutter={16}
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-        }}>
-        <Col span={6}>
-          <WrapperTextHeader to="/">SHOP</WrapperTextHeader>
-        </Col>
-        <Col span={12}>
-          {!isHiddenSearch && (
-            <ButtonInputSearch
-              size="large"
-              bordered={false}
-              placeholder="input search text"
-              textButton="Tìm kiếm"
-            />
-          )}
-        </Col>
-        <Col
-          span={6}
-          style={{ display: "flex", gap: "54px", alignItems: "center" }}>
-          <WrapperHeaderAccout>
-            {userAvatar ? (
-              <img
-                src={userAvatar}
-                alt="avatar"
-                style={{
-                  height: "40px",
-                  width: "40px",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                }}
-              />
-            ) : (
-              <UserOutlined style={{ fontSize: "30px" }} />
-            )}
-            {user?.access_token ? (
-              <Popover content={content} trigger="click" open={isOpenPopup}>
-                <div
-                  style={{
-                    cursor: "pointer",
-                    maxWidth: 100,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    height: "40px",
-                  }}
-                  onClick={() => setIsOpenPopup((prev) => !prev)}>
-                  <h3>{user?.name || user?.email || "Not Name"}</h3>
-                  <p>Cài đặt</p>
-                </div>
-              </Popover>
-            ) : (
-              <div onClick={handleNavigateLogin} style={{ cursor: "pointer" }}>
-                <WrapperTextHeaderSmall>
-                  Đăng nhập/Đăng ký
-                </WrapperTextHeaderSmall>
-                <div>
-                  <WrapperTextHeaderSmall>Tài khoản</WrapperTextHeaderSmall>
-                </div>
+    <Loading isLoading={loading}>
+      <ContainerHeader>
+        <WrapperHeader
+          gutter={16}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}>
+          <Col style={{ textAlign: "center" }}>
+            <WrapperTextHeader to="/">SHOP HƯỜNG MỸ</WrapperTextHeader>
+          </Col>
+          <Col span={12}>
+            {!isHiddenSearch && (
+              <div style={{ position: "relative" }}>
+                {/* <ButtonInputSearch
+                size="large"
+                bordered={false}
+                textButton="Tìm kiếm"
+                placeholder="Tìm kiếm sản phầm"
+                onChange={onSearch}
+              /> */}
+                {/* {isTippy && (
+                  <WrapperTippy>
+                      <h3>Tất cả : {searchResult?.total}</h3>
+                      {searchResult?.data?.map((item) => {
+                        return (
+                          <BoxTippy
+                            onClick={() =>
+                              navigate(`/product-details/${item?._id}`)
+                            }>
+                            <img
+                              src={item?.images[0]?.thumbUrl}
+                              alt="ảnh sản phẩm"
+                              style={{ width: "50px", height: "50px" }}
+                            />
+                            <span>{item?.name}</span>
+                          </BoxTippy>
+                        );
+                      })}
+                  </WrapperTippy>
+                )} */}
+                {
+                  <div style={{ position: "relative" }}>
+                    <AutoComplete
+                      style={{ width: 300 }}
+                      placeholder="Search"
+                      onSearch={onSearch}
+                    />
+                    {isLoading ? <Spin /> : null}
+                    {searchResult?.data?.length > 0 && (
+                      <WrapperTippy>
+                        {searchResult?.data?.map((result, index) => (
+                          <BoxTippy
+                            key={index}
+                            onClick={() => {
+                              navigate(`/product-details/${result?._id}`);
+                              setSearchResult([]);
+                            }}>
+                            <img
+                              src={result?.images[0]?.thumbUrl}
+                              alt="ảnh sản phẩm"
+                              style={{ width: "50px", height: "50px" }}
+                            />
+                            <span>{result?.name}</span>
+                          </BoxTippy>
+                        ))}
+                      </WrapperTippy>
+                    )}
+                  </div>
+                }
               </div>
             )}
-          </WrapperHeaderAccout>
-
-          {!isHiddenCart && (
-            <div style={{ cursor: "pointer" }}>
-              <Badge size="small">
-                <ShoppingCartOutlined
-                  style={{ fontSize: "30px", color: "#fff" }}
+          </Col>
+          <Col
+            span={6}
+            style={{ display: "flex", gap: "15px", alignItems: "center" }}>
+            <WrapperHeaderAccout>
+              {user?.access_token && userAvatar ? (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    alignItems: "center",
+                  }}>
+                  <Avatar
+                    src={userAvatar}
+                    style={{
+                      height: "40px",
+                      width: "40px",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <Popover
+                    content={content}
+                    onOpenChange={handleOpenChange}
+                    trigger="click"
+                    open={isOpenPopup}>
+                    <div
+                      style={{
+                        cursor: "pointer",
+                        maxWidth: 100,
+                        textOverflow: "ellipsis",
+                        height: "40px",
+                      }}>
+                      <h3>{user?.name || user?.email || "Not Name"}</h3>
+                      <p>Cài đặt</p>
+                    </div>
+                  </Popover>
+                </div>
+              ) : (
+                <TooltipComponent
+                  children={
+                    <Avatar
+                      icon={<UserOutlined />}
+                      className="styleIconHeader"
+                    />
+                  }
+                  title={"Đăng nhập/Đăng kí"}
+                  handlerClick={handleNavigateLogin}
                 />
-              </Badge>
-              <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
-            </div>
-          )}
-        </Col>
-      </WrapperHeader>
-    </div>
+              )}
+            </WrapperHeaderAccout>
+
+            <TooltipComponent
+              handlerClick={() => {
+                navigate("/products-favorite", { state: location?.pathname });
+              }}
+              title={"Sản phẩm yêu thích"}
+              children={
+                <Badge count={order?.orderItemsHeart?.length}>
+                  <HeartOutlined className="styleIconHeader" />
+                </Badge>
+              }
+            />
+
+            {!isHiddenCart && (
+              <TooltipComponent
+                title={"Giỏ hàng"}
+                children={
+                  <Badge count={order?.orderItems?.length}>
+                    <ShoppingCartOutlined
+                      onClick={() => navigate("/order")}
+                      className="styleIconHeader"
+                    />
+                  </Badge>
+                }
+              />
+            )}
+          </Col>
+        </WrapperHeader>
+      </ContainerHeader>
+    </Loading>
   );
 };
 export default HeaderComponent;

@@ -4,7 +4,7 @@ import FooterComponent from "../FooterComponent/FooterComponet";
 
 const DefaultComponent = ({ children }) => {
   return (
-    <div>
+    <div style={{ overflow: "hidden" }}>
       <HeaderComponent />
       {children}
       <FooterComponent />

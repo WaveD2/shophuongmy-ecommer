@@ -1,6 +1,7 @@
 @import '~slick-carousel/slick/slick.css';
 @import '~slick-carousel/slick/slick-theme.css';
-@import 'antd/dist/antd.css';
+@import 'antd/dist/reset.css';
+
 *,
 *:before,
 *:after {
@@ -23,6 +24,7 @@ select,
 textarea {
     background-color: transparent;
     outline: none;
+    resize: none;
 }
 button {
     cursor: pointer;
@@ -44,3 +46,45 @@ li {
 /* :root {
   --yellow-color: #ffa400;
 } */
+textarea {
+    min-height: 120px;
+}
+
+.ant-image {
+    width: 100%;
+}
+.ant-carousel .slick-dots {
+    margin-left: 0%;
+}
+
+.ant-tabs-nav-list > .ant-tabs-tab {
+    font-size: 17px;
+    &:active {
+        color: aliceblue;
+    }
+}
+
+.containerBoxPage {
+    background: rgb(245, 245, 250);
+    min-height: calc(100vh - 220px - 70px);
+    max-width: 1270px;
+    margin: 0 auto;
+    padding: 0 14px;
+}
+.styleIconHeader,
+.styleIconBox {
+    font-size: 28px;
+    color: #fff;
+    cursor: pointer;
+}
+.styleIconBox {
+    font-size: 18px;
+    color: #333;
+    z-index: 9999;
+}
+
+.styleIconHeartActive {
+    font-size: 18px;
+    color: #f13131;
+    z-index: 9999;
+}

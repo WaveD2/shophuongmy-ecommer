@@ -5,18 +5,24 @@ import MyOrderPage from "../pages/MyOrder/MyOrder";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import OrderPage from "../pages/OrderPage/OrderPage";
 import OrderSucess from "../pages/OrderSuccess/OrderSuccess";
-import PaymentPage from "../pages/PaymentPage/PaymentPage";
+import ProductFavoritePage from "../pages/ProductFavoritePage/ProductFavoritePage";
 import ProductDetailsPage from "../pages/ProductDetailsPage/ProductDetailsPage";
 import ProductsPage from "../pages/ProductsPage/ProductsPage";
 import ProfilePage from "../pages/ProfilePage/ProfilePage";
 import SignInPage from "../pages/SignInPage/SignInPage";
 import SignUpPage from "../pages/SignUpPage/SignUpPage";
 import TypeProductPage from "../pages/TypeProductPage/TypeProductPage";
+import AboutUsPage from "../pages/AboutUsPage/AboutUsPage";
 
 export const routes = [
   {
     path: "/",
     page: HomePage,
+    isShowHeader: true,
+  },
+  {
+    path: "/products-favorite",
+    page: ProductFavoritePage,
     isShowHeader: true,
   },
   {
@@ -30,13 +36,13 @@ export const routes = [
     isShowHeader: true,
   },
   {
-    path: "/details-order/:id",
-    page: DetailsOrderPage,
+    path: "/about-us",
+    page: AboutUsPage,
     isShowHeader: true,
   },
   {
-    path: "/payment",
-    page: PaymentPage,
+    path: "/details-order/:id",
+    page: DetailsOrderPage,
     isShowHeader: true,
   },
   {

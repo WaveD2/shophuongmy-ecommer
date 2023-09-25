@@ -1,76 +1,54 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
-import { Button, Form, Select, Space } from "antd";
+import { Button, Space } from "antd";
 import {
   PlusOutlined,
   DeleteOutlined,
   EditOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { Modal, Upload } from "antd";
-import { WrapperHeader, WrapperUploadFile } from "./style";
+import { WrapperHeader } from "./style";
 import InputComponent from "../../InputComponent/InputComponent";
 import { getBase64, renderOptions } from "../../../utils/getBase64";
 import * as ProductService from "../../../services/ProductService";
 import { useMutationHooks } from "../../../hooks/useMutationHook";
-import * as message from "../../../components/Message/Message";
+import Message from "../../../components/Message/Message";
 import DrawerComponent from "../../DrawerComponent/DrawerComponent";
 import ModalComponent from "../../ModalComponent/ModalComponent";
 import TableComponent from "../../TableComponent/TableComponent";
 import Loading from "../../LoadingComponent/LoadingComponent";
-import ImageModal from "../../ModalComponent/ImageModal/ImageModal";
 import { ProductSchema, fieldsCreateProduct } from "../../../utils/YubSchema";
 import FormFormik from "../../InputForm/FormFormik";
 import FormImage from "../../InputForm/FormImage";
+import { convertTypeProduct } from "../../../utils/convert";
 
 const AdminProduct = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [rowSelected, setRowSelected] = useState("");
-  const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
-  const user = useSelector((state) => state?.user);
-  const searchInput = useRef(null);
-  const inittial = () => ({
-    name: "",
-    price: "",
-    description: "",
-    rating: "",
-    image: "",
-    type: "",
-    countInStock: "",
-    newType: "",
-    discount: "",
-  });
-  const [stateProduct, setStateProduct] = useState(inittial());
-  const [stateProductDetails, setStateProductDetails] = useState(inittial());
+  const [isOpenDrawer, setIsOpenDrawer] = useState(false);
 
-  const [form] = Form.useForm();
+  const [fileImagesList, setFileImagesList] = useState([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [srcPreviewImage, setSrcPreviewImage] = useState("");
+  const [rowSelected, setRowSelected] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
+  const [sizesProduct, setSizesProduct] = useState([]);
+  const [nameSizesProduct, setNameSizesProduct] = useState("");
+
+  const user = useSelector((state) => state?.user);
+
+  const searchInput = useRef(null);
+
+  const [stateProductDetails, setStateProductDetails] = useState({});
 
   const mutation = useMutationHooks((data) => {
-    const {
-      name,
-      price,
-      description,
-      rating,
-      image,
-      type,
-      countInStock,
-      discount,
-    } = data;
-
-    console.log("data mutate", data);
-
+    const { token, type, ...values } = data;
+    const typeProduct = convertTypeProduct({ type });
     const res = ProductService.createProduct({
-      name,
-      price,
-      description,
-      rating,
-      image,
-      type,
-      countInStock,
-      discount,
+      token: token,
+      data: { type: typeProduct, ...values },
     });
     return res;
   });
@@ -82,13 +60,13 @@ const AdminProduct = () => {
 
   const mutationDeleted = useMutationHooks((data) => {
     const { id, token } = data;
-    const res = ProductService.deleteProduct(id, token);
+    const res = ProductService.deleteProduct({ id, token });
     return res;
   });
 
   const mutationDeletedMany = useMutationHooks((data) => {
-    const { token, ...ids } = data;
-    const res = ProductService.deleteManyProduct(ids, token);
+    const { token, ids } = data;
+    const res = ProductService.deleteManyProduct({ ids, token });
     return res;
   });
 
@@ -98,6 +76,11 @@ const AdminProduct = () => {
     });
     return res;
   };
+
+  const queryProduct = useQuery({
+    queryKey: ["products"],
+    queryFn: getAllProducts,
+  });
 
   const fetchGetDetailsProduct = async (rowSelected) => {
     const res = await ProductService.getDetailsProduct({
@@ -109,22 +92,15 @@ const AdminProduct = () => {
         name: res?.data?.name,
         price: res?.data?.price,
         description: res?.data?.description,
-        rating: res?.data?.rating,
-        image: res?.data?.image,
         type: res?.data?.type,
         countInStock: res?.data?.countInStock,
         discount: res?.data?.discount,
       });
+
+      setFileImagesList(res?.data?.images);
     }
     setIsLoadingUpdate(false);
   };
-  useEffect(() => {
-    if (!isModalOpen) {
-      form.setFieldsValue(stateProductDetails);
-    } else {
-      form.setFieldsValue(inittial());
-    }
-  }, [form, stateProductDetails, isModalOpen]);
 
   useEffect(() => {
     if (rowSelected && isOpenDrawer) {
@@ -137,7 +113,7 @@ const AdminProduct = () => {
     setIsOpenDrawer(true);
   };
 
-  const handleDelteManyProducts = (ids) => {
+  const handleDeleteManyProducts = (ids) => {
     mutationDeletedMany.mutate(
       { ids: ids, token: user?.access_token },
       {
@@ -148,14 +124,7 @@ const AdminProduct = () => {
     );
   };
 
-  const fetchAllTypeProduct = async () => {
-    const res = await ProductService.getAllTypeProduct({
-      token: user?.access_token,
-    });
-    return res;
-  };
-
-  const { data, isLoading, isSuccess, isError } = mutation;
+  const { data, error, isLoading, isSuccess, isError } = mutation;
   const {
     data: dataUpdated,
     isLoading: isLoadingUpdated,
@@ -171,19 +140,12 @@ const AdminProduct = () => {
   const {
     data: dataDeletedMany,
     isLoading: isLoadingDeletedMany,
-    isSuccess: isSuccessDelectedMany,
+    isSuccess: isSuccessDeletedMany,
     isError: isErrorDeletedMany,
   } = mutationDeletedMany;
 
-  const queryProduct = useQuery({
-    queryKey: ["products"],
-    queryFn: getAllProducts,
-  });
-  const typeProduct = useQuery({
-    queryKey: ["type-product"],
-    queryFn: fetchAllTypeProduct,
-  });
   const { isLoading: isLoadingProducts, data: products } = queryProduct;
+
   const renderAction = () => {
     return (
       <div>
@@ -288,13 +250,13 @@ const AdminProduct = () => {
 
   const columns = [
     {
-      title: "Name",
+      title: "Tên sản phẩm",
       dataIndex: "name",
       sorter: (a, b) => a.name.length - b.name.length,
       ...getColumnSearchProps("name"),
     },
     {
-      title: "Price",
+      title: "Gía tiền",
       dataIndex: "price",
       sorter: (a, b) => a.price - b.price,
       filters: [
@@ -314,33 +276,13 @@ const AdminProduct = () => {
         return record.price <= 50;
       },
     },
+
     {
-      title: "Rating",
-      dataIndex: "rating",
-      sorter: (a, b) => a.rating - b.rating,
-      filters: [
-        {
-          text: ">= 3",
-          value: ">=",
-        },
-        {
-          text: "<= 3",
-          value: "<=",
-        },
-      ],
-      onFilter: (value, record) => {
-        if (value === ">=") {
-          return Number(record.rating) >= 3;
-        }
-        return Number(record.rating) <= 3;
-      },
-    },
-    {
-      title: "Type",
+      title: "Loại",
       dataIndex: "type",
     },
     {
-      title: "Action",
+      title: "Thao tác",
       dataIndex: "action",
       render: renderAction,
     },
@@ -353,27 +295,31 @@ const AdminProduct = () => {
 
   useEffect(() => {
     if (isSuccess && data?.status === "OK") {
-      message.success();
-      handleCancel();
+      handleCancelCreateProduct();
+      Message({ typeMes: "success", mes: data.message });
     } else if (isError) {
-      message.error();
+      Message({
+        typeMes: "error",
+        mes: error?.response?.data?.message || "Có lỗi xảy ra",
+      });
     }
-  }, [isSuccess]);
+  }, [isSuccess, isError]);
 
   useEffect(() => {
-    if (isSuccessDelectedMany && dataDeletedMany?.status === "OK") {
-      message.success();
+    if (isSuccessDeletedMany && dataDeletedMany?.status === "OK") {
+      Message({ typeMes: "success" });
     } else if (isErrorDeletedMany) {
-      message.error();
+      Message({ typeMes: "error" });
     }
-  }, [isSuccessDelectedMany]);
+  }, [isSuccessDeletedMany]);
 
   useEffect(() => {
     if (isSuccessDelected && dataDeleted?.status === "OK") {
-      message.success();
+      Message({ typeMes: "success" });
+
       handleCancelDelete();
     } else if (isErrorDeleted) {
-      message.error();
+      Message({ typeMes: "error" });
     }
   }, [isSuccessDelected]);
 
@@ -388,15 +334,15 @@ const AdminProduct = () => {
       type: "",
       countInStock: "",
     });
-    form.resetFields();
   };
 
   useEffect(() => {
     if (isSuccessUpdated && dataUpdated?.status === "OK") {
-      message.success();
+      Message({ typeMes: "success" });
+
       handleCloseDrawer();
     } else if (isErrorUpdated) {
-      message.error();
+      Message({ typeMes: "error" });
     }
   }, [isSuccessUpdated]);
 
@@ -416,75 +362,40 @@ const AdminProduct = () => {
   };
 
   const handleCancel = () => {
+    setStateProductDetails({});
+    setFileImagesList([]);
+  };
+
+  const handleCancelCreateProduct = () => {
+    setFileImagesList([]);
     setIsModalOpen(false);
-    setStateProduct({
-      name: "",
-      price: "",
-      description: "",
-      rating: "",
-      image: "",
-      type: "",
-      countInStock: "",
-      discount: "",
-    });
-    form.resetFields();
   };
 
-  const onFinish = () => {
-    const params = {
-      name: stateProduct.name,
-      price: stateProduct.price,
-      description: stateProduct.description,
-      rating: stateProduct.rating,
-      image: stateProduct.image,
-      type:
-        stateProduct.type === "add_type"
-          ? stateProduct.newType
-          : stateProduct.type,
-      countInStock: stateProduct.countInStock,
-      discount: stateProduct.discount,
-    };
-    mutation.mutate(params);
+  const handleOnchangeImgFile = ({ fileList }) => {
+    setFileImagesList(fileList);
   };
-
-  const handleOnchange = (e) => {
-    setStateProduct({
-      ...stateProduct,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleOnchangeDetails = (e) => {
-    setStateProductDetails({
-      ...stateProductDetails,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleOnchangeAvatar = async ({ fileList }) => {
-    const file = fileList[0];
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
-    setStateProduct({
-      ...stateProduct,
-      image: file.preview,
-    });
-  };
-
-  const handleOnchangeAvatarDetails = async ({ fileList }) => {
-    const file = fileList[0];
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
-    setStateProductDetails({
-      ...stateProductDetails,
-      image: file.preview,
-    });
-  };
-  const onUpdateProduct = () => {
+  const onUpdateProduct = (values) => {
     mutationUpdate.mutate(
-      { id: rowSelected, token: user?.access_token, ...stateProductDetails },
+      {
+        id: rowSelected,
+        token: user?.access_token,
+        images: fileImagesList,
+        ...values,
+      },
+      {
+        onSettled: () => {
+          queryProduct.refetch();
+        },
+      }
+    );
+  };
+  const onCreateProduct = (values) => {
+    mutation.mutate(
+      {
+        token: user.access_token,
+        images: fileImagesList,
+        ...values,
+      },
       {
         onSettled: () => {
           queryProduct.refetch();
@@ -493,11 +404,26 @@ const AdminProduct = () => {
     );
   };
 
-  const handleChangeSelect = (value) => {
-    setStateProduct({
-      ...stateProduct,
-      type: value,
-    });
+  const handleAddSizeProduct = (e) => {
+    e.preventDefault();
+    setSizesProduct([...sizesProduct, nameSizesProduct]);
+    setNameSizesProduct("");
+  };
+  const handleOnChangeNameSizeProduct = (event) => {
+    setNameSizesProduct(event.target.value);
+  };
+
+  // Preview Images
+  const handleCancelPreview = () => setPreviewOpen(false);
+  const handlePreview = async (file) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj);
+    }
+    setSrcPreviewImage(file.url || file.preview);
+    setPreviewOpen(true);
+    setPreviewTitle(
+      file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
+    );
   };
 
   return (
@@ -511,307 +437,95 @@ const AdminProduct = () => {
             borderRadius: "6px",
             borderStyle: "dashed",
           }}
-          onClick={() => setIsModalOpen(true)}>
+          onClick={() => {
+            setIsModalOpen(true);
+          }}>
           <PlusOutlined style={{ fontSize: "60px" }} />
         </Button>
       </div>
       <div style={{ marginTop: "20px" }}>
         <TableComponent
-          handleDelteMany={handleDelteManyProducts}
+          handleDeleteMany={handleDeleteManyProducts}
           columns={columns}
           isLoading={isLoadingProducts}
           data={dataTable}
           onRow={(record, rowIndex) => {
             return {
               onClick: (event) => {
+                fetchGetDetailsProduct(record._id);
                 setRowSelected(record._id);
               },
             };
           }}
         />
       </div>
+
       <ModalComponent
         forceRender
         title="Tạo sản phẩm"
         open={isModalOpen}
-        onCancel={handleCancel}
+        onCancel={handleCancelCreateProduct}
         footer={null}>
         <Loading isLoading={isLoading}>
-          <Form
-            name="basic"
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 18 }}
-            onFinish={onFinish}
-            autoComplete="on"
-            form={form}>
-            <Form.Item
-              label="Name"
-              name="name"
-              rules={[{ required: true, message: "Please input your name!" }]}>
-              <InputComponent
-                value={stateProduct["name"]}
-                onChange={handleOnchange}
-                name="name"
-              />
-            </Form.Item>
+          {
+            <FormImage
+              maxCount={6}
+              fileList={fileImagesList}
+              onchangeAvatar={handleOnchangeImgFile}
+              listType="picture-card"
+              handlePreview={handlePreview}
+              handleCancelPreview={handleCancelPreview}
+              previewOpen={previewOpen}
+              previewTitle={previewTitle}
+              srcPreviewImage={srcPreviewImage}
+            />
+          }
 
-            <Form.Item
-              label="Type"
-              name="type"
-              rules={[{ required: true, message: "Please input your type!" }]}>
-              <Select
-                name="type"
-                // defaultValue="lucy"
-                // style={{ width: 120 }}
-                value={stateProduct.type}
-                onChange={handleChangeSelect}
-                options={renderOptions(typeProduct?.data?.data)}
-              />
-            </Form.Item>
-            {stateProduct.type === "add_type" && (
-              <Form.Item
-                label="New type"
-                name="newType"
-                rules={[
-                  { required: true, message: "Please input your type!" },
-                ]}>
-                <InputComponent
-                  value={stateProduct.newType}
-                  onChange={handleOnchange}
-                  name="newType"
-                />
-              </Form.Item>
-            )}
-            <Form.Item
-              label="Count inStock"
-              name="countInStock"
-              rules={[
-                { required: true, message: "Please input your count inStock!" },
-              ]}>
-              <InputComponent
-                value={stateProduct.countInStock}
-                onChange={handleOnchange}
-                name="countInStock"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Price"
-              name="price"
-              rules={[
-                { required: true, message: "Please input your count price!" },
-              ]}>
-              <InputComponent
-                value={stateProduct.price}
-                onChange={handleOnchange}
-                name="price"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Description"
-              name="description"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your count description!",
-                },
-              ]}>
-              <InputComponent
-                value={stateProduct.description}
-                onChange={handleOnchange}
-                name="description"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Rating"
-              name="rating"
-              rules={[
-                { required: true, message: "Please input your count rating!" },
-              ]}>
-              <InputComponent
-                value={stateProduct.rating}
-                onChange={handleOnchange}
-                name="rating"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Discount"
-              name="discount"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your discount of product!",
-                },
-              ]}>
-              <InputComponent
-                value={stateProduct.discount}
-                onChange={handleOnchange}
-                name="discount"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Image"
-              name="image"
-              rules={[
-                { required: true, message: "Please input your count image!" },
-              ]}>
-              <WrapperUploadFile onChange={handleOnchangeAvatar} maxCount={1}>
-                <Button>Select File</Button>
-                {stateProduct?.image && (
-                  <img
-                    src={stateProduct?.image}
-                    style={{
-                      height: "60px",
-                      width: "60px",
-                      borderRadius: "50%",
-                      objectFit: "cover",
-                      marginLeft: "10px",
-                    }}
-                    alt="avatar"
-                  />
-                )}
-              </WrapperUploadFile>
-            </Form.Item>
-            <Form.Item wrapperCol={{ offset: 20, span: 16 }}>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-            </Form.Item>
-          </Form>
+          <FormFormik
+            initialValues={fieldsCreateProduct.initialCreateProduct}
+            validationSchema={ProductSchema}
+            onSubmit={onCreateProduct}
+            fields={fieldsCreateProduct.fields}
+            textButton1={"Tạo sản phẩm"}
+          />
         </Loading>
       </ModalComponent>
+
       <DrawerComponent
         title="Chi tiết sản phẩm"
         isOpen={isOpenDrawer}
-        onClose={() => setIsOpenDrawer(false)}
+        onClose={() => {
+          handleCancel();
+          setIsOpenDrawer(false);
+        }}
         width="90%">
         <Loading isLoading={isLoadingUpdate || isLoadingUpdated}>
-          <Form
-            name="basic"
-            labelCol={{ span: 2 }}
-            wrapperCol={{ span: 22 }}
-            onFinish={onUpdateProduct}
-            autoComplete="on"
-            form={form}>
-            <Form.Item
-              label="Name"
-              name="name"
-              rules={[{ required: true, message: "Please input your name!" }]}>
-              <InputComponent
-                value={stateProductDetails["name"]}
-                onChange={handleOnchangeDetails}
-                name="name"
-              />
-            </Form.Item>
+          {
+            <FormImage
+              maxCount={6}
+              fileList={fileImagesList}
+              onchangeAvatar={handleOnchangeImgFile}
+              listType="picture-card"
+              handlePreview={handlePreview}
+              handleCancelPreview={handleCancelPreview}
+              previewOpen={previewOpen}
+              previewTitle={previewTitle}
+              srcPreviewImage={srcPreviewImage}
+            />
+          }
 
-            <Form.Item
-              label="Type"
-              name="type"
-              rules={[{ required: true, message: "Please input your type!" }]}>
-              <InputComponent
-                value={stateProductDetails["type"]}
-                onChange={handleOnchangeDetails}
-                name="type"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Count inStock"
-              name="countInStock"
-              rules={[
-                { required: true, message: "Please input your count inStock!" },
-              ]}>
-              <InputComponent
-                value={stateProductDetails.countInStock}
-                onChange={handleOnchangeDetails}
-                name="countInStock"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Price"
-              name="price"
-              rules={[
-                { required: true, message: "Please input your count price!" },
-              ]}>
-              <InputComponent
-                value={stateProductDetails.price}
-                onChange={handleOnchangeDetails}
-                name="price"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Description"
-              name="description"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your count description!",
-                },
-              ]}>
-              <InputComponent
-                value={stateProductDetails.description}
-                onChange={handleOnchangeDetails}
-                name="description"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Rating"
-              name="rating"
-              rules={[
-                { required: true, message: "Please input your count rating!" },
-              ]}>
-              <InputComponent
-                value={stateProductDetails.rating}
-                onChange={handleOnchangeDetails}
-                name="rating"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Discount"
-              name="discount"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your discount of product!",
-                },
-              ]}>
-              <InputComponent
-                value={stateProductDetails.discount}
-                onChange={handleOnchangeDetails}
-                name="discount"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Image"
-              name="image"
-              rules={[
-                { required: true, message: "Please input your count image!" },
-              ]}>
-              <WrapperUploadFile
-                onChange={handleOnchangeAvatarDetails}
-                maxCount={1}>
-                <Button>Select File</Button>
-                {stateProductDetails?.image && (
-                  <img
-                    src={stateProductDetails?.image}
-                    style={{
-                      height: "60px",
-                      width: "60px",
-                      borderRadius: "50%",
-                      objectFit: "cover",
-                      marginLeft: "10px",
-                    }}
-                    alt="avatar"
-                  />
-                )}
-              </WrapperUploadFile>
-            </Form.Item>
-            <Form.Item wrapperCol={{ offset: 20, span: 16 }}>
-              <Button type="primary" htmlType="submit">
-                Apply
-              </Button>
-            </Form.Item>
-          </Form>
+          {Object.keys(stateProductDetails).length !== 0 && (
+            <FormFormik
+              initialValues={stateProductDetails}
+              validationSchema={ProductSchema}
+              onSubmit={onUpdateProduct}
+              fields={fieldsCreateProduct.fields}
+              textButton1={"Thay đổi"}
+            />
+          )}
         </Loading>
       </DrawerComponent>
+
       <ModalComponent
         title="Xóa sản phẩm"
         open={isModalOpenDelete}

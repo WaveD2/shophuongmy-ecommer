@@ -1,11 +1,14 @@
 import * as Yup from "yup";
+import SelectForm from "../components/InputForm/SelectForm";
 
 export const SignUpSchema = Yup.object().shape({
   name: Yup.string()
     .min(5, "Tên quá ngắn!")
     .max(50, "Tên quá dài!")
     .required("Vui lòng nhập tên"),
-  phone: Yup.number().required("Vui lòng nhập số điện thoại"),
+  phone: Yup.number("Vui lòng nhập đúng số").required(
+    "Vui lòng nhập số điện thoại"
+  ),
   password: Yup.string()
     .min(5, "Mật khẩu quá ngắn!")
     .max(50, "Mật khẩu quá dài!")
@@ -87,11 +90,20 @@ export const InfoUserSchema = Yup.object().shape({
     .max(50, "Tên quá dài!")
     .required("Vui lòng nhập tên"),
   city: Yup.string().min(3, "Tên quá ngắn!").max(50, "Tên quá dài!"),
-  address: Yup.string(),
-  phone: Yup.number().required("Vui lòng nhập số điện thoại"),
+  address: Yup.string().min(3, "Tên quá ngắn!").max(50, "Tên quá dài!"),
+  phone: Yup.number("Vui lòng nhập đúng số").required(
+    "Vui lòng nhập số điện thoại"
+  ),
   email: Yup.string().email("Nhập lại email").required("Vui lòng nhập email"),
 });
 export const fieldsInfoUser = {
+  initialValuesInfoUser: {
+    name: "",
+    city: "",
+    address: "",
+    phone: "",
+    email: "",
+  },
   fields: [
     {
       label: "Họ và tên",
@@ -124,20 +136,28 @@ export const fieldsInfoUser = {
 export const ProductSchema = Yup.object().shape({
   name: Yup.string().required("Vui lòng nhập tên sản phẩm"),
   type: Yup.string().required("Vui lòng nhập loại sản phẩm"),
-  countInStock: Yup.number().required("Vui lòng nhập số lượn sản phẩm ở kho"),
+  countInStock: Yup.number("Vui lòng nhập đúng số").required(
+    "Vui lòng nhập số lượng sản phẩm ở kho"
+  ),
   price: Yup.string().required("Vui lòng nhập giá tiền sản phẩm"),
-  description: Yup.string().required("Vui lòng nhập mô tả sản phẩm"),
-  discount: Yup.number(),
+  description: Yup.string(),
+  discount: Yup.number("Vui lòng nhập đúng số"),
 });
 
 export const fieldsCreateProduct = {
   initialCreateProduct: {
     name: "",
-    type: "",
-    countInStock: "",
     price: "",
     description: "",
+    countInStock: "",
     discount: "",
+    type: "",
+    isStatus: [
+      { value: 1, label: "Còn hàng" },
+      { value: 0, label: "Hết hàng" },
+    ],
+    size: [],
+    colors: [],
   },
   fields: [
     {
@@ -146,7 +166,7 @@ export const fieldsCreateProduct = {
       type: "text",
     },
     {
-      label: "Loại sản phẩm",
+      label: "Loại",
       name: "type",
       type: "text",
     },
@@ -161,14 +181,78 @@ export const fieldsCreateProduct = {
       type: "text",
     },
     {
-      label: "Mô tả sản phẩm",
-      name: "description",
-      type: "text",
-    },
-    {
       label: "Giam giá",
       name: "discount",
       type: "text",
+    },
+    {
+      label: "Mô tả sản phẩm",
+      name: "description",
+      as: "textarea",
+    },
+    {
+      label: "Trạng thái sản phẩm",
+      name: "isStatus",
+      component: SelectForm,
+      placeholderSelect: "Chọn trạng thái sản phẩm",
+      textButtonSelect: "Thêm size",
+    },
+    {
+      label: "Size",
+      name: "size",
+      component: SelectForm,
+      placeholderSelect: "Chọn size sản phẩm",
+      textButtonSelect: "Thêm size",
+    },
+    {
+      label: "Màu sắc",
+      name: "colors",
+      component: SelectForm,
+      placeholderSelect: "Chọn màu sản phẩm",
+      textButtonSelect: "Thêm màu sắc",
+    },
+  ],
+};
+
+export const CreateDressOrderSchema = Yup.object().shape({
+  name: Yup.string()
+    .min(5, "Tên quá ngắn!")
+    .max(50, "Tên quá dài!")
+    .required("Vui lòng nhập tên"),
+  phone: Yup.number("Vui lòng nhập đúng số").required(
+    "Vui lòng nhập số điện thoại"
+  ),
+  dress: Yup.string().required("Vui lòng nhập địa chỉ"),
+  noteToAdmin: Yup.string(),
+});
+export const fieldsDressOrderSchema = {
+  initialCreateDressOrder: {
+    name: "",
+    phone: "",
+    address: "",
+    noteToAdmin: "",
+  },
+  fields: [
+    {
+      label: "Họ và tên",
+      name: "name",
+      type: "text",
+    },
+    {
+      label: "Số điện thoại",
+      name: "phone",
+      type: "text",
+    },
+    {
+      label: "Địa chỉ nhận hàng",
+      name: "address",
+      type: "text",
+    },
+    {
+      label: "Ghi chú cho Shop (nếu có)",
+      name: "noteToAdmin",
+      type: "text",
+      as: "textarea",
     },
   ],
 };

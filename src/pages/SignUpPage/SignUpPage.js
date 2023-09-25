@@ -1,24 +1,21 @@
 import React from "react";
-import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
-import InputForm from "../../components/InputForm/InputForm";
 import {
+  WrapperBox,
+  WrapperContainer,
   WrapperContainerLeft,
   WrapperContainerRight,
   WrapperTextLight,
 } from "./style";
-import imageLogo from "../../assets/images/logo-login.png";
-import { Image } from "antd";
-import { Formik, Form, Field } from "formik";
+import { Image, Watermark } from "antd";
 import { useState, useEffect } from "react";
-import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import * as UserService from "../../services/UserService";
 import { useMutationHooks } from "../../hooks/useMutationHook";
-import * as message from "../../components/Message/Message";
+import Message from "../../components/Message/Message";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
-import FormField from "../../components/InputForm/FormField";
 import { SignUpSchema, fieldsSignUp } from "../../utils/YubSchema";
 import FormFormik from "../../components/InputForm/FormFormik";
+
 const SignUpPage = () => {
   const navigate = useNavigate();
 
@@ -26,14 +23,17 @@ const SignUpPage = () => {
 
   const mutation = useMutationHooks((data) => UserService.Register(data));
 
-  const { data, isLoading, isSuccess, isError } = mutation;
+  const { data, isLoading, isSuccess, isError, error } = mutation;
 
   useEffect(() => {
     if (isSuccess) {
-      message.success();
+      Message({ typeMes: "success", mes: "Tạo tài khoản thành công" });
       handleNavigateSignIn();
     } else if (isError) {
-      message.error();
+      Message({
+        typeMes: "error",
+        mes: error?.response?.data?.message,
+      });
     }
   }, [isSuccess, isError]);
 
@@ -44,52 +44,35 @@ const SignUpPage = () => {
     mutation.mutate(values);
   };
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(0, 0, 0, 0.53)",
-        height: "100vh",
-        overflow: "hidden",
-      }}>
-      <div
-        style={{
-          maxWidth: "800px",
-          borderRadius: "6px",
-          background: "#fff",
-          display: "flex",
-        }}>
-        <WrapperContainerLeft>
-          <h1>Xin chào</h1>
-          <p>Đăng ký tài khoản</p>
+    <Watermark content={["Shop", "Hường Mỹ"]}>
+      <WrapperContainer>
+        <WrapperBox>
+          <WrapperContainerLeft>
+            <h1>Xin chào</h1>
+            <p>Đăng ký tài khoản</p>
 
-          <FormFormik
-            initialValues={fieldsSignUp.initialValuesSignUp}
-            validationSchema={SignUpSchema}
-            onSubmit={onSubmit}
-            fields={fieldsSignUp.fields}
-            textButton1={"Đăng ký"}
-          />
-          <p>
-            Bạn đã có tài khoản?{" "}
-            <WrapperTextLight onClick={handleNavigateSignIn}>
-              Đăng nhập
-            </WrapperTextLight>
-          </p>
-        </WrapperContainerLeft>
-        <WrapperContainerRight>
-          <Image
-            src={imageLogo}
-            preview={false}
-            alt="iamge-logo"
-            height="203px"
-            width="203px"
-          />
-          <h4>Mua sắm tại LTTD</h4>
-        </WrapperContainerRight>
-      </div>
-    </div>
+            <FormFormik
+              initialValues={fieldsSignUp.initialValuesSignUp}
+              validationSchema={SignUpSchema}
+              onSubmit={onSubmit}
+              fields={fieldsSignUp.fields}
+              textButton1={"Đăng ký"}
+            />
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <p>
+                Bạn đã có tài khoản?{" "}
+                <WrapperTextLight onClick={handleNavigateSignIn}>
+                  Đăng nhập
+                </WrapperTextLight>
+              </p>
+              <WrapperTextLight onClick={() => navigate("/")}>
+                Quay lại trang chủ
+              </WrapperTextLight>
+            </div>
+          </WrapperContainerLeft>
+        </WrapperBox>
+      </WrapperContainer>
+    </Watermark>
   );
 };
 

@@ -1,11 +1,11 @@
 import axios from "axios";
 import { axiosJWT } from "./UserService";
 
-export const getAllProduct = async ({ search, limit, token }) => {
+export const getAllProduct = async ({ search, limit, token, page }) => {
   let res = {};
   if (search && search?.length > 0) {
     res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/product/get-all?filter=name&filter=${search}&limit=${limit}`,
+      `${process.env.REACT_APP_BASE_URL}/product/get-all?filter=name&filter=${search}&limit=${limit}&page=${page}`,
       {
         headers: {
           token: `Bearer ${token}`,
@@ -34,7 +34,7 @@ export const getAllProduct = async ({ search, limit, token }) => {
 export const getProductType = async ({ type, page, limit, token }) => {
   if (type) {
     const res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/product/get-all?filter=type&filter=${type}&limit=${limit}&page=${page}`,
+      `${process.env.REACT_APP_BASE_URL}/product/get-all?filter=${type}&limit=${limit}&page=${page}`,
       {
         headers: {
           token: `Bearer ${token}`,
@@ -45,22 +45,23 @@ export const getProductType = async ({ type, page, limit, token }) => {
   }
 };
 
-export const createProduct = async (data) => {
+export const createProduct = async ({ token, data }) => {
   const res = await axios.post(
     `${process.env.REACT_APP_BASE_URL}/product/create`,
-    data
-  );
-  return res.data;
-};
-
-export const getDetailsProduct = async ({ id, token }) => {
-  const res = await axios.get(
-    `${process.env.REACT_APP_BASE_URL}/product/get-details/${id}`,
+    data,
     {
       headers: {
         token: `Bearer ${token}`,
       },
     }
+  );
+  return res.data;
+};
+
+export const getDetailsProduct = async ({ id }) => {
+  console.log("id", id);
+  const res = await axios.get(
+    `${process.env.REACT_APP_BASE_URL}/product/get-details/${id}`
   );
   return res.data;
 };
@@ -90,10 +91,10 @@ export const deleteProduct = async ({ id, token }) => {
   return res.data;
 };
 
-export const deleteManyProduct = async ({ data, token }) => {
+export const deleteManyProduct = async ({ ids, token }) => {
   const res = await axiosJWT.post(
     `${process.env.REACT_APP_BASE_URL}/product/delete-many`,
-    data,
+    { ids: ids },
     {
       headers: {
         token: `Bearer ${token}`,
@@ -103,14 +104,16 @@ export const deleteManyProduct = async ({ data, token }) => {
   return res.data;
 };
 
-export const getAllTypeProduct = async ({ token }) => {
+export const getAllTypeProduct = async () => {
   const res = await axios.get(
-    `${process.env.REACT_APP_BASE_URL}/product/get-all-type`,
-    {
-      headers: {
-        token: `Bearer ${token}`,
-      },
-    }
+    `${process.env.REACT_APP_BASE_URL}/product/get-all-type`
+  );
+  return res.data;
+};
+
+export const getListProductType = async ({ type }) => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_BASE_URL}/product/type/${type}`
   );
   return res.data;
 };

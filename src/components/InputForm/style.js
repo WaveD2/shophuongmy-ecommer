@@ -1,6 +1,6 @@
-import { Input, Upload } from "antd";
+import { Input, Upload, Select, Form } from "antd";
 import styled from "styled-components";
-import { Formik, Form, Field } from "formik";
+import { Formik, Field } from "formik";
 
 export const ContainerInput = styled.div`
   display: flex;
@@ -26,7 +26,7 @@ export const LabelInput = styled.label`
   display: inline-block;
   margin: 10px 0;
   width: 280px;
-  white-space: nowrap;
+  /* white-space: nowrap; */
 `;
 export const MessError = styled.div`
   margin: 4px 0;
@@ -36,14 +36,8 @@ export const MessError = styled.div`
 
 export const WrapperUploadFile = styled(Upload)`
   & .ant-upload.ant-upload-select.ant-upload-select-picture-card {
-    width: 60px;
-    height: 60px;
     border-radius: 50%;
   }
-  & .ant-upload-list-item-info {
-    display: none;
-  }
-  & .ant-upload-list-item {
-    display: none;
-  }
 `;
+export const WrapperSelectStyle = styled(Form)``;
+// export const WrapperSelectStyle = styled(Select)``;

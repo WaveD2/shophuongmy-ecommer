@@ -1,14 +1,13 @@
 import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ProductDetailsComponent from "../../components/ProductDetailsComponent/ProductDetailsComponent";
 
 const ProductDetailsPage = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
   return (
-    <div style={{ width: "100%", background: "#efefef", height: "100%" }}>
-      <div style={{ width: "1270px", height: "100%", margin: "0 auto" }}>
-        <h5>
+    <div style={{ width: "100%", background: "#efefef", minHeight: "70vh" }}>
+      <div style={{ maxWidth: "1270px", margin: "0 auto" }}>
+        <h5 style={{ padding: "10px 0" }}>
           <span
             style={{ cursor: "pointer", fontWeight: "bold" }}
             onClick={() => {
@@ -18,7 +17,8 @@ const ProductDetailsPage = () => {
           </span>{" "}
           - Chi tiết sản phẩm
         </h5>
-        <ProductDetailsComponent idProduct={id} />
+        {/* <BreadcrumbComponent /> */}
+        <ProductDetailsComponent />
       </div>
     </div>
   );

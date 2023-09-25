@@ -8,207 +8,127 @@ import {
   WrapperButtonMore,
   WrapperProducts,
   WrapperTypeProduct,
+  ContainerProducts,
+  ContainerHome,
 } from "./style";
 import TypeProduct from "../../components/TypeProduct/TypeProduct";
 import SliderComponent from "../../components/SliderComponent/SliderComponent";
 import CardComponent from "../../components/CardComponent/CardComponent";
 import NavbarComponent from "../../components/NavbarComponent/NavbarComponent";
-import { Rate } from "antd";
 import { MenuHeader } from "../../utils/Constant";
+import * as ProductService from "../../services/ProductService";
+import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
+import Loading from "../../components/LoadingComponent/LoadingComponent";
+import { ContainerOrder } from "../OrderPage/style";
 
 const HomePage = () => {
   const [limit, setLimit] = useState(6);
-  const typeProducts = ["Trang chủ"];
-  const products = [
-    {
-      _id: 1,
-      countInStock: "312",
-      description:
-        "Thời buổi quá tải thông tin và người tiêu dùng ngày càng có xu hướng né tránh quảng cáo đây là lúc chúng ta cần phát huy vai trò của content marketing",
-      image:
-        "https://i.pinimg.com/236x/ca/f3/64/caf36488e33ddc28aeb8c2b42c8901f9.jpg",
-      name: "Hoa",
-      price: "312",
-      rating: "4",
-      selled: "123",
-      discount: "12",
-      type: "",
-    },
-    {
-      _id: 2,
-      countInStock: "1234",
-      description:
-        "Các Marketer đã và đang đau đầu về việc làm thế nào để quảng cáo trở nên hiệu quả, tăng tương tác, tăng tỉ lệ chuyển đổi và tạo ra đơn hàng đều đặn cho công ty",
-      image:
-        "https://i.pinimg.com/236x/ca/f3/64/caf36488e33ddc28aeb8c2b42c8901f9.jpg",
-      name: "Huy",
-      price: "4535",
-      rating: "431",
-      selled: "312",
-      discount: "51",
-      type: "",
-    },
-    {
-      _id: 3,
-      countInStock: "12",
-      description:
-        "Thời buổi quá tải thông tin và người tiêu dùng ngày càng có xu hướng né tránh quảng cáo đây là lúc chúng ta cần phát huy vai trò của content marketing",
-      image:
-        "https://i.pinimg.com/236x/ca/f3/64/caf36488e33ddc28aeb8c2b42c8901f9.jpg",
-      name: "Long",
-      price: "312",
-      rating: "4",
-      selled: "123",
-      discount: "12",
-      type: "",
-    },
-    {
-      _id: 4,
-      countInStock: "312",
-      description:
-        "Thời buổi quá tải thông tin và người tiêu dùng ngày càng có xu hướng né tránh quảng cáo đây là lúc chúng ta cần phát huy vai trò của content marketing",
-      image:
-        "https://i.pinimg.com/236x/ca/f3/64/caf36488e33ddc28aeb8c2b42c8901f9.jpg",
-      name: "Trang",
-      price: "1232",
-      rating: "4",
-      selled: "123",
-      type: "",
-      discount: "12",
-    },
-    {
-      _id: 1,
-      countInStock: "312",
-      description:
-        "Thời buổi quá tải thông tin và người tiêu dùng ngày càng có xu hướng né tránh quảng cáo đây là lúc chúng ta cần phát huy vai trò của content marketing",
-      image:
-        "https://i.pinimg.com/236x/ca/f3/64/caf36488e33ddc28aeb8c2b42c8901f9.jpg",
-      name: "Hoa",
-      price: "312",
-      rating: "4",
-      selled: "123",
-      discount: "12",
-      type: "",
-    },
-    {
-      _id: 2,
-      countInStock: "1234",
-      description:
-        "Các Marketer đã và đang đau đầu về việc làm thế nào để quảng cáo trở nên hiệu quả, tăng tương tác, tăng tỉ lệ chuyển đổi và tạo ra đơn hàng đều đặn cho công ty",
-      image:
-        "https://i.pinimg.com/236x/ca/f3/64/caf36488e33ddc28aeb8c2b42c8901f9.jpg",
-      name: "Huy",
-      price: "4535",
-      rating: "431",
-      selled: "312",
-      discount: "51",
-      type: "",
-    },
-    {
-      _id: 3,
-      countInStock: "12",
-      description:
-        "Thời buổi quá tải thông tin và người tiêu dùng ngày càng có xu hướng né tránh quảng cáo đây là lúc chúng ta cần phát huy vai trò của content marketing",
-      image:
-        "https://i.pinimg.com/236x/ca/f3/64/caf36488e33ddc28aeb8c2b42c8901f9.jpg",
-      name: "Long",
-      price: "312",
-      rating: "4",
-      selled: "123",
-      discount: "12",
-      type: "",
-    },
-    {
-      _id: 4,
-      countInStock: "312",
-      description:
-        "Thời buổi quá tải thông tin và người tiêu dùng ngày càng có xu hướng né tránh quảng cáo đây là lúc chúng ta cần phát huy vai trò của content marketing",
-      image:
-        "https://i.pinimg.com/236x/ca/f3/64/caf36488e33ddc28aeb8c2b42c8901f9.jpg",
-      name: "Trang",
-      price: "1232",
-      rating: "4",
-      selled: "123",
-      type: "",
-      discount: "12",
-    },
-  ];
+  const [isLoading, setIsLoading] = useState(false);
+  const [listProduct, setListProduct] = useState([]);
+
+  const fetchAllTypeProduct = async () => {
+    setIsLoading(true);
+    const res = await ProductService.getListProductType({
+      type: "san-pham-noi-bat",
+    });
+    if (res.status === "OK") setListProduct(res.data);
+    else throw new Error("Lỗi server");
+  };
+
+  useEffect(() => {
+    fetchAllTypeProduct();
+    setIsLoading(false);
+  }, []);
 
   return (
-    <div style={{ width: "1270px", margin: "0 auto" }}>
+    <ContainerHome>
       <WrapperTypeProduct>
         {MenuHeader.map((item, index) => {
           return <TypeProduct item={item} key={index} />;
         })}
       </WrapperTypeProduct>
 
-      <div className="body" style={{ width: "100%", backgroundColor: "#ccc" }}>
-        <div
-          id="container"
-          style={{ height: "1000px", width: "1270px", margin: "0 auto" }}>
-          <SliderComponent arrImages={[slider1, slider2, slider3]} />
+      <Loading isLoading={isLoading}>
+        <ContainerOrder>
+          <ContainerHome>
+            <SliderComponent arrImages={[slider1, slider2, slider3]} />
 
-          <WrapperProducts>
-            {products?.map((product, index) => {
-              return (
-                <CardComponent
-                  key={index}
-                  countInStock={product.countInStock}
-                  description={product.description}
-                  image={product.image}
-                  name={product.name}
-                  price={product.price}
-                  rating={product.rating}
-                  type={product.type}
-                  selled={product.selled}
-                  discount={product.discount}
-                  id={product._id}
-                />
-              );
-            })}
-          </WrapperProducts>
+            {listProduct.length > 0 && (
+              <ContainerProducts>
+                <h3>Sản phẩm nổi bật</h3>
+                <WrapperProducts>
+                  {listProduct?.map((product, index) => {
+                    return (
+                      <CardComponent
+                        key={index}
+                        countInStock={product?.countInStock}
+                        description={product?.description}
+                        images={product?.images}
+                        name={product?.name}
+                        price={product?.price}
+                        type={product?.type}
+                        discount={product?.discount}
+                        size={product?.size}
+                        colors={product?.colors}
+                        id={product?._id}
+                        isIconDelete={false}
+                      />
+                    );
+                  })}
+                </WrapperProducts>
+              </ContainerProducts>
+            )}
 
-          <NavbarComponent />
+            {/* <NavbarComponent /> */}
 
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-              marginTop: "10px",
-            }}>
-            <WrapperButtonMore
-              textbutton={"Load more"}
-              type="outline"
-              styleButton={{
-                border: `1px solid ${
-                  products?.total === products?.data?.length
-                    ? "#f5f5f5"
-                    : "#9255FD"
-                }`,
-                color: `${
-                  products?.total === products?.data?.length
-                    ? "#f5f5f5"
-                    : "#9255FD"
-                }`,
-                width: "240px",
-                height: "38px",
-                borderRadius: "4px",
-              }}
-              disabled={
-                products?.total === products?.data?.length ||
-                products?.totalPage === 1
-              }
-              styleTextButton={{
-                fontWeight: 500,
-                color: products?.total === products?.data?.length && "#fff",
-              }}
-              onClick={() => setLimit((prev) => prev + 6)}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+              }}>
+              <ButtonComponent
+                textButton={"Xem thêm"}
+                styleButton={{
+                  padding: "10px 28px",
+                  background: "#d85dff57",
+                  borderRadius: "5px",
+                  margin: "12px 0",
+                }}
+              />
+              {/* <WrapperButtonMore
+                text={"Load more"}
+                type="outline"
+                styleButton={{
+                  border: `1px solid ${
+                    products?.total === products?.data?.length
+                      ? "#f5f5f5"
+                      : "#9255FD"
+                  }`,
+                  color: `${
+                    products?.total === products?.data?.length
+                      ? "#f5f5f5"
+                      : "#9255FD"
+                  }`,
+                  width: "240px",
+                  height: "38px",
+                  borderRadius: "4px",
+                }}
+                disabled={
+                  products?.total === products?.data?.length ||
+                  products?.totalPage === 1
+                }
+                styleTextButton={{
+                  fontWeight: 500,
+                  color: products?.total === products?.data?.length && "#fff",
+                }}
+                onClick={() => setLimit((prev) => prev + 6)}
+              /> */}
+            </div>
+          </ContainerHome>
+        </ContainerOrder>
+      </Loading>
+    </ContainerHome>
   );
 };
 

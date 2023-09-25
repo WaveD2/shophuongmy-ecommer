@@ -1,5 +1,21 @@
 import styled from "styled-components";
 
+export const WrapperContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #69696987;
+  height: 100vh;
+`;
+
+export const WrapperBox = styled.div`
+  max-width: 800px;
+  border-radius: 6px;
+  background: #fff;
+  display: flex;
+  z-index: 9999;
+`;
+
 export const WrapperContainerLeft = styled.div`
   flex: 1;
   padding: 40px 45px 24px;
@@ -7,19 +23,6 @@ export const WrapperContainerLeft = styled.div`
   flex-direction: column;
 `;
 
-export const WrapperContainerRight = styled.div`
-  width: 300px;
-  background: linear-gradient(
-    136deg,
-    rgb(240, 248, 255) -1%,
-    rgb(219, 238, 255) 85%
-  );
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-`;
 export const WrapperTextLight = styled.span`
   color: rgb(13, 92, 182);
   font-size: 13px;
