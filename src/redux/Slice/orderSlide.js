@@ -6,7 +6,6 @@ const initialState = {
   orderItemsHeart: [],
   shippingAddress: {},
   paymentMethod: "",
-  itemsPrice: 0,
   shippingPrice: 0,
   taxPrice: 0,
   totalPrice: 0,
@@ -69,7 +68,7 @@ export const orderSlide = createSlice({
       if (itemOrder) {
         if (itemOrder.amount <= itemOrder.countInstock) {
           itemOrder.amount += orderItem?.amount;
-          if (orderItem.amount > 1) {
+          if (orderItem.amount >= 1) {
             state.totalPrice += itemOrder.price * orderItem.amount;
           } else {
             state.totalPrice += itemOrder.price;
@@ -83,7 +82,7 @@ export const orderSlide = createSlice({
           mes: `${orderItem?.name?.toUpperCase()} đã được thêm vào giỏ hàng`,
         });
         state.orderItems?.push(orderItem);
-        if (orderItem.amount > 1) {
+        if (orderItem.amount >= 1) {
           state.totalPrice += orderItem.price * orderItem.amount;
         } else {
           state.totalPrice += orderItem.price;
@@ -92,6 +91,7 @@ export const orderSlide = createSlice({
     },
     resetOrder: (state) => {
       state.isSuccessOrder = false;
+      state.orderItems = [];
     },
     increaseAmount: (state, action) => {
       const { idProduct } = action.payload;
@@ -128,6 +128,7 @@ export const orderSlide = createSlice({
     },
     removeAllOrderProduct: (state, action) => {
       const { listChecked } = action.payload;
+
       const itemOrders = state?.orderItems?.filter(
         (item) => !listChecked.includes(item.id)
       );

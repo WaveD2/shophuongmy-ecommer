@@ -1,13 +1,13 @@
 import AdminPage from "../pages/AdminPage/AdminPage";
 import DetailsOrderPage from "../pages/DetailsOrderPage/DetailsOrderPage";
 import HomePage from "../pages/HomePage/HomePage";
-import MyOrderPage from "../pages/MyOrder/MyOrder";
+import MyOrderPage from "../pages/MyOrderPage/MyOrderPage";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import OrderPage from "../pages/OrderPage/OrderPage";
 import OrderSucess from "../pages/OrderSuccess/OrderSuccess";
 import ProductFavoritePage from "../pages/ProductFavoritePage/ProductFavoritePage";
 import ProductDetailsPage from "../pages/ProductDetailsPage/ProductDetailsPage";
-import ProductsPage from "../pages/ProductsPage/ProductsPage";
+import SearchProductsPage from "../pages/SearchProductsPage/SearchProductsPage";
 import ProfilePage from "../pages/ProfilePage/ProfilePage";
 import SignInPage from "../pages/SignInPage/SignInPage";
 import SignUpPage from "../pages/SignUpPage/SignUpPage";
@@ -51,8 +51,8 @@ export const routes = [
     isShowHeader: true,
   },
   {
-    path: "/products",
-    page: ProductsPage,
+    path: "/search/product",
+    page: SearchProductsPage,
     isShowHeader: true,
   },
   {

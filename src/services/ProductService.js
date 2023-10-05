@@ -59,11 +59,12 @@ export const createProduct = async ({ token, data }) => {
 };
 
 export const getDetailsProduct = async ({ id }) => {
-  console.log("id", id);
-  const res = await axios.get(
-    `${process.env.REACT_APP_BASE_URL}/product/get-details/${id}`
-  );
-  return res.data;
+  if (id) {
+    const res = await axios.get(
+      `${process.env.REACT_APP_BASE_URL}/product/get-details/${id}`
+    );
+    return res.data;
+  }
 };
 
 export const updateProduct = async ({ id, token, data }) => {

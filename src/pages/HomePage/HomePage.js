@@ -23,7 +23,7 @@ import { ContainerOrder } from "../OrderPage/style";
 
 const HomePage = () => {
   const [limit, setLimit] = useState(6);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [listProduct, setListProduct] = useState([]);
 
   const fetchAllTypeProduct = async () => {
@@ -32,12 +32,12 @@ const HomePage = () => {
       type: "san-pham-noi-bat",
     });
     if (res.status === "OK") setListProduct(res.data);
-    else throw new Error("Lỗi server");
+    else setIsLoading(true);
+    setIsLoading(false);
   };
 
   useEffect(() => {
     fetchAllTypeProduct();
-    setIsLoading(false);
   }, []);
 
   return (

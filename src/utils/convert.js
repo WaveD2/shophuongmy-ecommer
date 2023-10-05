@@ -58,3 +58,20 @@ export const convertTypeProduct = ({ type }) => {
 
   return newTypeProduct;
 };
+
+export const convertDate = (date) => {
+  const currentTime = new Date(date);
+
+  const ngayThang = currentTime.getDate();
+  const thang = currentTime.getMonth() + 1;
+  const nam = currentTime.getFullYear();
+
+  const gio = currentTime.getHours();
+  const phut = currentTime.getMinutes();
+  const giay = currentTime.getSeconds();
+
+  const chuoiNgayThang = `ngày ${ngayThang} tháng ${thang} năm ${nam}`;
+  const chuoiThoiGian = `${gio}:${phut}:${giay}`;
+
+  return ` ${chuoiThoiGian} ${chuoiNgayThang}`;
+};

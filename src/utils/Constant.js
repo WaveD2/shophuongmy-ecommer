@@ -70,31 +70,29 @@ export const itemsDelivery = [
     description: "Trên 500.000 VND",
   },
 ];
-export const listTextPaymentZalo = [
-  "Mẹ vào Zalo chọn phần Khám phá",
-  "Mẹ chọn ZaloPay",
-  "Mẹ quét mã QR của shop và thực hiện thanh toán đơn hàng",
-  "Mẹ chụp lại màn hình thanh toán và liên hệ với shop Hường Mỹ để xác nhận",
-];
-export const listTextPaymentBank = [
-  "Mẹ vào ngân hàng",
-  " Mẹ quét mã QR của shop và thực hiện thanh toán đơn hàng",
-  "Hoặc mẹ chuyển khoản qua tài khoản ",
-  "STK : 003538420",
-  "Ngân hàng : VIB",
-  "Tên người nhận : Nguyễn Đăng Tùng",
-  "Mẹ chụp lại màn hình thanh toán và liên hệ với shop Hường Mỹ để xác nhận",
+
+export const orderConstant = [
+  {
+    value: "fast",
+    title: "Giao hàng nhanh",
+  },
+  {
+    value: "later",
+    title: "Giao hàng tiết kiệm",
+  },
 ];
 
-export const orderConstant = {
-  delivery: {
-    fast: "FAST",
-    gojek: "GO_JEK",
+export const Payments = [
+  {
+    value: "later_money",
+    title: "Thanh toán tiền mặt khi nhận hàng",
   },
-  payment: {
-    later_money: "Thanh toán tiền mặt khi nhận hàng",
-    paypal: "Thanh toán bằng paypal",
+  {
+    value: "paypal",
+    title: "Thanh toán bằng paypal",
   },
-};
-
-export const Payments = ["Zalo", "Ngân hàng", "Thanh toán khi nhận hàng"];
+  {
+    value: "momo",
+    title: "Thanh toán bằng momo",
+  },
+];

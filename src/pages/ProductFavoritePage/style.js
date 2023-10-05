@@ -4,6 +4,7 @@ export const TitleProductFavorite = styled.h2`
   font-size: 26px;
   font-weight: 600;
   margin: 30px 0;
+  padding-top: 30px;
   text-align: center;
   text-transform: uppercase;
 `;

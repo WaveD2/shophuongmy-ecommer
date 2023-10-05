@@ -128,6 +128,13 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
     }
   };
 
+  const handleEnterPress = (event) => {
+    if (event.key === "Enter") {
+      console.log("Enter pressed");
+      navigate("/search/product");
+    }
+  };
+
   useEffect(() => {
     let timer;
     const fetchData = async () => {
@@ -156,7 +163,6 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
     };
   }, [searchTerm]);
 
-  console.log("searchResult", searchResult);
   return (
     <Loading isLoading={loading}>
       <ContainerHeader>
@@ -202,9 +208,14 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                 {
                   <div style={{ position: "relative" }}>
                     <AutoComplete
-                      style={{ width: 300 }}
+                      onSelect={(e) => {
+                        console.log("select", e?.target.value);
+                      }}
+                      style={{ width: "100%" }}
                       placeholder="Search"
                       onSearch={onSearch}
+                      onKeyPress={handleEnterPress}
+                      autoClearSearchValue={true}
                     />
                     {isLoading ? <Spin /> : null}
                     {searchResult?.data?.length > 0 && (

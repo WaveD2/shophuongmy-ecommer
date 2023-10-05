@@ -23,8 +23,6 @@ const ProfilePage = () => {
   const [isDeleteUser, setIsDeleteUser] = useState(false);
 
   const mutation = useMutationHooks(async (data) => {
-    console.log("data", data);
-
     const { id, access_token, ...rests } = data;
 
     await UserService.UpdateUser({

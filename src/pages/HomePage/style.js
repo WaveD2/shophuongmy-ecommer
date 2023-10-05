@@ -30,6 +30,7 @@ export const WrapperButtonMore = styled.div`
 
 export const ContainerProducts = styled.div`
   margin: 24px;
+  padding-bottom: 30px;
 `;
 
 export const WrapperProducts = styled.div`

@@ -85,8 +85,8 @@ const CardComponent = (props) => {
           id: id,
           discount: discount,
           countInstock: countInStock,
-          size: size,
-          color: colors,
+          size: size[0],
+          color: colors[0],
         },
       })
     );

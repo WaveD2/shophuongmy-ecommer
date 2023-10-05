@@ -1,9 +1,10 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { Checkbox, Form } from "antd";
+import { Checkbox, Form, Input } from "antd";
 import React, { useEffect, useState } from "react";
 import {
   ContainerOrder,
   CustomCheckbox,
+  LabelTitle,
   WrapperCountOrder,
   WrapperInfo,
   WrapperItemOrder,
@@ -24,80 +25,50 @@ import {
   increaseAmount,
   removeAllOrderProduct,
   removeOrderProduct,
+  resetOrder,
   selectedOrder,
 } from "../../redux/Slice/orderSlide";
 import { useMemo } from "react";
 import ModalComponent from "../../components/ModalComponent/ModalComponent";
-import InputComponent from "../../components/InputComponent/InputComponent";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as UserService from "../../services/UserService";
-import { Await, useNavigate } from "react-router-dom";
+import * as OrderService from "../../services/OrderService";
+import { useNavigate } from "react-router-dom";
 import { convertPrice } from "../../utils/convert";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
 import { updateUser } from "../../redux/Slice/userSlice";
 import FormFormik from "../../components/InputForm/FormFormik";
 import {
   CreateDressOrderSchema,
-  UserSchema,
   fieldsDressOrderSchema,
 } from "../../utils/YubSchema";
-import TableComponent from "../../components/TableComponent/TableComponent";
-import TabsComponent from "../../components/TabsComponent/TabsComponent";
+import {
+  kiemTraSoDienThoai,
+  kiemTraObjectKhongRong,
+} from "../../utils/CheckCondition";
 import StepPaymentComponent from "../../components/StepComponent/StepPaymentComponent";
-import { listTextPaymentZalo, listTextPaymentBank } from "../../utils/Constant";
+import { Payments, orderConstant } from "../../utils/Constant";
 import Message from "../../components/Message/Message";
-import ChooseDressComponent from "../../components/ChooseDressComponent/ChooseDressComponent";
 import axios from "axios";
 import SelectOption from "../../components/InputForm/SelectOption";
 import { TextProductFavorite } from "../ProductFavoritePage/style";
+import { PayPalButton } from "react-paypal-button-v2";
+import * as PaymentService from "../../services/PaymentService";
+import RadioComponent from "../../components/InputForm/RadioCheckBox";
 
 const OrderPage = () => {
-  const itemsPay = [
+  const itemsDelivery = [
     {
-      key: "0",
-      label: "Zalo",
-      children: (
-        <div>
-          <img
-            src={
-              "https://th.bing.com/th/id/OIP.631IUKON8Ap2F8diVks-vgHaHa?pid=ImgDet&rs=1"
-            }
-            style={{
-              width: "200px",
-              height: "200px",
-              objectFit: "cover",
-              margin: "0 auto",
-            }}
-          />
-
-          <StepPaymentComponent listSteps={listTextPaymentZalo} />
-        </div>
-      ),
+      title: "20.000 VND",
+      description: "Dưới 200.000 VND",
     },
     {
-      key: "1",
-      label: "Ngân hàng",
-      children: (
-        <>
-          <img
-            src={
-              "https://th.bing.com/th/id/OIP.631IUKON8Ap2F8diVks-vgHaHa?pid=ImgDet&rs=1"
-            }
-            style={{
-              width: "200px",
-              height: "200px",
-              objectFit: "cover",
-              margin: "0 auto",
-            }}
-          />
-          <StepPaymentComponent listSteps={listTextPaymentBank} />
-        </>
-      ),
+      title: "10.000 VND",
+      description: "Từ 200.000 VND đến dưới 500.000 VND",
     },
     {
-      key: "2",
-      label: "Thanh toán khi nhận hàng",
-      children: <p>Mẹ sẽ thanh toán khi shipper giao hàng đến tận tay</p>,
+      title: "Free ship",
+      description: "Trên 500.000 VND",
     },
   ];
 
@@ -123,10 +94,18 @@ const OrderPage = () => {
 
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+  const [phoneNew, setPhoneNew] = useState(user?.phone);
 
   const [provinceOrder, setProvinceOrder] = useState({});
   const [cityOrder, setCityOrder] = useState({});
   const [districtOrder, setDistrictOrder] = useState({});
+  const [dressDis, setDressDis] = useState("");
+
+  const [payment, setPayment] = useState("later_money");
+  const [sdkReady, setSdkReady] = useState(false);
+  const [delivery, setDelivery] = useState("fast");
+
+  const [isCheckValidate, setIsCheckValidate] = useState(false);
 
   const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -201,6 +180,7 @@ const OrderPage = () => {
 
   const handleDistrictChange = (value) => {
     setDistrictOrder(value);
+    console.log("value", value);
     const districtUser = districts?.find((item) => item.code === +value);
     setDistrictOrder(districtUser || {});
   };
@@ -238,6 +218,12 @@ const OrderPage = () => {
   const handleDeleteOrder = (idProduct) => {
     dispatch(removeOrderProduct(idProduct));
   };
+  const handleSetPhone = (e) => {
+    if (e.target.value) setPhoneNew(Number(e.target.value));
+  };
+  const handleAddDress = (e) => {
+    if (e.target.value) setDressDis(e.target.value);
+  };
 
   const handleOnchangeCheckAll = (e) => {
     if (e.target.checked) {
@@ -274,25 +260,50 @@ const OrderPage = () => {
   const handleChangeAddress = () => {
     setIsOpenModalUpdateInfo(true);
   };
-  const handleChangePayment = (value) => {
-    console.log("handleChangePayment", value);
-  };
-  const handlePayment = async () => {
-    console.log(provinceOrder, cityOrder, districtOrder);
 
-    if (!order?.orderItems?.length > 0) {
-      Message({ typeMes: "error", mes: "Vui lòng chọn sản phẩm" });
-    } else if (
-      !provinceOrder?.name ||
-      !cityOrder.name ||
-      !districtOrder.name ||
-      !user.phone
-    ) {
-      setIsOpenModalUpdateInfo(true);
-    } else {
-      navigate("/my-order");
-    }
+  const handlePayment = () => {
+    setIsCheckValidate(true);
   };
+
+  const mutationAddOrder = useMutationHooks((data) => {
+    const { token, ...rests } = data;
+    const res = OrderService.createOrder({ ...rests }, token);
+    return res;
+  });
+
+  const {
+    data: dataAdd,
+    isLoading: isLoadingAddOrder,
+    isSuccess,
+    isError,
+  } = mutationAddOrder;
+
+  useEffect(() => {
+    if (isSuccess && dataAdd?.status === "OK") {
+      const arrayOrdered = [];
+      order?.orderItems?.forEach((element) => {
+        arrayOrdered.push(element.id);
+      });
+      dispatch(removeAllOrderProduct({ listChecked: arrayOrdered }));
+      Message({
+        typeMes: "success",
+        mes: "Đặt hàng thành công",
+      });
+      navigate("/orderSuccess", {
+        state: {
+          delivery,
+          payment,
+          orders: order?.orderItems,
+          totalPriceMemo: order?.totalPrice,
+        },
+      });
+    } else if (isError) {
+      Message({
+        typeMes: "error",
+        mes: "Đặt hàng không thành công",
+      });
+    }
+  }, [isSuccess, isError]);
 
   const mutationUpdate = useMutationHooks((data) => {
     const { id, token, ...rests } = data;
@@ -312,6 +323,7 @@ const OrderPage = () => {
     form.resetFields();
     setIsOpenModalUpdateInfo(false);
   };
+
   const handleUpdateInforUser = () => {
     console.log("stateUserDetails", stateUserDetails);
     const { name, address, city, phone } = stateUserDetails;
@@ -335,30 +347,113 @@ const OrderPage = () => {
     });
   };
 
+  //Payment
+  const onSuccessPaypal = (details, data) => {
+    mutationAddOrder.mutate({
+      token: user?.access_token,
+      orderItems: order?.orderItems,
+      fullName: user?.name,
+      province: provinceOrder?.name,
+      district: districtOrder?.name,
+      address: dressDis,
+      phone: user?.phone,
+      city: cityOrder?.name,
+      paymentMethod: payment,
+      shippingPrice: 20000,
+      totalPrice: order?.totalPrice,
+      user: user?.id,
+      isPaid: true,
+      paidAt: details.update_time,
+      email: user?.email,
+      size: order?.size,
+      colors: order?.color,
+    });
+  };
+
+  const handleChangePayment = (e) => {
+    setPayment(e.target.value.toString());
+  };
+  const handleChangeShipOrder = (e) => {
+    setDelivery(e.target.value.toString());
+  };
+
+  const addPaypalScript = async () => {
+    const { data } = await PaymentService.getConfigPayment();
+    const script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = `https://www.paypal.com/sdk/js?client-id=${data}`;
+    script.async = true;
+    script.onload = () => {
+      setSdkReady(true);
+    };
+    document.body.appendChild(script);
+  };
+
+  useEffect(() => {
+    addPaypalScript();
+  }, []);
+
+  useEffect(() => {
+    if (isCheckValidate) {
+      if (!order?.orderItems?.length > 0) {
+        Message({ typeMes: "error", mes: "Vui lòng chọn sản phẩm" });
+      } else if (!kiemTraSoDienThoai(phoneNew))
+        Message({
+          typeMes: "error",
+          mes: "Số điện thoại không hợp lệ (độ dài từ 8 - 15 ký tự, không chứa ký tự đặc biệt và khoảng trắng)",
+        });
+      else if (
+        !kiemTraObjectKhongRong(provinceOrder) ||
+        !kiemTraObjectKhongRong(cityOrder) ||
+        !kiemTraObjectKhongRong(districtOrder) ||
+        !dressDis
+      ) {
+        Message({
+          typeMes: "error",
+          mes: "Kiểm tra lại thông tin. Vui lòng điền đầy đủ thông tin",
+        });
+      } else {
+        const currentTime = new Date();
+        mutationAddOrder.mutate({
+          token: user?.access_token,
+          orderItems: order?.orderItems,
+          fullName: user?.name,
+          province: provinceOrder?.name,
+          district: districtOrder?.name,
+          address: dressDis,
+          phone: user?.phone,
+          city: cityOrder?.name,
+          paymentMethod: payment,
+          size: order?.size,
+          colors: order?.color,
+          shippingPrice: 20000,
+          totalPrice: order?.totalPrice,
+          user: user?.id,
+          isPaid: false,
+          paidAt: currentTime.getDate(),
+          email: user?.email,
+        });
+      }
+    }
+    setIsCheckValidate(false);
+  }, [isCheckValidate]);
+
+  // useEffect(() => {
+  //   if (!window.paypal) {
+  //     addPaypalScript();
+  //   } else {
+  //     setSdkReady(true);
+  //   }
+  // }, []);
+
   return (
     <div className="containerBoxPage">
       <ContainerOrder>
         <h3 style={{ fontWeight: "bold" }}>Giỏ hàng</h3>
         <WrapperOrder>
-          <WrapperLeft>
-            <h4>Phí giao hàng</h4>
-            <SelectOption
-              optionsItem={provinces}
-              handleChange={handleProvinceChange}
-              placeholder={"Chọn tỉnh/thành"}
-            />
-            <SelectOption
-              optionsItem={cities}
-              handleChange={handleCityChange}
-              placeholder={"Chọn quận/huyện"}
-            />
-            <SelectOption
-              optionsItem={districts}
-              handleChange={handleDistrictChange}
-              placeholder={"Chọn xã/phường"}
-            />
+          <WrapperLeft span={12}>
             <WrapperStyleHeader>
-              <span style={{ display: "inline-block", width: "390px" }}>
+              <span style={{ display: "inline-block", width: "280px" }}>
                 <CustomCheckbox
                   onChange={handleOnchangeCheckAll}
                   checked={
@@ -390,7 +485,7 @@ const OrderPage = () => {
                     <WrapperItemOrder key={order?.id}>
                       <div
                         style={{
-                          width: "390px",
+                          width: "280px",
                           display: "flex",
                           alignItems: "center",
                           gap: 4,
@@ -497,96 +592,162 @@ const OrderPage = () => {
                 </TextProductFavorite>
               )}
             </WrapperListOrder>
-          </WrapperLeft>
-          <WrapperRight>
-            <div>
-              <WrapperInfo>
-                <div>
-                  <span>Địa chỉ: </span>
-                  <span style={{ fontWeight: "bold" }}>
-                    {`${user?.address} ${user?.city}`}{" "}
-                  </span>
-                  <span
-                    onClick={handleChangeAddress}
-                    style={{ color: "#9255FD", cursor: "pointer" }}>
-                    Cập nhật địa chỉ
-                  </span>
-                </div>
-              </WrapperInfo>
-              <WrapperInfo>
-                <div
+
+            <WrapperInfo>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}>
+                <span>Tạm tính</span>
+                <span
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
+                    color: "#000",
+                    fontSize: "14px",
+                    fontWeight: "bold",
                   }}>
-                  <span>Tạm tính</span>
-                  <span
-                    style={{
-                      color: "#000",
-                      fontSize: "14px",
-                      fontWeight: "bold",
-                    }}>
-                    {convertPrice(order?.totalPrice)}
-                  </span>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}>
-                  <span>Phí giao hàng</span>
-                  <span
-                    style={{
-                      color: "#000",
-                      fontSize: "14px",
-                      fontWeight: "bold",
-                    }}>
-                    {convertPrice(20000)}
-                  </span>
-                </div>
-              </WrapperInfo>
-              <WrapperTotal>
-                <span>Tổng tiền</span>
-                <span style={{ display: "flex", flexDirection: "column" }}>
-                  <span
-                    style={{
-                      color: "rgb(254, 56, 52)",
-                      fontSize: "24px",
-                      fontWeight: "bold",
-                    }}>
-                    {convertPrice(order?.totalPrice + 20000)}
-                  </span>
-                  <span style={{ color: "#000", fontSize: "11px" }}>
-                    (Đã bao gồm VAT nếu có)
-                  </span>
+                  {convertPrice(order?.totalPrice)}
                 </span>
-              </WrapperTotal>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}>
+                <span>Phí giao hàng</span>
+                <span
+                  style={{
+                    color: "#000",
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                  }}>
+                  {convertPrice(20000)}
+                </span>
+              </div>
+            </WrapperInfo>
+            <WrapperTotal>
+              <span>Tổng tiền</span>
+              <span style={{ display: "flex", flexDirection: "column" }}>
+                <span
+                  style={{
+                    color: "rgb(254, 56, 52)",
+                    fontSize: "24px",
+                    fontWeight: "bold",
+                  }}>
+                  {convertPrice(order?.totalPrice + 20000)}
+                </span>
+                <span style={{ color: "#000", fontSize: "11px" }}>
+                  (Đã bao gồm VAT nếu có)
+                </span>
+              </span>
+            </WrapperTotal>
+          </WrapperLeft>
+          <WrapperRight span={12}>
+            <h4>Địa chỉ giao hàng</h4>
+            <Form
+              onFinish={handlePayment}
+              layout="vertical"
+              style={{ display: "flex", flexWrap: "wrap" }}>
+              <SelectOption
+                styleWidth={"270px"}
+                optionsItem={provinces}
+                handleChange={handleProvinceChange}
+                placeholder={"Chọn tỉnh/thành"}
+                nameOption="Tỉnh thành"
+                labelOption="Tỉnh/thành"
+              />
+              <SelectOption
+                styleWidth={"270px"}
+                optionsItem={cities}
+                handleChange={handleCityChange}
+                placeholder={"Chọn quận/huyện"}
+                nameOption="Quận/huyện"
+                labelOption="Quận/huyện"
+              />
+              <SelectOption
+                styleWidth={"270px"}
+                optionsItem={districts}
+                handleChange={handleDistrictChange}
+                placeholder={"Chọn xã/phường"}
+                nameOption="Xã/phường"
+                labelOption="Xã/phường"
+              />
+              <Form.Item
+                style={{ display: "flex", flexDirection: "column" }}
+                name="Số điện thoại"
+                label="Số điện thoại"
+                rules={[{ required: true }]}>
+                <Input
+                  value={phoneNew}
+                  style={{ width: "270px" }}
+                  onChange={handleSetPhone}
+                  placeholder={"Nhập số điện thoại"}
+                />
+              </Form.Item>
+              <Form.Item
+                style={{ display: "flex", flexDirection: "column" }}
+                name="Địa chỉ"
+                label="Địa chỉ"
+                rules={[{ required: true }]}>
+                <Input
+                  value={dressDis}
+                  style={{ width: "540px" }}
+                  onChange={handleAddDress}
+                  placeholder={"Nhập địa chỉ"}
+                />
+              </Form.Item>
+
               <WrapperInfo>
-                <p>Phương thức thanh toán </p>
-                <TabsComponent
-                  items={itemsPay}
+                <LabelTitle>Phương thức vận chuyển </LabelTitle>
+                <RadioComponent
+                  valueDefault={delivery}
+                  listOption={orderConstant}
+                  handleChange={handleChangeShipOrder}
+                />
+              </WrapperInfo>
+              <WrapperInfo>
+                <LabelTitle>Phương thức thanh toán </LabelTitle>
+                <RadioComponent
+                  valueDefault={payment}
+                  listOption={Payments}
                   handleChange={handleChangePayment}
                 />
               </WrapperInfo>
-            </div>
-            <ButtonComponent
-              onClick={handlePayment}
-              size={40}
-              styleButton={{
-                background: "rgb(255, 57, 69)",
-                height: "48px",
-                width: "320px",
-                border: "none",
-                borderRadius: "4px",
-              }}
-              textButton={"Thanh toán ngay"}
-              styleTextButton={{
-                color: "#fff",
-                fontSize: "15px",
-                fontWeight: "700",
-              }}></ButtonComponent>
+              {payment === "paypal" && sdkReady ? (
+                <div style={{ width: "320px" }}>
+                  <PayPalButton
+                    amount="0.01"
+                    onSuccess={onSuccessPaypal}
+                    onError={() => {
+                      Message({
+                        typeMes: "error",
+                        mes: "Có lỗi xảy ra, Vui lòng thử lại",
+                      });
+                    }}
+                  />
+                </div>
+              ) : (
+                <ButtonComponent
+                  type={"submit"}
+                  size={40}
+                  styleButton={{
+                    background: "rgb(255, 57, 69)",
+                    height: "48px",
+                    width: "320px",
+                    border: "none",
+                    borderRadius: "4px",
+                  }}
+                  textButton={"Thanh toán ngay"}
+                  styleTextButton={{
+                    color: "#fff",
+                    fontSize: "15px",
+                    fontWeight: "700",
+                  }}
+                />
+              )}
+            </Form>
           </WrapperRight>
         </WrapperOrder>
       </ContainerOrder>

@@ -1,7 +1,16 @@
 import React from "react";
-import { Select, Space } from "antd";
+import { Select, Space, Form } from "antd";
 
-const SelectOption = ({ optionsItem, placeholder, props, handleChange }) => {
+const SelectOption = ({
+  optionsItem,
+  placeholder,
+  props,
+  handleChange,
+  styleWidth,
+  nameOption,
+  labelOption,
+  isRequired,
+}) => {
   const optionsItems =
     optionsItem?.length > 0 &&
     optionsItem?.map((item) => {
@@ -10,18 +19,22 @@ const SelectOption = ({ optionsItem, placeholder, props, handleChange }) => {
         value: item?.code?.toString() || item,
       };
     });
-
   return (
-    <Space wrap>
-      <Select
-        allowClear
-        placeholder={placeholder}
-        style={{ width: "max-content", margin: "0 4px", minWidth: "120px" }}
-        onChange={handleChange}
-        options={optionsItems}
-        {...props}
-      />
-    </Space>
+    <Form.Item
+      name={nameOption}
+      label={labelOption}
+      rules={[{ required: isRequired }]}>
+      <Space wrap>
+        <Select
+          allowClear
+          placeholder={placeholder}
+          style={{ width: styleWidth, margin: "0 4px" }}
+          onChange={handleChange}
+          options={optionsItems}
+          {...props}
+        />
+      </Space>
+    </Form.Item>
   );
 };
 export default SelectOption;

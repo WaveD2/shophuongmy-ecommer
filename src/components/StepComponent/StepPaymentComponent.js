@@ -1,20 +1,19 @@
 import React from "react";
-
-const StepPaymentComponent = ({ listSteps }) => {
+import { Steps } from "antd";
+import { CustomStep } from "./style";
+const StepPaymentComponent = ({ current = 0, items = [] }) => {
   return (
-    <div>
-      {listSteps?.map((text, index) => (
-        <p key={index}>
-          Bước {index + 1} :<span> {text}</span>
-        </p>
-      ))}
-
-      <ul>
-        <li>Zalo : 0988233528</li>
-        <li>Facebook : Đăng Tùng (Waved) </li>
-        <li>Sdt : 0988233528</li>
-      </ul>
-    </div>
+    <Steps current={current}>
+      {items.map((item) => {
+        return (
+          <CustomStep
+            key={item.title}
+            title={item.title}
+            description={item.description}
+          />
+        );
+      })}
+    </Steps>
   );
 };
 

@@ -1,6 +1,5 @@
 import { Col, Image, Rate, Row } from "antd";
 import React from "react";
-import imageProductSmall from "../../assets/images/imagesmall.webp";
 import {
   WrapperStyleImageSmall,
   WrapperStyleColImage,
@@ -29,7 +28,11 @@ import TabsComponent from "../TabsComponent/TabsComponent";
 import { ContainerProducts, WrapperProducts } from "../../pages/HomePage/style";
 import CardComponent from "../CardComponent/CardComponent";
 import SelectOption from "../InputForm/SelectOption";
-import { addOrderProduct, addHeartProduct } from "../../redux/Slice/orderSlide";
+import {
+  addOrderProduct,
+  addHeartProduct,
+  resetOrder,
+} from "../../redux/Slice/orderSlide";
 import TooltipComponent from "../TooltipComponent/TooltipComponent";
 
 const ProductDetailsComponent = () => {
@@ -37,6 +40,7 @@ const ProductDetailsComponent = () => {
 
   const [numProduct, setNumProduct] = useState(1);
   const [detailProduct, setDetailProduct] = useState();
+  const [isLoading, setIsLoading] = useState(true);
   const [sizeProduct, setSizeProduct] = useState("");
   const [colorProduct, setColorProduct] = useState("");
   const [detailImgPreview, setDetailImgPreview] = useState();
@@ -44,6 +48,7 @@ const ProductDetailsComponent = () => {
 
   const user = useSelector((state) => state.user);
   const order = useSelector((state) => state.order);
+
   const productHeart = order?.orderItemsHeart?.some(
     (product) => product.id === idProduct
   );
@@ -57,17 +62,21 @@ const ProductDetailsComponent = () => {
   };
 
   const fetchGetDetailsProduct = async (id) => {
+    setIsLoading(true);
     const res = await ProductService.getDetailsProduct({ id });
-
-    setDetailProduct(res?.data);
-    setDetailImgPreview(res.data?.images[0].thumbUrl);
-
-    return res.data;
+    if (res?.data) {
+      setDetailProduct(res?.data);
+      setDetailImgPreview(res.data?.images[0].thumbUrl);
+      setIsLoading(false);
+      return res.data;
+    } else {
+      setIsLoading(true);
+    }
   };
   // useEffect(() => {
   //     initFacebookSDK()
   // }, [])
-  const { isLoading, data: productDetails } = useQuery({
+  const { data: productDetails } = useQuery({
     queryKey: ["products-detail"],
     queryFn: fetchGetDetailsProduct,
     refetchOnWindowFocus: false,
@@ -83,22 +92,15 @@ const ProductDetailsComponent = () => {
       const res = await ProductService.getListProductType({
         type: detailProduct.type,
       });
-      if (res.status === "OK") setListProduct(res.data);
-      else throw new Error("Lỗi server");
+      if (res.status === "OK") {
+        setListProduct(res.data);
+        setIsLoading(false);
+      } else setIsLoading(true);
     }
   };
   useEffect(() => {
     fetchAllTypeProduct();
   }, [detailProduct?.type]);
-
-  // useEffect(() => {
-  //     if(order.isSucessOrder) {
-  //         message.success('Đã thêm vào giỏ hàng')
-  //     }
-  //     return () => {
-  //         dispatch(resetOrder())
-  //     }
-  // }, [order.isSucessOrder])
 
   const handleChangeCount = (type, limited) => {
     if (type === "increase") {
@@ -223,9 +225,40 @@ const ProductDetailsComponent = () => {
         },
       })
     );
-    console.log("detailProduct", detailProduct, detailImgPreview);
   };
 
+  const handleAddOrderProduct = (e) => {
+    const orderRedux = order?.orderItems?.find(
+      (item) => item.product === productDetails?._id
+    );
+    if (
+      orderRedux?.amount + numProduct <= orderRedux?.countInstock ||
+      (!orderRedux && productDetails?.countInStock > 0)
+    ) {
+      dispatch(
+        addOrderProduct({
+          orderItem: {
+            name: detailProduct?.name,
+            amount: numProduct,
+            image: detailImgPreview,
+            price: detailProduct?.price,
+            id: detailProduct?._id,
+            discount: detailProduct?.discount,
+            countInstock: detailProduct?.countInStock,
+            size: detailProduct?.size[0],
+            color: detailProduct?.colors[0],
+          },
+        })
+      );
+    } else {
+      Message({
+        typeMes: "error",
+        mes: "Có lỗi xảy ra! Vui lòng kiểm tra lại",
+      });
+      setErrorLimitOrder(true);
+    }
+  };
+  console.log("detailProduct", detailProduct);
   return (
     <div>
       <Loading isLoading={isLoading}>
@@ -318,11 +351,13 @@ const ProductDetailsComponent = () => {
                       /> */}
 
             <SelectOption
+              styleWidth={"120px"}
               handleChange={(value) => setColorProduct(value)}
               placeholder={"Chọn màu"}
               optionsItem={detailProduct?.colors}
             />
             <SelectOption
+              styleWidth={"120px"}
               handleChange={(value) => setSizeProduct(value)}
               placeholder={"Chọn size"}
               optionsItem={detailProduct?.size}
@@ -390,6 +425,7 @@ const ProductDetailsComponent = () => {
               </div>
               <ButtonComponent
                 size={40}
+                onClick={handleAddOrderProduct}
                 styleButton={{
                   background: "#fff",
                   height: "48px",
