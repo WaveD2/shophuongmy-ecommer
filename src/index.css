@@ -88,3 +88,28 @@ textarea {
     color: #f13131;
     z-index: 9999;
 }
+
+.styleImg {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border: 1px solid rgb(238, 238, 238);
+    padding: 2px;
+}
+.ant-image {
+    height: 100%;
+}
+
+.title_text {
+    font-size: 1.3rem;
+    line-height: 1.3rem;
+    padding-top: 10px;
+    color: #fe4242;
+}
+
+.flexBet {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}

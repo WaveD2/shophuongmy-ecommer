@@ -14,12 +14,14 @@
     "antd-table-saveas-excel": "^2.2.1",
     "axios": "^1.2.0",
     "dotenv": "^16.3.1",
+    "firebase": "^10.5.0",
     "formik": "^2.4.3",
     "jwt-decode": "^3.1.2",
     "react": "^18.2.0",
     "react-cookie": "^4.1.1",
     "react-dom": "^18.2.0",
     "react-draggable": "^4.4.5",
+    "react-firebaseui": "^6.0.0",
     "react-paypal-button-v2": "^2.6.3",
     "react-redux": "^8.0.4",
     "react-router-dom": "^6.4.3",
@@ -55,7 +57,7 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:3000",
+  "proxy": "https://api-shop-ecommerce-huong-my.onrender.com",
   "devDependencies": {
     "dotenv-webpack": "^8.0.1"
   }

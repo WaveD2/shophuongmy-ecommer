@@ -1,26 +1,22 @@
-import { Button, Form, Space } from "antd";
-import React, { useEffect } from "react";
-import { WrapperHeader, WrapperUploadFile } from "./style";
+import { Button, Space } from "antd";
+import React, { useState } from "react";
+import { WrapperHeader } from "./style";
 import InputComponent from "../../InputComponent/InputComponent";
-import DrawerComponent from "../../DrawerComponent/DrawerComponent";
-import ModalComponent from "../../ModalComponent/ModalComponent";
-import * as message from "../../Message/Message";
 import * as OrderService from "../../../services/OrderService";
 import { useQuery } from "@tanstack/react-query";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import PieChartComponent from "./PieChart";
 import TableComponent from "../../TableComponent/TableComponent";
 import { convertPrice } from "../../../utils/convert";
-import { getBase64 } from "../../../utils/getBase64";
-import { orderConstant } from "../../../utils/Constant";
+import { Payments, orderConstant } from "../../../utils/Constant";
+import ModalComponent from "../../ModalComponent/ModalComponent";
 
 const AdminOrder = () => {
   const user = useSelector((state) => state?.user);
+
+  const [openDetailOrderModal, setOpenDetailOrderModal] = useState(false);
+  const [idOrder, setIdOrder] = useState();
 
   const getAllOrder = async () => {
     const res = await OrderService.getAllOrder(user?.access_token);
@@ -109,60 +105,71 @@ const AdminOrder = () => {
 
   const columns = [
     {
-      title: "User name",
+      title: "Tên",
       dataIndex: "userName",
       sorter: (a, b) => a.userName.length - b.userName.length,
       ...getColumnSearchProps("userName"),
     },
     {
-      title: "Phone",
+      title: "Số điện thoại",
       dataIndex: "phone",
       sorter: (a, b) => a.phone.length - b.phone.length,
       ...getColumnSearchProps("phone"),
     },
     {
-      title: "Address",
+      title: "Địa chỉ",
       dataIndex: "address",
       sorter: (a, b) => a.address.length - b.address.length,
       ...getColumnSearchProps("address"),
     },
     {
-      title: "Paided",
+      title: "Thanh toán",
       dataIndex: "isPaid",
       sorter: (a, b) => a.isPaid.length - b.isPaid.length,
       ...getColumnSearchProps("isPaid"),
     },
     {
-      title: "Shipped",
-      dataIndex: "isDelivered",
-      sorter: (a, b) => a.isDelivered.length - b.isDelivered.length,
-      ...getColumnSearchProps("isDelivered"),
-    },
-    {
-      title: "Payment method",
+      title: "Phương thức thanh toán",
       dataIndex: "paymentMethod",
       sorter: (a, b) => a.paymentMethod.length - b.paymentMethod.length,
       ...getColumnSearchProps("paymentMethod"),
     },
     {
-      title: "Total price",
+      title: "Gía tiền",
       dataIndex: "totalPrice",
       sorter: (a, b) => a.totalPrice.length - b.totalPrice.length,
       ...getColumnSearchProps("totalPrice"),
+    },
+    {
+      title: "Chi tiết",
+      dataIndex: "age",
+      render: (_, record) => (
+        <button
+          title="Chi tiết"
+          onClick={() => {
+            setOpenDetailOrderModal(true);
+            setIdOrder(record);
+          }}>
+          Chi tiết
+        </button>
+      ),
     },
   ];
 
   const dataTable =
     orders?.data?.length &&
     orders?.data?.map((order) => {
-      console.log("usewr", order);
+      const payment = Payments.find(
+        (item) => item?.value === order?.paymentMethod
+      );
+
       return {
         ...order,
         key: order._id,
         userName: order?.shippingAddress?.fullName,
         phone: order?.shippingAddress?.phone,
         address: order?.shippingAddress?.address,
-        paymentMethod: orderConstant.payment[order?.paymentMethod],
+        paymentMethod: payment.title,
         isPaid: order?.isPaid ? "TRUE" : "FALSE",
         isDelivered: order?.isDelivered ? "TRUE" : "FALSE",
         totalPrice: convertPrice(order?.totalPrice),
@@ -182,6 +189,54 @@ const AdminOrder = () => {
           data={dataTable}
         />
       </div>
+
+      <ModalComponent
+        title={`Chi tiết đơn hàng ${idOrder?.shippingAddress?.fullName}`}
+        open={openDetailOrderModal}
+        onOk={() => setOpenDetailOrderModal(false)}
+        onCancel={() => setOpenDetailOrderModal(false)}>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <div>
+            <p>
+              Tên <span>{idOrder?.shippingAddress?.fullName}</span>
+            </p>
+            <p>{idOrder?.shippingAddress?.phone}</p>
+            <p>
+              Địa chỉ :<span>{idOrder?.shippingAddress?.district} </span>
+              <span>{idOrder?.shippingAddress?.city} </span>
+              <span>{idOrder?.shippingAddress?.province} </span>
+            </p>
+          </div>
+          <div>
+            <p>Sản phẩm</p>
+            <div>
+              {idOrder?.orderItems?.map((item) => (
+                <div style={{ display: "flex", gap: "8px" }} key={item._id}>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <p>{item.name}</p>
+                    <img
+                      src={item?.image}
+                      alt="Ảnh sản phẩm"
+                      className="styleImg"
+                    />
+                  </div>
+                  <div>
+                    <h3>{item?.name}</h3>
+                    <div>
+                      <h3>Tên sản phẩm : {item?.amount}</h3>
+                      <p>
+                        Số lượng : {item?.amount} - {item?.size}
+                        <span> Gía tiền :</span>
+                        {item?.price}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </ModalComponent>
     </div>
   );
 };

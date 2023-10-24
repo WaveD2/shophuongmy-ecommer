@@ -65,7 +65,7 @@ export const ContainerBoxAccount = styled.div`
   z-index: 999;
 `;
 export const WrapperTippy = styled.div`
-  width: 460px;
+  width: 100%;
   max-height: 280px;
   display: flex;
   flex-direction: column;

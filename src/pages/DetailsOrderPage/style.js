@@ -41,17 +41,23 @@ export const WrapperLabel = styled.div`
 `;
 export const WrapperContentInfo = styled.div`
   height: 118px;
-  width: 320px;
-  background-color: #fff;
+  background-color: rgb(255, 255, 255);
   border-radius: 6px;
   padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 `;
 
 export const WrapperStyleContent = styled.div`
+  background: #edebeb;
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-top: 20px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e9e3e387;
 `;
 
 export const WrapperProduct = styled.div`

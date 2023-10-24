@@ -51,7 +51,7 @@ const AdminPage = () => {
     queries: [
       { queryKey: ["products"], queryFn: getAllProducts, staleTime: 1000 * 60 },
       { queryKey: ["users"], queryFn: getAllUsers, staleTime: 1000 * 60 },
-      // { queryKey: ["orders"], queryFn: getAllOrder, staleTime: 1000 * 60 },
+      { queryKey: ["orders"], queryFn: getAllOrder, staleTime: 1000 * 60 },
     ],
     refetchOnWindowFocus: false,
     enabled: false,
@@ -82,8 +82,8 @@ const AdminPage = () => {
         return <AdminUser />;
       case "products":
         return <AdminProduct />;
-      // case "orders":
-      //   return <AdminOrder />;
+      case "orders":
+        return <AdminOrder />;
       default:
         return <></>;
     }
@@ -92,13 +92,16 @@ const AdminPage = () => {
   const handleOnCLick = ({ key }) => {
     setKeySelected(key);
   };
+
   return (
     <>
       <HeaderComponent isHiddenSearch isHiddenCart />
       <ContainerAdminPage>
-        <WrapperMenuLeft>
-          <Menu mode="inline" items={items} onClick={handleOnCLick} />
-        </WrapperMenuLeft>
+        {items?.length === 3 && (
+          <WrapperMenuLeft>
+            <Menu mode="inline" items={items} onClick={handleOnCLick} />
+          </WrapperMenuLeft>
+        )}
         <div style={{ flex: 1, padding: "15px 0 15px 15px" }}>
           <Loading isLoading={!memoCount && !Object.keys(memoCount)}>
             {!keySelected && (

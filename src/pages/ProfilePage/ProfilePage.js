@@ -17,7 +17,6 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.user);
-  console.log("user", user);
   const [avatar, setAvatar] = useState(() => user?.avatar || "");
   const [openModal, setOpenModal] = useState(false);
   const [isDeleteUser, setIsDeleteUser] = useState(false);

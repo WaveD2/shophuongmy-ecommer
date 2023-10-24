@@ -1,3 +1,4 @@
+import axios from "axios";
 import { axiosJWT } from "./UserService";
 
 export const createOrder = async (data, access_token) => {
@@ -14,9 +15,8 @@ export const createOrder = async (data, access_token) => {
 };
 
 export const getOrderByUserId = async ({ id, access_token }) => {
-  console.log("id, access_token", id, access_token);
   const res = await axiosJWT.get(
-    `${process.env.REACT_APP_BASE_URL}/order/get-all-order?id=${id}`,
+    `${process.env.REACT_APP_BASE_URL}/order/get-all-order/${id}`,
     {
       headers: {
         token: `Bearer ${access_token}`,
@@ -40,15 +40,16 @@ export const getDetailsOrder = async (id, access_token) => {
 
 export const cancelOrder = async (id, access_token, orderItems, userId) => {
   const data = { orderItems, orderId: id };
-  const res = await axiosJWT.delete(
+  const res = await axios.delete(
     `${process.env.REACT_APP_BASE_URL}/order/cancel-order/${userId}`,
-    { data },
     {
       headers: {
         token: `Bearer ${access_token}`,
       },
+      data,
     }
   );
+
   return res.data;
 };
 

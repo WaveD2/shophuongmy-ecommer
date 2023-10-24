@@ -29,6 +29,7 @@ export const WrapperStyleHeaderDilivery = styled.div`
 export const WrapperContainer = styled.div`
   width: 100%;
   background-color: #f5f5fa;
+  margin-bottom: 20px;
 `;
 
 export const WrapperLeft = styled.div`
@@ -80,4 +81,10 @@ export const WrapperStatus = styled.div`
   padding-bottom: 10px;
   border-bottom: 1px solid rgb(235, 235, 240);
   flex-direction: column;
+`;
+export const TextInfoOrder = styled.p`
+  color: rgb(90, 32, 193);
+  font-weight: bold;
+  line-height: 14px;
+  font-size: 14px;
 `;

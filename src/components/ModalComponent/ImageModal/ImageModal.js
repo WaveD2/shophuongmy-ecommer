@@ -16,8 +16,6 @@ const ImageModal = () => {
   const [previewTitle, setPreviewTitle] = useState("");
   const [fileList, setFileList] = useState([]);
 
-  console.log("fileList", fileList);
-
   const handleCancel = () => setPreviewOpen(false);
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {

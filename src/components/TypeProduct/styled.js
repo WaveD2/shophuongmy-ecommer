@@ -5,6 +5,7 @@ export const WrapperType = styled.div`
   padding: 8px 10px;
   cursor: pointer;
   transition: all 3s ease;
+  color: #333;
 
   &::after {
     content: " ";

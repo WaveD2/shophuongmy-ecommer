@@ -1,5 +1,7 @@
-import React, { useEffect } from "react";
-
+import React, { useEffect, useState } from "react";
+import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
 import {
   ContainerButton,
   WrapperButton,
@@ -17,12 +19,79 @@ import FormFormik from "../../components/InputForm/FormFormik";
 import Message from "../../components/Message/Message";
 import { Watermark } from "antd";
 import { WrapperBox, WrapperContainer } from "../SignUpPage/style";
-import { FacebookOutlined, GooglePlusOutlined } from "@ant-design/icons";
+
+const config = {
+  apiKey: "AIzaSyBXSIanhZwKd08kUuPbK6buvWL2_irwcRI",
+  authDomain: "shop-ecommer-huongmy.firebaseapp.com",
+};
+firebase.initializeApp(config);
+
+const uiConfig = {
+  signInFlow: "popup",
+  signInOptions: [
+    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+    firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+  ],
+  callbacks: {
+    signInSuccessWithAuthResult: () => true,
+  },
+};
 
 const SignInPage = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [inForUser, setInForUser] = useState();
+
+  useEffect(() => {
+    const unregisterAuthObserver = firebase
+      .auth()
+      .onAuthStateChanged(async (user) => {
+        if (user?.multiFactor?.user?.email) {
+          const res = await UserService.CheckGmailGG({
+            email: user?.multiFactor?.user?.email,
+          });
+          if (res?.status !== 200) {
+            const res = await UserService.CreateAccRefresh_Token(
+              user?.multiFactor?.user
+            );
+
+            let infoUser = {
+              name: res?.data?.data?.newUser?.name,
+              email: res?.data?.data?.newUser?.email,
+              _id: res?.data?.data?.newUser?._id,
+              avatar: res?.data?.data?.newUser?.avatar,
+              isAdmin: res?.data?.data?.newUser?.isAdmin,
+              phone: " ",
+              city: " ",
+              access_token: res?.data?.data?.access_token,
+              refreshToken: res?.data?.data?.refresh_token,
+            };
+            dispatch(updateUser(infoUser));
+            setInForUser(infoUser);
+            setIsSignedIn(!!user);
+          } else {
+            dispatch(
+              updateUser({
+                ...res?.data?.user,
+                access_token: res?.data?.access_token,
+                refreshToken: res?.data?.access_token,
+              })
+            );
+
+            setInForUser({
+              ...res?.data?.user,
+              access_token: res?.data?.access_token,
+              refreshToken: res?.data?.access_token,
+            });
+            setIsSignedIn(!!res?.data?.user);
+          }
+        }
+      });
+    return () => unregisterAuthObserver();
+  }, []);
 
   const mutation = useMutationHooks((data) => {
     return UserService.LogIn(data);
@@ -30,30 +99,45 @@ const SignInPage = () => {
   const { data, isSuccess, isError, error } = mutation;
 
   useEffect(() => {
-    if (isSuccess) {
+    if (isSuccess || isSignedIn) {
+      const infoUser = isSuccess && !isSignedIn ? data : inForUser;
+
       if (location?.state) {
         navigate(location?.state, { state: location?.pathname });
       } else {
         navigate("/");
       }
-      localStorage.setItem("access_token", JSON.stringify(data?.access_token));
+      localStorage.setItem(
+        "access_token",
+        JSON.stringify(infoUser?.access_token || infoUser?.accessToken)
+      );
       localStorage.setItem(
         "refresh_token",
-        JSON.stringify(data?.refresh_token)
+        JSON.stringify(infoUser?.refresh_token || infoUser?.refreshToken)
       );
-      localStorage.setItem("name", JSON.stringify(data?.name));
-      localStorage.setItem("avatar", JSON.stringify(data?.avatar));
-      if (data?.access_token) {
-        const decoded = jwt_decode(data?.access_token);
+      localStorage.setItem(
+        "name",
+        JSON.stringify(infoUser?.name || infoUser?.displayName)
+      );
+      localStorage.setItem(
+        "avatar",
+        JSON.stringify(infoUser?.avatar || infoUser?.photoURL)
+      );
+
+      if (infoUser?.access_token || infoUser?.accessToken) {
+        const decoded = jwt_decode(
+          infoUser?.access_token || infoUser?.accessToken
+        );
+
         if (decoded?.id) {
           handleGetDetailsUser({
             id: decoded?.id,
-            accessToken: data?.access_token,
+            accessToken: infoUser?.access_token,
           });
         }
       }
     }
-  }, [isSuccess]);
+  }, [isSuccess, isSignedIn]);
 
   useEffect(() => {
     if (isError && error)
@@ -94,20 +178,16 @@ const SignInPage = () => {
               fields={fieldsSignIn.fields}
               textButton1={"Đăng nhập"}
             />
-            <ContainerButton>
-              <WrapperButton size="40" type="submit">
-                <GooglePlusOutlined
-                  style={{ fontSize: "30px", color: "#935d5d" }}
+
+            <div>
+              {firebase && (
+                <StyledFirebaseAuth
+                  uiConfig={uiConfig}
+                  firebaseAuth={firebase.auth()}
                 />
-                <span>Đăng nhập Google</span>
-              </WrapperButton>
-              <WrapperButton size="40" type="submit">
-                <FacebookOutlined
-                  style={{ fontSize: "30px", color: "#2e68d5" }}
-                />
-                <span>Đăng nhập Facebook</span>
-              </WrapperButton>
-            </ContainerButton>
+              )}
+            </div>
+
             <p>
               <WrapperTextLight>Quên mật khẩu?</WrapperTextLight>
             </p>

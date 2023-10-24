@@ -69,7 +69,6 @@ const ChooseDressComponent = () => {
   const handleDistrictChange = (e) => {
     setSelectedDistrict(e.target.value);
   };
-  console.log("selectedProvince", selectedProvince);
   return (
     <div>
       <SelectOption

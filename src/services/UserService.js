@@ -4,7 +4,7 @@ export const axiosJWT = axios.create();
 export const Logout = async () => {
   const res = await axios.post(
     `${process.env.REACT_APP_BASE_URL}/user/log-out`
-  )
+  );
   return res;
 };
 export const LogIn = async (data) => {
@@ -33,7 +33,6 @@ export const GetDetailsUser = async ({ id, accessToken }) => {
       },
     }
   );
-  console.log("res data server", res);
   return res.data;
 };
 export const GetAllUser = async (accessToken) => {
@@ -97,5 +96,21 @@ export const RefreshToken = async (refreshToken) => {
       },
     }
   );
+  return res.data;
+};
+export const CheckGmailGG = async ({ email }) => {
+  const res = await axios.post(
+    `${process.env.REACT_APP_BASE_URL}/user/auth/emailGG`,
+    { email: email }
+  );
+  return res.data.data;
+};
+
+export const CreateAccRefresh_Token = async (data) => {
+  const res = await axios.post(
+    `${process.env.REACT_APP_BASE_URL}/user/auth/token`,
+    { data }
+  );
+
   return res.data;
 };

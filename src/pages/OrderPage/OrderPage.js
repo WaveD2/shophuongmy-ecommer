@@ -73,13 +73,11 @@ const OrderPage = () => {
   ];
 
   const order = useSelector((state) => state.order);
-  console.log("order", order);
   const user = useSelector((state) => state.user);
   const { name, phone, address } = user;
   const [listChecked, setListChecked] = useState([]);
   const [isOpenModalUpdateInfo, setIsOpenModalUpdateInfo] = useState(false);
-  const [isOpenModalDeleteProduct, setIsOpenModalDeleteProduct] =
-    useState(false);
+
   const [isOpenModalDeleteAllProduct, setIsOpenModalDeleteAllProduct] =
     useState(false);
   const [stateUserDetails, setStateUserDetails] = useState({
@@ -104,6 +102,7 @@ const OrderPage = () => {
   const [payment, setPayment] = useState("later_money");
   const [sdkReady, setSdkReady] = useState(false);
   const [delivery, setDelivery] = useState("fast");
+  const [moneyTransportation, setMoneyTransportation] = useState(0);
 
   const [isCheckValidate, setIsCheckValidate] = useState(false);
 
@@ -167,10 +166,22 @@ const OrderPage = () => {
   }, [selectedCity]);
 
   const handleProvinceChange = (value) => {
-    setSelectedProvince(value);
     const provinceUser = provinces?.find((item) => item.code === +value);
-    setProvinceOrder(provinceUser || {});
+    setProvinceOrder(provinceUser);
+    setSelectedProvince(value);
   };
+
+  useEffect(() => {
+    if (provinceOrder?.code > 0 && provinceOrder?.code) {
+      const shipper =
+        0 <= Number(provinceOrder?.code) <= 12 ||
+        28 <= Number(provinceOrder?.code) <= 45
+          ? 20000
+          : 30000;
+      const shipDelivery = delivery === "fast" ? 10000 : 5000;
+      setMoneyTransportation(shipper + shipDelivery);
+    }
+  }, [provinceOrder]);
 
   const handleCityChange = (value) => {
     setSelectedCity(value);
@@ -180,7 +191,6 @@ const OrderPage = () => {
 
   const handleDistrictChange = (value) => {
     setDistrictOrder(value);
-    console.log("value", value);
     const districtUser = districts?.find((item) => item.code === +value);
     setDistrictOrder(districtUser || {});
   };
@@ -208,7 +218,6 @@ const OrderPage = () => {
     }
   };
   const handleRemoveAllOrder = (e) => {
-    console.log("listChecked", listChecked);
     if (listChecked?.length >= 1) {
       setIsOpenModalDeleteAllProduct(false);
       dispatch(removeAllOrderProduct({ listChecked }));
@@ -270,7 +279,6 @@ const OrderPage = () => {
     const res = OrderService.createOrder({ ...rests }, token);
     return res;
   });
-
   const {
     data: dataAdd,
     isLoading: isLoadingAddOrder,
@@ -285,6 +293,7 @@ const OrderPage = () => {
         arrayOrdered.push(element.id);
       });
       dispatch(removeAllOrderProduct({ listChecked: arrayOrdered }));
+      setMoneyTransportation(0);
       Message({
         typeMes: "success",
         mes: "Đặt hàng thành công",
@@ -325,7 +334,6 @@ const OrderPage = () => {
   };
 
   const handleUpdateInforUser = () => {
-    console.log("stateUserDetails", stateUserDetails);
     const { name, address, city, phone } = stateUserDetails;
     if (name && address && city && phone) {
       mutationUpdate.mutate(
@@ -340,13 +348,6 @@ const OrderPage = () => {
     }
   };
 
-  const handleOnchangeDetails = (e) => {
-    setStateUserDetails({
-      ...stateUserDetails,
-      [e.target.name]: e.target.value,
-    });
-  };
-
   //Payment
   const onSuccessPaypal = (details, data) => {
     mutationAddOrder.mutate({
@@ -359,7 +360,7 @@ const OrderPage = () => {
       phone: user?.phone,
       city: cityOrder?.name,
       paymentMethod: payment,
-      shippingPrice: 20000,
+      shippingPrice: moneyTransportation,
       totalPrice: order?.totalPrice,
       user: user?.id,
       isPaid: true,
@@ -421,12 +422,12 @@ const OrderPage = () => {
           province: provinceOrder?.name,
           district: districtOrder?.name,
           address: dressDis,
-          phone: user?.phone,
+          phone: phoneNew,
           city: cityOrder?.name,
           paymentMethod: payment,
           size: order?.size,
           colors: order?.color,
-          shippingPrice: 20000,
+          shippingPrice: moneyTransportation,
           totalPrice: order?.totalPrice,
           user: user?.id,
           isPaid: false,
@@ -623,7 +624,7 @@ const OrderPage = () => {
                     fontSize: "14px",
                     fontWeight: "bold",
                   }}>
-                  {convertPrice(20000)}
+                  {convertPrice(moneyTransportation)}
                 </span>
               </div>
             </WrapperInfo>
@@ -636,7 +637,7 @@ const OrderPage = () => {
                     fontSize: "24px",
                     fontWeight: "bold",
                   }}>
-                  {convertPrice(order?.totalPrice + 20000)}
+                  {convertPrice(order?.totalPrice + moneyTransportation)}
                 </span>
                 <span style={{ color: "#000", fontSize: "11px" }}>
                   (Đã bao gồm VAT nếu có)

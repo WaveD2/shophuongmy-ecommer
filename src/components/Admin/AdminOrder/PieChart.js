@@ -7,6 +7,7 @@ const PieChartComponent = (props) => {
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
   const RADIAN = Math.PI / 180;
+
   const renderCustomizedLabel = ({
     cx,
     cy,
@@ -20,10 +21,6 @@ const PieChartComponent = (props) => {
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
-    console.log(
-      "{ cx, cy, midAngle, innerRadius, outerRadius, percent, index }",
-      { cx, cy, midAngle, innerRadius, outerRadius, percent, index, rests }
-    );
     return (
       <text
         x={x}

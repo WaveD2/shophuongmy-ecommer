@@ -1,30 +1,16 @@
-import {
-  AutoComplete,
-  Avatar,
-  Badge,
-  Button,
-  Col,
-  Input,
-  Modal,
-  Popover,
-  Spin,
-} from "antd";
+import { AutoComplete, Avatar, Badge, Col, Popover, Spin } from "antd";
 import React from "react";
 import {
   WrapperContentPopup,
   WrapperHeader,
   WrapperHeaderAccout,
   WrapperTextHeader,
-  WrapperTextHeaderSmall,
-  WrapperBoxAccount,
-  ContainerBoxAccount,
   ContainerHeader,
   BoxTippy,
   WrapperTippy,
 } from "./style";
 import {
   UserOutlined,
-  CaretDownOutlined,
   ShoppingCartOutlined,
   HeartOutlined,
 } from "@ant-design/icons";
@@ -41,6 +27,9 @@ import jwt_decode from "jwt-decode";
 import { useHistoryListener } from "../../utils/useHistory";
 import TooltipComponent from "../TooltipComponent/TooltipComponent";
 import { searchProduct } from "../../redux/Slice/productSlide";
+
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
 
 const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const navigate = useNavigate();
@@ -72,6 +61,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
     localStorage.removeItem("avatar");
     setLoading(false);
     navigate("/");
+    firebase.auth().signOut();
   };
 
   useEffect(() => {
@@ -120,7 +110,6 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   };
 
   const onSearch = (value) => {
-    //e.target.value
     if (value) {
       setSearchTerm(value);
     } else {
@@ -130,7 +119,6 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
 
   const handleEnterPress = (event) => {
     if (event.key === "Enter") {
-      console.log("Enter pressed");
       navigate("/search/product");
     }
   };
@@ -177,71 +165,47 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
           </Col>
           <Col span={12}>
             {!isHiddenSearch && (
-              <div style={{ position: "relative" }}>
-                {/* <ButtonInputSearch
-                size="large"
-                bordered={false}
-                textButton="Tìm kiếm"
-                placeholder="Tìm kiếm sản phầm"
-                onChange={onSearch}
-              /> */}
-                {/* {isTippy && (
-                  <WrapperTippy>
-                      <h3>Tất cả : {searchResult?.total}</h3>
-                      {searchResult?.data?.map((item) => {
-                        return (
-                          <BoxTippy
-                            onClick={() =>
-                              navigate(`/product-details/${item?._id}`)
-                            }>
-                            <img
-                              src={item?.images[0]?.thumbUrl}
-                              alt="ảnh sản phẩm"
-                              style={{ width: "50px", height: "50px" }}
-                            />
-                            <span>{item?.name}</span>
-                          </BoxTippy>
-                        );
-                      })}
-                  </WrapperTippy>
-                )} */}
-                {
-                  <div style={{ position: "relative" }}>
-                    <AutoComplete
-                      onSelect={(e) => {
-                        console.log("select", e?.target.value);
-                      }}
-                      style={{ width: "100%" }}
-                      placeholder="Search"
-                      onSearch={onSearch}
-                      onKeyPress={handleEnterPress}
-                      autoClearSearchValue={true}
-                    />
-                    {isLoading ? <Spin /> : null}
-                    {searchResult?.data?.length > 0 && (
-                      <WrapperTippy>
-                        {searchResult?.data?.map((result, index) => (
-                          <BoxTippy
-                            key={index}
-                            onClick={() => {
-                              navigate(`/product-details/${result?._id}`);
-                              setSearchResult([]);
-                            }}>
-                            <img
-                              src={result?.images[0]?.thumbUrl}
-                              alt="ảnh sản phẩm"
-                              style={{ width: "50px", height: "50px" }}
-                            />
-                            <span>{result?.name}</span>
-                          </BoxTippy>
-                        ))}
-                      </WrapperTippy>
-                    )}
-                  </div>
-                }
+              <div>
+                <div style={{ position: "relative" }}>
+                  <AutoComplete
+                    onSelect={(e) => {
+                      console.log("select", e?.target.value);
+                    }}
+                    style={{ width: "100%" }}
+                    placeholder="Search"
+                    onSearch={onSearch}
+                    onKeyPress={handleEnterPress}
+                    autoClearSearchValue={true}
+                  />
+                  {isLoading ? <Spin /> : null}
+                  {searchResult?.data?.length > 0 && (
+                    <WrapperTippy>
+                      {searchResult?.data?.map((result, index) => (
+                        <BoxTippy
+                          loading={isLoading}
+                          key={index}
+                          onClick={() => {
+                            navigate(`/product-details/${result?._id}`);
+                            setSearchResult([]);
+                          }}>
+                          <img
+                            className=""
+                            src={result?.images[0]?.thumbUrl}
+                            alt="ảnh sản phẩm"
+                            style={{ width: "80px", height: "60px" }}
+                          />
+                          <span style={{ fontSize: "16px" }}>
+                            {result?.name}
+                          </span>
+                        </BoxTippy>
+                      ))}
+                    </WrapperTippy>
+                  )}
+                </div>
               </div>
             )}
           </Col>
+
           <Col
             span={6}
             style={{ display: "flex", gap: "15px", alignItems: "center" }}>

@@ -258,7 +258,7 @@ const ProductDetailsComponent = () => {
       setErrorLimitOrder(true);
     }
   };
-  console.log("detailProduct", detailProduct);
+
   return (
     <div>
       <Loading isLoading={isLoading}>
@@ -270,16 +270,46 @@ const ProductDetailsComponent = () => {
             height: "100%",
             flexFlow: "unset",
           }}>
-          <Col style={{ borderRight: "1px solid #e5e5e5" }}>
-            <div style={{ position: "relative" }}>
+          <Col
+            style={{
+              borderRight: "1px solid #e5e5e5",
+              display: "flex",
+              minWidth: "670px",
+            }}>
+            {detailProduct?.images.length > 1 && (
+              <Row
+                style={{
+                  paddingTop: "10px",
+                  flexDirection: "column",
+                  gap: "4px",
+                }}>
+                {detailProduct?.images.map((img, index) => (
+                  <WrapperStyleColImage span={4} key={index}>
+                    <WrapperStyleImageSmall
+                      src={img?.thumbUrl}
+                      alt="ảnh sản phẩm"
+                      preview={false}
+                      onClick={() => {
+                        setDetailImgPreview(img?.thumbUrl);
+                      }}
+                    />
+                  </WrapperStyleColImage>
+                ))}
+              </Row>
+            )}
+
+            <div
+              style={{
+                position: "relative",
+                maxHeight: "526px",
+                width: "100%",
+              }}>
               <Image
                 src={detailImgPreview}
                 alt="ảnh sản phẩm"
                 preview={false}
                 style={{
-                  minWidth: "380px",
-                  objectFit: "cover",
-                  maxHeight: "420px",
+                  height: "100%",
                 }}
               />
               <span
@@ -309,23 +339,8 @@ const ProductDetailsComponent = () => {
                 />
               </span>
             </div>
-            {detailProduct?.images.length > 1 && (
-              <Row style={{ paddingTop: "10px" }}>
-                {detailProduct?.images.map((img, index) => (
-                  <WrapperStyleColImage span={4} key={index}>
-                    <WrapperStyleImageSmall
-                      src={img?.thumbUrl}
-                      alt="ảnh sản phẩm"
-                      preview={false}
-                      onClick={() => {
-                        setDetailImgPreview(img?.thumbUrl);
-                      }}
-                    />
-                  </WrapperStyleColImage>
-                ))}
-              </Row>
-            )}
           </Col>
+
           <Col style={{ paddingLeft: "10px" }}>
             <WrapperStyleNameProduct>
               {detailProduct?.name}
@@ -350,18 +365,20 @@ const ProductDetailsComponent = () => {
                               } 
                       /> */}
 
-            <SelectOption
-              styleWidth={"120px"}
-              handleChange={(value) => setColorProduct(value)}
-              placeholder={"Chọn màu"}
-              optionsItem={detailProduct?.colors}
-            />
-            <SelectOption
-              styleWidth={"120px"}
-              handleChange={(value) => setSizeProduct(value)}
-              placeholder={"Chọn size"}
-              optionsItem={detailProduct?.size}
-            />
+            <div style={{ display: "flex" }}>
+              <SelectOption
+                styleWidth={"120px"}
+                handleChange={(value) => setColorProduct(value)}
+                placeholder={"Chọn màu"}
+                optionsItem={detailProduct?.colors}
+              />
+              <SelectOption
+                styleWidth={"120px"}
+                handleChange={(value) => setSizeProduct(value)}
+                placeholder={"Chọn size"}
+                optionsItem={detailProduct?.size}
+              />
+            </div>
 
             <BoxInDecrease>
               <span>Số lượng</span>
