@@ -19,5 +19,17 @@ export const WrapperUploadFile = styled(Upload)`
     display: none;
   }
 `;
+export const WrapperBoxDetailModal = styled.div`
+  display: flex;
+  gap: 8px;
+  padding: 0px 4px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  border: 2px solid #ccc;
+`;
+
+export const TextModal = styled.p`
+  margin: 4px 0;
+`;
 
 export const WrapperNameChart = styled.div``;

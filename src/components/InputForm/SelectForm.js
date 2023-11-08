@@ -15,10 +15,13 @@ const SelectForm = ({ ...props }) => {
   const addItem = (e) => {
     e.preventDefault();
     if (nameOption.trim() !== "") {
-      setSelectItem((prev) => [
-        ...prev,
-        { value: Math.random(), label: nameOption },
-      ]);
+      setSelectItem((prev) => {
+        if (prev) {
+          return [...prev, { value: Math.random(), label: nameOption }];
+        } else {
+          return [{ value: Math.random(), label: nameOption }];
+        }
+      });
       setNameOption("");
     }
   };
@@ -29,52 +32,50 @@ const SelectForm = ({ ...props }) => {
   };
 
   return (
-    <div>
-      <Select
-        mode="multiple"
-        {...field}
-        onChange={handleChange}
-        style={{
-          width: "100%",
-          margin: "8px 0",
-        }}
-        placeholder={placeholderSelect}
-        optionLabelProp="label"
-        dropdownRender={(menu) => (
-          <>
-            {menu}
-            <Divider
-              style={{
-                margin: "8px 0",
-              }}
+    <Select
+      mode="multiple"
+      {...field}
+      onChange={handleChange}
+      style={{
+        width: "100%",
+        margin: "8px 0",
+      }}
+      placeholder={placeholderSelect}
+      optionLabelProp="label"
+      dropdownRender={(menu) => (
+        <>
+          {menu}
+          <Divider
+            style={{
+              margin: "8px 0",
+            }}
+          />
+          <Space
+            style={{
+              padding: "0 8px 4px",
+            }}>
+            <Input
+              placeholder="Nhấn enter để chọn"
+              onChange={handleChangeInput}
+              value={nameOption}
             />
-            <Space
-              style={{
-                padding: "0 8px 4px",
-              }}>
-              <Input
-                placeholder="Nhấn enter để chọn"
-                onChange={handleChangeInput}
-                value={nameOption}
-              />
-              <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
-                {textButtonSelect}
-              </Button>
+            <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
+              {textButtonSelect}
+            </Button>
+          </Space>
+        </>
+      )}>
+      {selectItem?.length > 0 &&
+        selectItem.map((item, index) => (
+          <Option value={item.label} label={item.label} key={index}>
+            <Space>
+              <span role="img" aria-label={item.label}>
+                {item.label}
+              </span>
             </Space>
-          </>
-        )}>
-        {selectItem?.length > 0 &&
-          selectItem.map((item) => (
-            <Option value={item.label} label={item.label}>
-              <Space>
-                <span role="img" aria-label={item.label}>
-                  {item.label}
-                </span>
-              </Space>
-            </Option>
-          ))}
-      </Select>
-    </div>
+          </Option>
+        ))}
+    </Select>
   );
 };
 

@@ -1,4 +1,10 @@
-import React, { useRef, useEffect, useState, useMemo } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Space } from "antd";
@@ -22,12 +28,20 @@ import { ProductSchema, fieldsCreateProduct } from "../../../utils/YubSchema";
 import FormFormik from "../../InputForm/FormFormik";
 import FormImage from "../../InputForm/FormImage";
 import { convertTypeProduct } from "../../../utils/convert";
+import {
+  optionsColorsProduct,
+  optionsSizeProduct,
+} from "../../../utils/Constant";
+import TagsComponent from "../../SelectedComponent/TagsComponent";
 
 const AdminProduct = () => {
   const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
+  const [isStatusUpdateProduct, setIsStatusUpdateProduct] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
+  const [listProduct, setListProduct] = useState();
+  const [isLoadingLtProduct, setIsLoadingListProduct] = useState(false);
 
   const [fileImagesList, setFileImagesList] = useState([]);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -36,6 +50,16 @@ const AdminProduct = () => {
   const [previewTitle, setPreviewTitle] = useState("");
   const [sizesProduct, setSizesProduct] = useState([]);
   const [nameSizesProduct, setNameSizesProduct] = useState("");
+  const [listSize, setListSize] = useState([]);
+  const [listColor, setListColor] = useState([]);
+
+  const handleChangeColorTag = (value) => {
+    if (value.length > 0) setListColor(value);
+  };
+
+  const handleChangeSizeTag = (value) => {
+    if (value.length > 0) setListSize(value);
+  };
 
   const user = useSelector((state) => state?.user);
 
@@ -43,18 +67,53 @@ const AdminProduct = () => {
 
   const [stateProductDetails, setStateProductDetails] = useState({});
 
+  const handleCloseDrawer = () => {
+    setIsOpenDrawer(false);
+    setStateProductDetails({
+      name: "",
+      price: "",
+      description: "",
+      rating: "",
+      image: "",
+      type: "",
+      countInStock: "",
+    });
+  };
+
+  const getAllProducts = async () => {
+    setIsLoadingListProduct(true);
+    const res = await ProductService.getAllProduct({
+      token: user?.access_token,
+    });
+    setIsLoadingListProduct(false);
+    setListProduct(res?.data);
+  };
+
+  const dataTable =
+    listProduct?.length > 0 &&
+    listProduct?.map((product) => {
+      return { ...product, key: product._id };
+    });
+
   const mutation = useMutationHooks((data) => {
     const { token, type, ...values } = data;
     const typeProduct = convertTypeProduct({ type });
     const res = ProductService.createProduct({
       token: token,
-      data: { type: typeProduct, ...values },
+      data: {
+        type: typeProduct,
+        colors: listColor,
+        size: listSize,
+        ...values,
+      },
     });
     return res;
   });
-  const mutationUpdate = useMutationHooks((data) => {
-    const { id, token, ...rests } = data;
-    const res = ProductService.updateProduct({ id, token, ...rests });
+
+  const mutationUpdate = useMutationHooks(async (data) => {
+    const res = await ProductService.updateProduct(data);
+    await getAllProducts();
+
     return res;
   });
 
@@ -70,17 +129,9 @@ const AdminProduct = () => {
     return res;
   });
 
-  const getAllProducts = async () => {
-    const res = await ProductService.getAllProduct({
-      token: user?.access_token,
-    });
-    return res;
+  const handleDeleteManyProducts = (ids) => {
+    mutationDeletedMany.mutate({ ids: ids, token: user?.access_token });
   };
-
-  const queryProduct = useQuery({
-    queryKey: ["products"],
-    queryFn: getAllProducts,
-  });
 
   const fetchGetDetailsProduct = async (rowSelected) => {
     const res = await ProductService.getDetailsProduct({
@@ -113,17 +164,6 @@ const AdminProduct = () => {
     setIsOpenDrawer(true);
   };
 
-  const handleDeleteManyProducts = (ids) => {
-    mutationDeletedMany.mutate(
-      { ids: ids, token: user?.access_token },
-      {
-        onSettled: () => {
-          queryProduct.refetch();
-        },
-      }
-    );
-  };
-
   const { data, error, isLoading, isSuccess, isError } = mutation;
   const {
     data: dataUpdated,
@@ -144,7 +184,13 @@ const AdminProduct = () => {
     isError: isErrorDeletedMany,
   } = mutationDeletedMany;
 
-  const { isLoading: isLoadingProducts, data: products } = queryProduct;
+  // get all product
+  useEffect(() => {
+    getAllProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isLoading || isLoadingUpdated || isLoadingDeleted || isLoadingDeletedMany,
+  ]);
 
   const renderAction = () => {
     return (
@@ -287,11 +333,6 @@ const AdminProduct = () => {
       render: renderAction,
     },
   ];
-  const dataTable =
-    products?.data?.length &&
-    products?.data?.map((product) => {
-      return { ...product, key: product._id };
-    });
 
   useEffect(() => {
     if (isSuccess && data?.status === "OK") {
@@ -306,43 +347,29 @@ const AdminProduct = () => {
   }, [isSuccess, isError]);
 
   useEffect(() => {
-    if (isSuccessDeletedMany && dataDeletedMany?.status === "OK") {
-      Message({ typeMes: "success" });
+    if (dataDeletedMany?.status === "OK") {
+      Message({ typeMes: "success", mes: "Xóa thành công" });
     } else if (isErrorDeletedMany) {
-      Message({ typeMes: "error" });
+      Message({ typeMes: "error", mes: "Có lỗi xảy ra" });
     }
   }, [isSuccessDeletedMany]);
 
   useEffect(() => {
-    if (isSuccessDelected && dataDeleted?.status === "OK") {
-      Message({ typeMes: "success" });
+    if (dataDeleted?.status === "OK") {
+      Message({ typeMes: "success", mes: "Xóa thành công" });
 
       handleCancelDelete();
     } else if (isErrorDeleted) {
-      Message({ typeMes: "error" });
+      Message({ typeMes: "error", mes: "Có lỗi xảy ra" });
     }
   }, [isSuccessDelected]);
 
-  const handleCloseDrawer = () => {
-    setIsOpenDrawer(false);
-    setStateProductDetails({
-      name: "",
-      price: "",
-      description: "",
-      rating: "",
-      image: "",
-      type: "",
-      countInStock: "",
-    });
-  };
-
   useEffect(() => {
-    if (isSuccessUpdated && dataUpdated?.status === "OK") {
-      Message({ typeMes: "success" });
-
+    if (dataUpdated?.status === "OK") {
+      Message({ typeMes: "success", mes: "Cập nhật thành công" });
       handleCloseDrawer();
     } else if (isErrorUpdated) {
-      Message({ typeMes: "error" });
+      Message({ typeMes: "error", mes: "Có lỗi xảy ra" });
     }
   }, [isSuccessUpdated]);
 
@@ -351,19 +378,14 @@ const AdminProduct = () => {
   };
 
   const handleDeleteProduct = () => {
-    mutationDeleted.mutate(
-      { id: rowSelected, token: user?.access_token },
-      {
-        onSettled: () => {
-          queryProduct.refetch();
-        },
-      }
-    );
+    mutationDeleted.mutate({ id: rowSelected, token: user?.access_token });
+    setRowSelected();
   };
 
   const handleCancel = () => {
     setStateProductDetails({});
     setFileImagesList([]);
+    setRowSelected();
   };
 
   const handleCancelCreateProduct = () => {
@@ -372,36 +394,35 @@ const AdminProduct = () => {
   };
 
   const handleOnchangeImgFile = ({ fileList }) => {
+    console.log("fileList", fileList);
     setFileImagesList(fileList);
   };
-  const onUpdateProduct = (values) => {
-    mutationUpdate.mutate(
-      {
+
+  useEffect(() => {
+    if (isStatusUpdateProduct === 1) {
+      mutationUpdate.mutate({
         id: rowSelected,
         token: user?.access_token,
         images: fileImagesList,
-        ...values,
-      },
-      {
-        onSettled: () => {
-          queryProduct.refetch();
-        },
-      }
-    );
+        ...stateProductDetails,
+      });
+      setStateProductDetails({});
+      setIsStatusUpdateProduct(0);
+    }
+  }, [isStatusUpdateProduct]);
+
+  const onUpdateProduct = (values) => {
+    setStateProductDetails(values);
+    setIsStatusUpdateProduct(1);
   };
   const onCreateProduct = (values) => {
-    mutation.mutate(
-      {
-        token: user.access_token,
-        images: fileImagesList,
-        ...values,
-      },
-      {
-        onSettled: () => {
-          queryProduct.refetch();
-        },
-      }
-    );
+    mutation.mutate({
+      token: user.access_token,
+      images: fileImagesList,
+      colors: listColor,
+      size: listSize,
+      ...values,
+    });
   };
 
   const handleAddSizeProduct = (e) => {
@@ -447,7 +468,7 @@ const AdminProduct = () => {
         <TableComponent
           handleDeleteMany={handleDeleteManyProducts}
           columns={columns}
-          isLoading={isLoadingProducts}
+          isLoading={isLoadingLtProduct}
           data={dataTable}
           onRow={(record, rowIndex) => {
             return {
@@ -480,6 +501,15 @@ const AdminProduct = () => {
               srcPreviewImage={srcPreviewImage}
             />
           }
+
+          <TagsComponent
+            options={optionsColorsProduct}
+            handleChange={handleChangeColorTag}
+          />
+          <TagsComponent
+            options={optionsSizeProduct}
+            handleChange={handleChangeSizeTag}
+          />
 
           <FormFormik
             initialValues={fieldsCreateProduct.initialCreateProduct}
@@ -515,13 +545,23 @@ const AdminProduct = () => {
           }
 
           {Object.keys(stateProductDetails).length !== 0 && (
-            <FormFormik
-              initialValues={stateProductDetails}
-              validationSchema={ProductSchema}
-              onSubmit={onUpdateProduct}
-              fields={fieldsCreateProduct.fields}
-              textButton1={"Thay đổi"}
-            />
+            <div>
+              <FormFormik
+                initialValues={stateProductDetails}
+                validationSchema={ProductSchema}
+                onSubmit={onUpdateProduct}
+                fields={fieldsCreateProduct.fields}
+                textButton1={"Thay đổi"}
+              />
+              <TagsComponent
+                options={optionsColorsProduct}
+                handleChange={handleChangeColorTag}
+              />
+              <TagsComponent
+                options={optionsSizeProduct}
+                handleChange={handleChangeSizeTag}
+              />
+            </div>
           )}
         </Loading>
       </DrawerComponent>

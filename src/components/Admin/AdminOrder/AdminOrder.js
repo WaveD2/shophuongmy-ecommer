@@ -1,6 +1,6 @@
 import { Button, Space } from "antd";
 import React, { useState } from "react";
-import { WrapperHeader } from "./style";
+import { TextModal, WrapperBoxDetailModal, WrapperHeader } from "./style";
 import InputComponent from "../../InputComponent/InputComponent";
 import * as OrderService from "../../../services/OrderService";
 import { useQuery } from "@tanstack/react-query";
@@ -196,7 +196,7 @@ const AdminOrder = () => {
         onOk={() => setOpenDetailOrderModal(false)}
         onCancel={() => setOpenDetailOrderModal(false)}>
         <div style={{ display: "flex", gap: "8px" }}>
-          <div>
+          <div style={{ flex: 1 }}>
             <p>
               Tên <span>{idOrder?.shippingAddress?.fullName}</span>
             </p>
@@ -211,27 +211,23 @@ const AdminOrder = () => {
             <p>Sản phẩm</p>
             <div>
               {idOrder?.orderItems?.map((item) => (
-                <div style={{ display: "flex", gap: "8px" }} key={item._id}>
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    <p>{item.name}</p>
-                    <img
-                      src={item?.image}
-                      alt="Ảnh sản phẩm"
-                      className="styleImg"
-                    />
-                  </div>
+                <WrapperBoxDetailModal key={item._id}>
+                  <img
+                    src={item?.image}
+                    alt="Ảnh sản phẩm"
+                    className="styleImg"
+                  />
                   <div>
-                    <h3>{item?.name}</h3>
-                    <div>
-                      <h3>Tên sản phẩm : {item?.amount}</h3>
-                      <p>
-                        Số lượng : {item?.amount} - {item?.size}
-                        <span> Gía tiền :</span>
-                        {item?.price}
-                      </p>
-                    </div>
+                    <h3>Tên sản phẩm: {item?.name}</h3>
+
+                    <TextModal>Số lượng: {item?.amount}</TextModal>
+                    <TextModal> Size :{item?.size}</TextModal>
+                    <TextModal>
+                      <span>Tổng:</span>
+                      {convertPrice(item?.price)}
+                    </TextModal>
                   </div>
-                </div>
+                </WrapperBoxDetailModal>
               ))}
             </div>
           </div>

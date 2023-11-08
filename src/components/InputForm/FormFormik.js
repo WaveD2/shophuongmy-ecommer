@@ -29,7 +29,7 @@ const FormFormik = ({
         <FormikForm>
           <div>
             {fields.map((field, index) => (
-              <div>
+              <div key={index}>
                 {field.component ? (
                   <WrapperInputStyle
                     component={field.component}
@@ -42,8 +42,7 @@ const FormFormik = ({
                     <WrapperInputStyle
                       as={field?.as}
                       id={field?.name}
-                        name={field?.name}
-                        
+                      name={field?.name}
                     />
                   </ContainerInput>
                 )}

@@ -66,11 +66,18 @@ export const WrapperItemOrder = styled.div`
   background: #fff;
   margin-top: 12px;
   flex-direction: column;
-  width: 950px;
+  max-width: 950px;
+  min-width: 650px;
   margin: 0 auto;
   background: #fff;
   border-radius: 6px;
   box-shadow: 0 12px 12px #ccc;
+
+  @media only screen and (max-width: 830px) {
+    max-width: 790px;
+    min-width: 350px;
+    width: 100%;
+  }
 `;
 
 export const WrapperStatus = styled.div`

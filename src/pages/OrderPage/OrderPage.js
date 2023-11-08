@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { Checkbox, Form, Input } from "antd";
+import { Form, Input } from "antd";
 import React, { useEffect, useState } from "react";
 import {
   ContainerOrder,
@@ -13,7 +13,6 @@ import {
   WrapperOrder,
   WrapperRight,
   WrapperStyleHeader,
-  WrapperStyleHeaderDilivery,
   WrapperTotal,
 } from "./style";
 import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
@@ -25,10 +24,8 @@ import {
   increaseAmount,
   removeAllOrderProduct,
   removeOrderProduct,
-  resetOrder,
   selectedOrder,
 } from "../../redux/Slice/orderSlide";
-import { useMemo } from "react";
 import ModalComponent from "../../components/ModalComponent/ModalComponent";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as UserService from "../../services/UserService";
@@ -46,7 +43,6 @@ import {
   kiemTraSoDienThoai,
   kiemTraObjectKhongRong,
 } from "../../utils/CheckCondition";
-import StepPaymentComponent from "../../components/StepComponent/StepPaymentComponent";
 import { Payments, orderConstant } from "../../utils/Constant";
 import Message from "../../components/Message/Message";
 import axios from "axios";
@@ -57,21 +53,6 @@ import * as PaymentService from "../../services/PaymentService";
 import RadioComponent from "../../components/InputForm/RadioCheckBox";
 
 const OrderPage = () => {
-  const itemsDelivery = [
-    {
-      title: "20.000 VND",
-      description: "Dưới 200.000 VND",
-    },
-    {
-      title: "10.000 VND",
-      description: "Từ 200.000 VND đến dưới 500.000 VND",
-    },
-    {
-      title: "Free ship",
-      description: "Trên 500.000 VND",
-    },
-  ];
-
   const order = useSelector((state) => state.order);
   const user = useSelector((state) => state.user);
   const { name, phone, address } = user;
@@ -117,6 +98,7 @@ const OrderPage = () => {
       setProvinces([{ code: 0, name: "Chọn tỉnh/thành" }, ...response.data]);
     });
   }, []);
+
   useEffect(() => {
     setDistricts([]);
 
@@ -171,18 +153,6 @@ const OrderPage = () => {
     setSelectedProvince(value);
   };
 
-  useEffect(() => {
-    if (provinceOrder?.code > 0 && provinceOrder?.code) {
-      const shipper =
-        0 <= Number(provinceOrder?.code) <= 12 ||
-        28 <= Number(provinceOrder?.code) <= 45
-          ? 20000
-          : 30000;
-      const shipDelivery = delivery === "fast" ? 10000 : 5000;
-      setMoneyTransportation(shipper + shipDelivery);
-    }
-  }, [provinceOrder]);
-
   const handleCityChange = (value) => {
     setSelectedCity(value);
     const cityUser = cities?.find((item) => item.code === +value);
@@ -194,6 +164,18 @@ const OrderPage = () => {
     const districtUser = districts?.find((item) => item.code === +value);
     setDistrictOrder(districtUser || {});
   };
+
+  useEffect(() => {
+    if (provinceOrder?.code > 0 && provinceOrder?.code) {
+      const shipper =
+        0 <= Number(provinceOrder?.code) <= 12 ||
+        28 <= Number(provinceOrder?.code) <= 45
+          ? 20000
+          : 30000;
+      const shipDelivery = delivery === "fast" ? 10000 : 5000;
+      setMoneyTransportation(shipper + shipDelivery);
+    }
+  }, [provinceOrder]);
 
   const onChange = (e) => {
     if (listChecked.includes(e.target.value)) {
@@ -251,9 +233,9 @@ const OrderPage = () => {
     dispatch(selectedOrder({ listChecked }));
   }, [listChecked]);
 
-  useEffect(() => {
-    form.setFieldsValue(stateUserDetails);
-  }, [form, stateUserDetails]);
+  // useEffect(() => {
+  //   form.setFieldsValue(stateUserDetails);
+  // }, [form, stateUserDetails]);
 
   useEffect(() => {
     if (isOpenModalUpdateInfo) {
@@ -266,10 +248,6 @@ const OrderPage = () => {
     }
   }, [isOpenModalUpdateInfo]);
 
-  const handleChangeAddress = () => {
-    setIsOpenModalUpdateInfo(true);
-  };
-
   const handlePayment = () => {
     setIsCheckValidate(true);
   };
@@ -279,12 +257,15 @@ const OrderPage = () => {
     const res = OrderService.createOrder({ ...rests }, token);
     return res;
   });
+
   const {
     data: dataAdd,
     isLoading: isLoadingAddOrder,
     isSuccess,
     isError,
   } = mutationAddOrder;
+
+  console.log("mutationAddOrder", mutationAddOrder);
 
   useEffect(() => {
     if (isSuccess && dataAdd?.status === "OK") {
@@ -368,12 +349,14 @@ const OrderPage = () => {
       email: user?.email,
       size: order?.size,
       colors: order?.color,
+      shippingMethod: delivery,
     });
   };
 
   const handleChangePayment = (e) => {
     setPayment(e.target.value.toString());
   };
+
   const handleChangeShipOrder = (e) => {
     setDelivery(e.target.value.toString());
   };
@@ -433,6 +416,7 @@ const OrderPage = () => {
           isPaid: false,
           paidAt: currentTime.getDate(),
           email: user?.email,
+          shippingMethod: delivery,
         });
       }
     }

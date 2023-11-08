@@ -21,12 +21,8 @@ import * as UserService from "../../services/UserService";
 import * as ProductService from "../../services/ProductService";
 import { resetUser } from "../../redux/Slice/userSlice";
 import Loading from "../LoadingComponent/LoadingComponent";
-import ButtonInputSearch from "../ButtonInputSearch/ButttonInputSearch";
-import { isJsonString } from "../../utils/convert";
-import jwt_decode from "jwt-decode";
-import { useHistoryListener } from "../../utils/useHistory";
 import TooltipComponent from "../TooltipComponent/TooltipComponent";
-import { searchProduct } from "../../redux/Slice/productSlide";
+import avatarDefault from "../../assets/images/avatar_default.png";
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
@@ -38,8 +34,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
 
   const user = useSelector((state) => state.user);
   const order = useSelector((state) => state.order);
-  const [search, setSearch] = useState("");
-  const [userAvatar, setUserAvatar] = useState();
+  const [userAvatar, setUserAvatar] = useState(avatarDefault);
   const [isOpenPopup, setIsOpenPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,7 +60,8 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   };
 
   useEffect(() => {
-    setUserAvatar(user.avatar);
+    if (user.avatar) setUserAvatar(user.avatar);
+    else setUserAvatar(avatarDefault);
   }, [user.avatar]);
 
   const handleOpenChange = (newOpen) => {

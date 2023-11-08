@@ -152,12 +152,6 @@ export const fieldsCreateProduct = {
     countInStock: "",
     discount: "",
     type: "",
-    isStatus: [
-      { value: 1, label: "Còn hàng" },
-      { value: 0, label: "Hết hàng" },
-    ],
-    size: [],
-    colors: [],
   },
   fields: [
     {
@@ -189,27 +183,7 @@ export const fieldsCreateProduct = {
       label: "Mô tả sản phẩm",
       name: "description",
       as: "textarea",
-    },
-    {
-      label: "Trạng thái sản phẩm",
-      name: "isStatus",
-      component: SelectForm,
-      placeholderSelect: "Chọn trạng thái sản phẩm",
-      textButtonSelect: "Thêm size",
-    },
-    {
-      label: "Size",
-      name: "size",
-      component: SelectForm,
-      placeholderSelect: "Chọn size sản phẩm",
-      textButtonSelect: "Thêm size",
-    },
-    {
-      label: "Màu sắc",
-      name: "colors",
-      component: SelectForm,
-      placeholderSelect: "Chọn màu sản phẩm",
-      textButtonSelect: "Thêm màu sắc",
+      type: "text",
     },
   ],
 };

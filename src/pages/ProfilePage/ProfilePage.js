@@ -17,7 +17,11 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.user);
-  const [avatar, setAvatar] = useState(() => user?.avatar || "");
+  const [avatar, setAvatar] = useState(
+    () =>
+      user?.avatar ||
+      "https://i.pinimg.com/564x/e8/d7/d0/e8d7d05f392d9c2cf0285ce928fb9f4a.jpg"
+  );
   const [openModal, setOpenModal] = useState(false);
   const [isDeleteUser, setIsDeleteUser] = useState(false);
 
@@ -81,7 +85,7 @@ const ProfilePage = () => {
 
   return (
     <div className="containerBoxPage">
-      <WrapperHeader>Thông tin người dùng</WrapperHeader>
+      <WrapperHeader className="title_text">Thông tin người dùng</WrapperHeader>
       <WrapperForm>
         <FormImage
           onchangeAvatar={handleOnchangeAvatar}

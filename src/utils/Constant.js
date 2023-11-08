@@ -96,3 +96,67 @@ export const Payments = [
     title: "Thanh toán bằng momo",
   },
 ];
+
+export const optionsColorsProduct = [
+  {
+    value: "Đen",
+    label: "Đen",
+    color: "Black",
+  },
+  {
+    value: "Xám",
+    color: "Gray",
+    label: "Xám",
+  },
+
+  {
+    value: "Cam",
+    color: "Orange",
+    label: "Cam",
+  },
+
+  {
+    value: "Hồng",
+    color: "Pink",
+    label: "Hồng",
+  },
+
+  {
+    value: "Trắng",
+    color: "#ccc",
+    label: "Trắng",
+  },
+  {
+    value: "Vàng",
+    color: "Yellow",
+    label: "Vàng",
+  },
+];
+
+export const optionsSizeProduct = [
+  {
+    value: "S",
+    label: "S",
+    color: "#f50",
+  },
+  {
+    value: "M",
+    label: "M",
+    color: "#2db7f5",
+  },
+  {
+    value: "L",
+    label: "L",
+    color: "#87d068",
+  },
+  {
+    value: "XL",
+    label: "XL",
+    color: "#108ee9",
+  },
+  {
+    value: "XXL",
+    label: "XXL",
+    color: "#f55",
+  },
+];

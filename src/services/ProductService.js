@@ -67,10 +67,11 @@ export const getDetailsProduct = async ({ id }) => {
   }
 };
 
-export const updateProduct = async ({ id, token, data }) => {
+export const updateProduct = async (data) => {
+  const { id, token, ...rest } = data;
   const res = await axiosJWT.put(
     `${process.env.REACT_APP_BASE_URL}/product/update/${id}`,
-    data,
+    rest,
     {
       headers: {
         token: `Bearer ${token}`,
