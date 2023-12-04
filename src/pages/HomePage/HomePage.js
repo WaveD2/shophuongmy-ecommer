@@ -14,31 +14,57 @@ import {
 import TypeProduct from "../../components/TypeProduct/TypeProduct";
 import SliderComponent from "../../components/SliderComponent/SliderComponent";
 import CardComponent from "../../components/CardComponent/CardComponent";
-import NavbarComponent from "../../components/NavbarComponent/NavbarComponent";
 import { MenuHeader } from "../../utils/Constant";
 import * as ProductService from "../../services/ProductService";
 import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
 import { ContainerOrder } from "../OrderPage/style";
+import HookInfiniteScroll from "../../utils/HookScroll";
+import TextTitleComponent from "../../components/TextTitleComponent/TextTitleComponent";
 
 const HomePage = () => {
-  const [limit, setLimit] = useState(6);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCallApi, setIsCallApi] = useState(true);
   const [listProduct, setListProduct] = useState([]);
+  const [page, setPage] = useState(1);
 
-  const fetchAllTypeProduct = async () => {
-    setIsLoading(true);
-    const res = await ProductService.getListProductType({
-      type: "san-pham-noi-bat",
-    });
-    if (res.status === "OK") setListProduct(res.data);
-    else setIsLoading(true);
-    setIsLoading(false);
+  const handleScroll = () => {
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const scrollPosition = window.scrollY;
+
+    if (windowHeight + scrollPosition >= documentHeight && !isLoading) {
+      setPage((prevPage) => prevPage + 1);
+    }
   };
 
   useEffect(() => {
-    fetchAllTypeProduct();
-  }, []);
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isLoading]);
+
+  useEffect(() => {
+    const fetchAllTypeProduct = async () => {
+      try {
+        const res = await ProductService.getAllProduct({
+          page,
+        });
+        if (res.data.length > 0 && res.status === "OK")
+          setListProduct((prev) => [...prev, ...res.data]);
+        else {
+          setIsCallApi(false);
+        }
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(true);
+      }
+    };
+    if (isCallApi) {
+      fetchAllTypeProduct();
+    }
+  }, [page]);
 
   return (
     <ContainerHome>
@@ -55,7 +81,11 @@ const HomePage = () => {
 
             {listProduct.length > 0 && (
               <ContainerProducts>
-                <h3>Sản phẩm nổi bật</h3>
+                <TextTitleComponent
+                  text={"Sản phẩm nổi bật"}
+                  style={{ fontSize: "18px", margin: 0 }}
+                />
+
                 <WrapperProducts>
                   {listProduct?.map((product, index) => {
                     return (
@@ -69,7 +99,7 @@ const HomePage = () => {
                         type={product?.type}
                         discount={product?.discount}
                         size={product?.size}
-                        colors={product?.colors}
+                        color={product?.color}
                         id={product?._id}
                         isIconDelete={false}
                       />
@@ -78,53 +108,6 @@ const HomePage = () => {
                 </WrapperProducts>
               </ContainerProducts>
             )}
-
-            {/* <NavbarComponent /> */}
-
-            <div
-              style={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-              }}>
-              <ButtonComponent
-                textButton={"Xem thêm"}
-                styleButton={{
-                  padding: "10px 28px",
-                  background: "#d85dff57",
-                  borderRadius: "5px",
-                  margin: "12px 0",
-                }}
-              />
-              {/* <WrapperButtonMore
-                text={"Load more"}
-                type="outline"
-                styleButton={{
-                  border: `1px solid ${
-                    products?.total === products?.data?.length
-                      ? "#f5f5f5"
-                      : "#9255FD"
-                  }`,
-                  color: `${
-                    products?.total === products?.data?.length
-                      ? "#f5f5f5"
-                      : "#9255FD"
-                  }`,
-                  width: "240px",
-                  height: "38px",
-                  borderRadius: "4px",
-                }}
-                disabled={
-                  products?.total === products?.data?.length ||
-                  products?.totalPage === 1
-                }
-                styleTextButton={{
-                  fontWeight: 500,
-                  color: products?.total === products?.data?.length && "#fff",
-                }}
-                onClick={() => setLimit((prev) => prev + 6)}
-              /> */}
-            </div>
           </ContainerHome>
         </ContainerOrder>
       </Loading>

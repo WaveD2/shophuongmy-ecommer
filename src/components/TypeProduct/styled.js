@@ -7,22 +7,24 @@ export const WrapperType = styled.div`
   transition: all 3s ease;
   color: #333;
 
-  &::after {
-    content: " ";
-    position: absolute;
-    top: 10px;
-    left: 0;
-    height: 100%;
-    width: 100%;
-  }
-
   &:hover {
-    border-bottom: 2px solid #333;
-    border-radius: 4px;
+    transition: all 3s ease-in-out;
+
+    &::after {
+      content: " ";
+      position: absolute;
+      top: 18px;
+      left: 0px;
+      height: 18px;
+      width: 100%;
+      border-bottom: 2px solid #020202;
+    }
   }
 
   &:hover section {
+    border-radius: 2px;
     display: block;
+    padding-bottom: 3px;
   }
 `;
 export const WrapperMenuItem = styled.section`
@@ -30,15 +32,20 @@ export const WrapperMenuItem = styled.section`
   position: absolute;
   top: 36px;
   left: 0;
-  padding: 10px;
   min-width: max-content;
   background-color: #ccc;
   z-index: 999;
   transition: all 0.3s ease;
 
-  & > h3 {
+  div {
+    padding: 8px 24px;
+    margin: 0 auto;
+    & > h3 {
+      margin-bottom: 0;
+    }
     &:hover {
-      color: #fff;
+      background-color: #47434359;
+      color: #fcfcfc;
       transition: inherit;
     }
   }

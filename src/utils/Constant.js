@@ -5,7 +5,6 @@ export const MenuHeader = [
   },
   {
     name: "Sản phẩm",
-    href: "/product",
     isDown: true,
     menuItem: [
       {
@@ -17,8 +16,8 @@ export const MenuHeader = [
         href: "/product/thoi-trang-be-gai",
       },
       {
-        name: "Thời trang mẹ và bé",
-        href: "/product/thoi-trang-me-be",
+        name: "Thời trang trẻ em",
+        href: "/product/thoi-trang-tre-em",
       },
       {
         name: "Phụ kiện",
@@ -33,6 +32,39 @@ export const MenuHeader = [
   {
     name: "Giới thiệu",
     href: "/about-us",
+  },
+];
+
+export const OptionPriceProduct = [
+  {
+    value: "0-50000",
+    title: "0 - 50.000",
+  },
+  {
+    value: "50000-100000",
+    title: "50.000 - 100.000",
+  },
+  {
+    value: "100000-500000",
+    title: "100.000 - 500.000",
+  },
+  {
+    value: "500000-1000000",
+    title: "500.000 - 1.000.000",
+  },
+];
+export const OptionDiscountProduct = [
+  {
+    value: "0-10",
+    title: "dưới 10%",
+  },
+  {
+    value: "10-20",
+    title: "10% - 20%",
+  },
+  {
+    value: "20-50",
+    title: "20% - 50%",
   },
 ];
 
@@ -99,36 +131,30 @@ export const Payments = [
 
 export const optionsColorsProduct = [
   {
-    value: "Đen",
+    value: "black",
     label: "Đen",
-    color: "Black",
   },
   {
-    value: "Xám",
-    color: "Gray",
+    value: "gray",
     label: "Xám",
   },
 
   {
-    value: "Cam",
-    color: "Orange",
+    value: "orange",
     label: "Cam",
   },
 
   {
-    value: "Hồng",
-    color: "Pink",
-    label: "Hồng",
+    value: "pink",
+    label: "Hòng",
   },
 
   {
-    value: "Trắng",
-    color: "#ccc",
-    label: "Trắng",
+    value: "white",
+    label: " Trắng",
   },
   {
-    value: "Vàng",
-    color: "Yellow",
+    value: "yellow",
     label: "Vàng",
   },
 ];
@@ -137,26 +163,23 @@ export const optionsSizeProduct = [
   {
     value: "S",
     label: "S",
-    color: "#f50",
   },
   {
     value: "M",
     label: "M",
-    color: "#2db7f5",
   },
   {
     value: "L",
     label: "L",
-    color: "#87d068",
   },
   {
     value: "XL",
     label: "XL",
-    color: "#108ee9",
   },
   {
     value: "XXL",
     label: "XXL",
-    color: "#f55",
   },
 ];
+
+export const optionNavBarPrice = [];

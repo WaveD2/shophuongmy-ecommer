@@ -21,11 +21,10 @@ export const WrapperIconProduct = styled.div`
   gap: 12px;
 `;
 export const StyleNameProduct = styled.div`
-  font-weight: 400;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 16px;
-  color: rgb(56, 56, 61);
-  font-weight: 400;
+  color: rgb(232 39 39);
+  font-weight: 600;
 `;
 
 export const WrapperReportText = styled.div`
@@ -48,8 +47,9 @@ export const WrapperDiscountText = styled.span`
   font-weight: 500;
 `;
 
-export const WrapperStyleTextSell = styled.span`
-  font-size: 15px;
-  line-height: 24px;
+export const WrapperStyleTextSell = styled.p`
+  font-size: 14px;
+  line-height: 14px;
   color: rgb(120, 120, 120);
+  margin: 14px 0 2px;
 `;

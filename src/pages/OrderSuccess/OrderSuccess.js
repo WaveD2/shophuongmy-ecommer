@@ -14,6 +14,7 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { orderConstant, Payments } from "../../utils/Constant";
 import { convertPrice } from "../../utils/convert";
+import { BoxDetailOrder } from "../OrderPage/style";
 
 const OrderSuccessPage = () => {
   const location = useLocation();
@@ -58,21 +59,15 @@ const OrderSuccessPage = () => {
                       }}>
                       <img
                         src={order.image}
-                        style={{
-                          width: "77px",
-                          height: "79px",
-                          objectFit: "cover",
-                        }}
+                        className="styleImg"
+                        alt="ảnh sản phẩm"
                       />
-                      <div
-                        style={{
-                          width: 260,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}>
-                        {order?.name}
-                      </div>
+                      <BoxDetailOrder>
+                        <h3>{order?.name}</h3>
+                        <p>
+                          {order?.size} - <span>{order?.color}</span>
+                        </p>
+                      </BoxDetailOrder>
                     </div>
                     <div
                       style={{

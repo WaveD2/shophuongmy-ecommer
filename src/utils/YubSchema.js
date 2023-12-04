@@ -1,5 +1,10 @@
 import * as Yup from "yup";
 import SelectForm from "../components/InputForm/SelectForm";
+import InputPassword from "../components/InputForm/InputPassword";
+import { useEffect } from "react";
+import { optionsColorsProduct, optionsSizeProduct } from "./Constant";
+import TagsComponent from "../components/SelectedComponent/TagsComponent";
+import TextAreaForm from "../components/InputForm/TextAreaForm";
 
 export const SignUpSchema = Yup.object().shape({
   name: Yup.string()
@@ -80,6 +85,7 @@ export const fieldsSignIn = {
       label: "Mật khẩu",
       name: "password",
       type: "password",
+      component: InputPassword,
     },
   ],
 };
@@ -135,13 +141,15 @@ export const fieldsInfoUser = {
 
 export const ProductSchema = Yup.object().shape({
   name: Yup.string().required("Vui lòng nhập tên sản phẩm"),
-  type: Yup.string().required("Vui lòng nhập loại sản phẩm"),
   countInStock: Yup.number("Vui lòng nhập đúng số").required(
     "Vui lòng nhập số lượng sản phẩm ở kho"
   ),
   price: Yup.string().required("Vui lòng nhập giá tiền sản phẩm"),
   description: Yup.string(),
   discount: Yup.number("Vui lòng nhập đúng số"),
+  color: Yup.array().required("Vui lòng chọn màu sản phẩm"),
+  size: Yup.array().required("Vui lòng chọn kích thước sản phẩm"),
+  type: Yup.array().required("Vui lòng chọn kiểu của sản phẩm"),
 });
 
 export const fieldsCreateProduct = {
@@ -151,17 +159,36 @@ export const fieldsCreateProduct = {
     description: "",
     countInStock: "",
     discount: "",
-    type: "",
+    size: optionsSizeProduct,
+    color: optionsColorsProduct,
+
+    type: [
+      {
+        value: "thoi-trang-me-be",
+        label: "thời trang mẹ và trẻ",
+      },
+      {
+        value: "thoi-trang-giam-gia",
+        label: "Thời trang giảm giá",
+      },
+      {
+        value: "thoi-trang-noi-bat",
+        label: "Thời trang nổi bật",
+      },
+      {
+        value: "phu-kien",
+        label: "Phụ kiện",
+      },
+      {
+        value: "thoi-trang-be-trai",
+        label: "Thời trang bé trai",
+      },
+    ],
   },
   fields: [
     {
       label: "Tên sản phẩm",
       name: "name",
-      type: "text",
-    },
-    {
-      label: "Loại",
-      name: "type",
       type: "text",
     },
     {
@@ -180,9 +207,26 @@ export const fieldsCreateProduct = {
       type: "text",
     },
     {
+      label: "Loại",
+      name: "type",
+      type: "text",
+      component: SelectForm,
+    },
+
+    {
+      label: "Kích thước",
+      name: "size",
+      component: TagsComponent,
+    },
+    {
+      label: "Màu sắc",
+      name: "color",
+      component: TagsComponent,
+    },
+    {
       label: "Mô tả sản phẩm",
       name: "description",
-      as: "textarea",
+      component: TextAreaForm,
       type: "text",
     },
   ],

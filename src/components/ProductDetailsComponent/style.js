@@ -36,32 +36,16 @@ export const WrapperPriceProduct = styled.div`
   border-radius: 4px;
 `;
 
-export const WrapperPriceTextProduct = styled.h1`
-  font-size: 32px;
-  line-height: 40px;
+export const WrapperPriceTextProduct = styled.div`
+  display: flex;
+  gap: 18px;
   margin-right: 8px;
-  font-weight: 500;
   margin-top: 10px;
+  align-items: center;
 `;
 
 export const WrapperAddressProduct = styled.div`
-  margin: 10px 0;
-
-  span.address {
-    text-decoration: underline;
-    font-size: 15px;
-    line-height: 24px;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  span.change-address {
-    color: rgb(11, 116, 229);
-    font-size: 16px;
-    line-height: 24px;
-    font-weight: 500;
-  }
+  margin: 14px 0;
 `;
 
 export const WrapperQualityProduct = styled.div`
@@ -88,11 +72,23 @@ export const WrapperInputNumber = styled(InputNumber)`
 `;
 
 export const BoxInDecrease = styled.div`
-  margin: 10px 0 20px;
+  margin: 0 0 20px;
   padding: 10px 0;
   border-top: 1px solid #e5e5e5;
   border-bottom: 1px solid #e5e5e5;
   display: flex;
   gap: 12px;
   align-items: center;
+`;
+
+export const BoxColorProduct = styled.div`
+  width: 25px;
+  height: 25px;
+  outline: none;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+
+  &.active {
+    border: 2px solid #e493bfe0 !important;
+  }
 `;

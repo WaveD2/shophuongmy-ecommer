@@ -1,5 +1,17 @@
 import { Col, Image, Rate, Row } from "antd";
-import React from "react";
+import React, { lazy, Suspense, Component } from "react";
+import { useEffect } from "react";
+import { convertPrice } from "../../utils/convert";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+
+import * as ProductService from "../../services/ProductService";
+
+import { addOrderProduct, addHeartProduct } from "../../redux/Slice/orderSlide";
+
+import { PlusOutlined, MinusOutlined, HeartOutlined } from "@ant-design/icons";
 import {
   WrapperStyleImageSmall,
   WrapperStyleColImage,
@@ -11,40 +23,40 @@ import {
   WrapperQualityProduct,
   WrapperInputNumber,
   BoxInDecrease,
+  BoxColorProduct,
 } from "./style";
-import { PlusOutlined, MinusOutlined, HeartOutlined } from "@ant-design/icons";
-import ButtonComponent from "../ButtonComponent/ButtonComponent";
-import * as ProductService from "../../services/ProductService";
-import { useQuery } from "@tanstack/react-query";
-import Loading from "../LoadingComponent/LoadingComponent";
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
-import Message from "../Message/Message";
-import LikeButtonComponent from "../LikeButtonComponent/LikeButtonComponent";
-import { convertPrice } from "../../utils/convert";
-import TabsComponent from "../TabsComponent/TabsComponent";
 import { ContainerProducts, WrapperProducts } from "../../pages/HomePage/style";
-import CardComponent from "../CardComponent/CardComponent";
-import SelectOption from "../InputForm/SelectOption";
-import {
-  addOrderProduct,
-  addHeartProduct,
-  resetOrder,
-} from "../../redux/Slice/orderSlide";
-import TooltipComponent from "../TooltipComponent/TooltipComponent";
+
+import Loading from "../LoadingComponent/LoadingComponent";
+import LoadingForComponentLazy from "../LoadingComponent/LoadingForComponentLazy";
+import { LogIn } from "../../services/UserService";
+
+const ButtonComponent = lazy(() =>
+  import("../ButtonComponent/ButtonComponent")
+);
+const Message = lazy(() => import("../Message/Message"));
+const TooltipComponent = lazy(() =>
+  import("../TooltipComponent/TooltipComponent")
+);
+const TabsComponent = lazy(() => import("../TabsComponent/TabsComponent"));
+const CardComponent = lazy(() => import("../CardComponent/CardComponent"));
+const SelectOption = lazy(() => import("../InputForm/SelectOption"));
 
 const ProductDetailsComponent = () => {
   const { id: idProduct } = useParams();
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorLimitOrder, setErrorLimitOrder] = useState(false);
   const [numProduct, setNumProduct] = useState(1);
   const [detailProduct, setDetailProduct] = useState();
-  const [isLoading, setIsLoading] = useState(true);
   const [sizeProduct, setSizeProduct] = useState("");
   const [colorProduct, setColorProduct] = useState("");
   const [detailImgPreview, setDetailImgPreview] = useState();
   const [listProduct, setListProduct] = useState([]);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
 
   const user = useSelector((state) => state.user);
   const order = useSelector((state) => state.order);
@@ -52,10 +64,6 @@ const ProductDetailsComponent = () => {
   const productHeart = order?.orderItemsHeart?.some(
     (product) => product.id === idProduct
   );
-  const [errorLimitOrder, setErrorLimitOrder] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const dispatch = useDispatch();
 
   const onChange = (value) => {
     setNumProduct(Number(value));
@@ -73,13 +81,10 @@ const ProductDetailsComponent = () => {
       setIsLoading(true);
     }
   };
-  // useEffect(() => {
-  //     initFacebookSDK()
-  // }, [])
+
   const { data: productDetails } = useQuery({
     queryKey: ["products-detail"],
     queryFn: fetchGetDetailsProduct,
-    refetchOnWindowFocus: false,
     enabled: false,
   });
 
@@ -90,7 +95,7 @@ const ProductDetailsComponent = () => {
   const fetchAllTypeProduct = async () => {
     if (detailProduct?.type) {
       const res = await ProductService.getListProductType({
-        type: detailProduct.type,
+        type: detailProduct.type[0],
       });
       if (res.status === "OK") {
         setListProduct(res.data);
@@ -121,8 +126,7 @@ const ProductDetailsComponent = () => {
         mes: "Vui lòng đăng nhập để tiếp tục mua hàng",
       });
       return navigate("/sign-in", { state: location?.pathname });
-    }
-    if (!sizeProduct) {
+    } else if (!sizeProduct) {
       Message({ typeMes: "error", mes: "Vui lòng chọn size sản phẩm" });
     } else if (!colorProduct) {
       Message({ typeMes: "error", mes: "Vui lòng chọn màu sản phẩm" });
@@ -137,7 +141,7 @@ const ProductDetailsComponent = () => {
             price: detailProduct?.price,
             id: detailProduct?._id,
             discount: detailProduct?.discount,
-            countInstock: detailProduct?.countInStock,
+            countInstock: detailProduct?.countInStock - numProduct,
             size: sizeProduct,
             color: colorProduct,
           },
@@ -146,34 +150,28 @@ const ProductDetailsComponent = () => {
     }
   };
 
-  console.log("detailProduct", detailProduct);
-
   const handleAddProductHeart = (e) => {
     e.stopPropagation();
     dispatch(
       addHeartProduct({
         orderItem: {
           name: detailProduct?.name,
-          amount: numProduct,
           image: detailImgPreview,
           price: detailProduct?.price,
           id: detailProduct?._id,
           discount: detailProduct?.discount,
           countInstock: detailProduct?.countInStock,
-          size: sizeProduct,
-          color: colorProduct,
+          size: sizeProduct || detailProduct?.size[0].value,
+          color: colorProduct || detailProduct?.color[0].value,
         },
       })
     );
   };
 
   const handleAddOrderProduct = (e) => {
-    const orderRedux = order?.orderItems?.find(
-      (item) => item.product === productDetails?._id
-    );
     if (
-      orderRedux?.amount + numProduct <= orderRedux?.countInstock ||
-      (!orderRedux && productDetails?.countInStock > 0)
+      detailProduct.countInStock > 0 &&
+      detailProduct?.countInStock > numProduct
     ) {
       dispatch(
         addOrderProduct({
@@ -184,9 +182,9 @@ const ProductDetailsComponent = () => {
             price: detailProduct?.price,
             id: detailProduct?._id,
             discount: detailProduct?.discount,
-            countInstock: detailProduct?.countInStock,
-            size: detailProduct?.size[0],
-            color: detailProduct?.colors[0],
+            countInstock: detailProduct?.countInStock - numProduct,
+            size: sizeProduct || detailProduct?.size[0].value,
+            color: colorProduct || detailProduct?.color[0].value,
           },
         })
       );
@@ -201,10 +199,10 @@ const ProductDetailsComponent = () => {
 
   return (
     <div>
-      <Loading isLoading={isLoading}>
+      <Suspense fallback={<Loading isLoading={isLoading} />}>
         <Row
           style={{
-            padding: "16px",
+            padding: "0 10px",
             background: "#fff",
             borderRadius: "4px",
             height: "100%",
@@ -219,9 +217,9 @@ const ProductDetailsComponent = () => {
             {detailProduct?.images.length > 1 && (
               <Row
                 style={{
-                  paddingTop: "10px",
                   flexDirection: "column",
                   gap: "4px",
+                  marginRight: "30px",
                 }}>
                 {detailProduct?.images.map((img, index) => (
                   <WrapperStyleColImage span={4} key={index}>
@@ -241,16 +239,15 @@ const ProductDetailsComponent = () => {
             <div
               style={{
                 position: "relative",
-                maxHeight: "526px",
+                border: "3px solid #cccccc",
+                borderRadius: "8px",
                 width: "100%",
               }}>
               <Image
                 src={detailImgPreview}
                 alt="ảnh sản phẩm"
-                preview={false}
-                style={{
-                  height: "100%",
-                }}
+                preview={true}
+                className="ant-image"
               />
               <span
                 style={{
@@ -259,24 +256,26 @@ const ProductDetailsComponent = () => {
                   right: "10px",
                   fontSize: "24px",
                 }}>
-                <TooltipComponent
-                  handlerClick={handleAddProductHeart}
-                  title={"Yêu thích"}
-                  children={
-                    productHeart ? (
-                      <svg
-                        width="1.3em"
-                        height="1.3em"
-                        fill="currentColor"
-                        viewBox="64 64 896 896"
-                        color="#ee6262">
-                        <path d="M923 283.6c-13.4-31.1-32.6-58.9-56.9-82-24.3-23.8-52.5-42.4-84-55.5-32.5-13.5-66.9-20.3-102.4-20.3-49.3 0-97.4 13.5-139.2 39-10 6.1-19.5 12.8-28.5 20.1-9-7.3-18.5-14-28.5-20.1-41.8-25.5-89.9-39-139.2-39-35.5 0-69.9 6.8-102.4 20.3-31.4 13-59.7 31.7-84 55.5-24.4 23.9-43.5 51.7-56.9 82.8-13.9 32.3-21 66.6-21 101.9 0 33.3 6.8 68 20.3 103.3 11.3 29.5 27.5 60.1 48.2 91 32.8 48.9 77.9 99.9 133.9 151.6 92.8 85.7 184.7 144.9 188.6 147.3l23.7 15.2c10.5 6.7 24 6.7 34.5 0l23.7-15.2c3.9-2.5 95.7-61.6 188.6-147.3 56-51.7 101.1-102.7 133.9-151.6 20.7-30.9 37-61.5 48.2-91 13.5-35.3 20.3-70 20.3-103.3 0.1-35.3-7-69.6-20.9-101.9z" />
-                      </svg>
-                    ) : (
-                      <HeartOutlined className="styleIconBox" />
-                    )
-                  }
-                />
+                <Suspense fallback={<LoadingForComponentLazy />}>
+                  <TooltipComponent
+                    handlerClick={handleAddProductHeart}
+                    title={"Yêu thích"}
+                    children={
+                      productHeart ? (
+                        <svg
+                          width="1.3em"
+                          height="1.3em"
+                          fill="currentColor"
+                          viewBox="64 64 896 896"
+                          color="#ee6262">
+                          <path d="M923 283.6c-13.4-31.1-32.6-58.9-56.9-82-24.3-23.8-52.5-42.4-84-55.5-32.5-13.5-66.9-20.3-102.4-20.3-49.3 0-97.4 13.5-139.2 39-10 6.1-19.5 12.8-28.5 20.1-9-7.3-18.5-14-28.5-20.1-41.8-25.5-89.9-39-139.2-39-35.5 0-69.9 6.8-102.4 20.3-31.4 13-59.7 31.7-84 55.5-24.4 23.9-43.5 51.7-56.9 82.8-13.9 32.3-21 66.6-21 101.9 0 33.3 6.8 68 20.3 103.3 11.3 29.5 27.5 60.1 48.2 91 32.8 48.9 77.9 99.9 133.9 151.6 92.8 85.7 184.7 144.9 188.6 147.3l23.7 15.2c10.5 6.7 24 6.7 34.5 0l23.7-15.2c3.9-2.5 95.7-61.6 188.6-147.3 56-51.7 101.1-102.7 133.9-151.6 20.7-30.9 37-61.5 48.2-91 13.5-35.3 20.3-70 20.3-103.3 0.1-35.3-7-69.6-20.9-101.9z" />
+                        </svg>
+                      ) : (
+                        <HeartOutlined className="styleIconBox" />
+                      )
+                    }
+                  />
+                </Suspense>
               </span>
             </div>
           </Col>
@@ -290,34 +289,68 @@ const ProductDetailsComponent = () => {
             </div>
             <WrapperPriceProduct>
               <WrapperPriceTextProduct>
-                {convertPrice(detailProduct?.price)}
+                <span
+                  style={{
+                    textDecoration: "line-through",
+                    color: "#ebcdcd",
+                    fontSize: "16px",
+                  }}>
+                  {detailProduct?.discount &&
+                    convertPrice(detailProduct?.price)}
+                </span>
+                <span style={{ fontSize: "30px", color: "red" }}>
+                  {convertPrice(
+                    (detailProduct?.price * detailProduct?.discount) / 100
+                  ) || convertPrice(detailProduct?.price)}
+                </span>
+                <span
+                  style={{
+                    display: "inline-block",
+                    padding: "10px",
+                    background: "#f79e9e",
+                    borderRadius: "16px",
+                    color: "#fff",
+                  }}>
+                  {detailProduct?.discount &&
+                    `Tiết kiệm ${detailProduct?.discount}%`}
+                </span>
               </WrapperPriceTextProduct>
             </WrapperPriceProduct>
             <WrapperAddressProduct>
-              <span>Giao đến </span>
-              <span className="address">{user?.address}</span> -
-              <span className="change-address">Đổi địa chỉ</span>
+              <span className="des_text">{detailProduct?.description}</span>
             </WrapperAddressProduct>
-            {/* <LikeButtonComponent
-                       dataHref={ process.env.REACT_APP_IS_LOCAL 
-                                  ? "https://developers.facebook.com/docs/plugins/" 
-                                  : window.location.href
-                              } 
-                      /> */}
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                margin: "10px 0",
+              }}>
+              {detailProduct?.color?.map((item, index) => (
+                <BoxColorProduct
+                  key={index}
+                  className={colorProduct === item.value && "active"}
+                  id={item.value}
+                  onClick={(e) => {
+                    setColorProduct(e.target.id);
+                  }}
+                  style={{
+                    background: `${item.value}`,
+                  }}
+                />
+              ))}
+            </div>
 
             <div style={{ display: "flex" }}>
-              <SelectOption
-                styleWidth={"120px"}
-                handleChange={(value) => setColorProduct(value)}
-                placeholder={"Chọn màu"}
-                optionsItem={detailProduct?.colors}
-              />
-              <SelectOption
-                styleWidth={"120px"}
-                handleChange={(value) => setSizeProduct(value)}
-                placeholder={"Chọn size"}
-                optionsItem={detailProduct?.size}
-              />
+              <Suspense fallback={<LoadingForComponentLazy />}>
+                <SelectOption
+                  styleWidth={"120px"}
+                  handleChange={(value) => setSizeProduct(value)}
+                  placeholder={"Chọn size"}
+                  optionsItem={detailProduct?.size}
+                />
+              </Suspense>
             </div>
 
             <BoxInDecrease>
@@ -334,14 +367,18 @@ const ProductDetailsComponent = () => {
                   }>
                   <MinusOutlined style={{ color: "#000", fontSize: "20px" }} />
                 </button>
-                <WrapperInputNumber
-                  onChange={onChange}
-                  defaultValue={1}
-                  max={detailProduct?.countInStock}
-                  min={1}
-                  value={numProduct}
-                  size="small"
-                />
+
+                <Suspense fallback={<LoadingForComponentLazy />}>
+                  <WrapperInputNumber
+                    onChange={onChange}
+                    defaultValue={1}
+                    max={detailProduct?.countInStock}
+                    min={1}
+                    value={numProduct}
+                    size="small"
+                  />
+                </Suspense>
+
                 <button
                   style={{
                     border: "none",
@@ -360,74 +397,79 @@ const ProductDetailsComponent = () => {
             </BoxInDecrease>
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <div>
-                <ButtonComponent
-                  onClick={() => handleBuyProduct()}
-                  size={40}
-                  styleButton={{
-                    background: "rgb(255, 57, 69)",
-                    height: "48px",
-                    minWidth: "180px",
-                    border: "none",
-                    borderRadius: "4px",
-                  }}
-                  textButton={"Mua ngay"}
-                  styleTextButton={{
-                    color: "#fff",
-                    fontSize: "15px",
-                    fontWeight: "700",
-                  }}></ButtonComponent>
+                <Suspense fallback={<LoadingForComponentLazy />}>
+                  <ButtonComponent
+                    onClick={() => handleBuyProduct()}
+                    size={40}
+                    styleButton={{
+                      background: "rgb(255, 57, 69)",
+                      height: "48px",
+                      minWidth: "180px",
+                      border: "none",
+                      borderRadius: "4px",
+                    }}
+                    textButton={"Mua ngay"}
+                    styleTextButton={{
+                      color: "#fff",
+                      fontSize: "15px",
+                      fontWeight: "700",
+                    }}
+                  />{" "}
+                </Suspense>
+
                 {errorLimitOrder && (
                   <div style={{ color: "red" }}>San pham het hang</div>
                 )}
               </div>
-              <ButtonComponent
-                size={40}
-                onClick={handleAddOrderProduct}
-                styleButton={{
-                  background: "#fff",
-                  height: "48px",
-                  minWidth: "180px",
-                  border: "1px solid rgb(13, 92, 182)",
-                  borderRadius: "4px",
-                }}
-                textButton={"Thêm vào giỏ hàng"}
-                styleTextButton={{
-                  color: "rgb(13, 92, 182)",
-                  fontSize: "15px",
-                }}></ButtonComponent>
+
+              <Suspense fallback={<LoadingForComponentLazy />}>
+                <ButtonComponent
+                  size={40}
+                  onClick={handleAddOrderProduct}
+                  styleButton={{
+                    background: "#fff",
+                    height: "48px",
+                    minWidth: "180px",
+                    border: "1px solid rgb(13, 92, 182)",
+                    borderRadius: "4px",
+                  }}
+                  textButton={"Thêm vào giỏ hàng"}
+                  styleTextButton={{
+                    color: "rgb(13, 92, 182)",
+                    fontSize: "15px",
+                  }}
+                />
+              </Suspense>
             </div>
           </Col>
-          {/* <CommentComponent 
-                      dataHref={process.env.REACT_APP_IS_LOCAL 
-                          ? "https://developers.facebook.com/docs/plugins/comments#configurator"
-                          : window.location.href
-                      } 
-                      width="1270" 
-                  /> */}
         </Row>
-      </Loading>
+      </Suspense>
 
-      <TabsComponent />
+      <Suspense fallback={<LoadingForComponentLazy />}>
+        <TabsComponent />
+      </Suspense>
 
       {listProduct.length > 0 && (
         <ContainerProducts>
           <h3>Sản phẩm liên quan</h3>
           <WrapperProducts>
-            {listProduct?.map((product, index) => {
-              return (
-                <CardComponent
-                  key={index}
-                  countInStock={product.countInStock}
-                  description={product.description}
-                  images={product.images}
-                  name={product.name}
-                  price={product.price}
-                  type={product.type}
-                  discount={product.discount}
-                  id={product._id}
-                />
-              );
-            })}
+            <Suspense fallback={<LoadingForComponentLazy />}>
+              {listProduct?.map((product, index) => {
+                return (
+                  <CardComponent
+                    key={index}
+                    countInStock={product.countInStock}
+                    description={product.description}
+                    images={product.images}
+                    name={product.name}
+                    price={product.price}
+                    type={product.type}
+                    discount={product.discount}
+                    id={product._id}
+                  />
+                );
+              })}
+            </Suspense>
           </WrapperProducts>
         </ContainerProducts>
       )}

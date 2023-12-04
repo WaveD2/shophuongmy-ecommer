@@ -3,7 +3,7 @@ import { orderConstant } from "./Constant";
 export const convertPrice = (price) => {
   try {
     const result = price?.toLocaleString().replaceAll(",", ".");
-    return `${result} VND`;
+    return `${result}₫`;
   } catch (error) {
     return null;
   }
@@ -42,16 +42,25 @@ export const isJsonString = (data) => {
   return true;
 };
 
-export const convertTypeProduct = ({ type }) => {
-  const newTypeProduct = type
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9\s]/g, "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .toLowerCase();
+export const convertTypeProduct = (str) => {
+  console.log("str", str);
+  if (str.length > 0 && Array.isArray(str)) {
+    const newArrayType = str.map((item) => {
+      const newStr = item
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+      return newStr.replace(/\s+/g, "-");
+    });
+    return newArrayType;
+  } else {
+    const newStr = str
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
 
-  return newTypeProduct;
+    return newStr.replace(/\s+/g, "-");
+  }
 };
 
 export const convertDate = (date) => {

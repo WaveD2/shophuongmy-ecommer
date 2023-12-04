@@ -2,8 +2,6 @@ import React from "react";
 import { Radio, Tabs } from "antd";
 
 const TabsComponent = (props) => {
-  // const { item } = props;
-  console.log("props", props);
   const items = [
     {
       key: "1",

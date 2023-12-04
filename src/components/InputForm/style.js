@@ -43,16 +43,16 @@ export const WrapperSelectStyle = styled(Form)``;
 // export const WrapperSelectStyle = styled(Select)``;
 
 export const WrapperRadio = styled(Radio.Group)`
-  margin-top: 6px;
+  margin: 6px 0;
   background: rgb(240, 248, 255);
   border: 1px solid rgb(194, 225, 255);
-  width: 500px;
+  width: 100%;
   border-radius: 4px;
-  height: 100px;
   padding: 16px;
   font-weight: normal;
   display: flex;
   flex-direction: column;
   gap: 10px;
   justify-content: center;
+  text-wrap: nowrap;
 `;

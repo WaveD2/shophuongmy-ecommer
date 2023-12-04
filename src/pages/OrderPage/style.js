@@ -6,7 +6,6 @@ export const ContainerOrder = styled.div`
   height: 100%;
   max-width: 1270px;
   margin: 0 auto;
-  padding: 20px 0;
 `;
 
 export const WrapperOrder = styled.div`
@@ -110,4 +109,12 @@ export const CustomCheckbox = styled(Checkbox)`
 export const LabelTitle = styled.p`
   font-size: 16px;
   font-weight: 600;
+`;
+
+export const BoxDetailOrder = styled.div`
+  width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
 `;

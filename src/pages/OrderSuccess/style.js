@@ -67,7 +67,7 @@ export const WrapperRight = styled.div`
 export const WrapperInfo = styled.div`
   padding: 17px 20px;
   border-bottom: 1px solid #f5f5f5;
-  background: ##f2eded;
+  background: #f2eded;
   border-top-right-radius: 6px;
   border-top-left-radius: 6px;
   width: 100%;
@@ -82,7 +82,8 @@ export const WrapperItemOrderInfo = styled.div`
   border-top-left-radius: 6px;
   width: 100%;
   display: flex;
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
 `;
 
 export const WrapperTotal = styled.div`

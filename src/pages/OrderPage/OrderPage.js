@@ -2,6 +2,7 @@
 import { Form, Input } from "antd";
 import React, { useEffect, useState } from "react";
 import {
+  BoxDetailOrder,
   ContainerOrder,
   CustomCheckbox,
   LabelTitle,
@@ -30,7 +31,7 @@ import ModalComponent from "../../components/ModalComponent/ModalComponent";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as UserService from "../../services/UserService";
 import * as OrderService from "../../services/OrderService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { convertPrice } from "../../utils/convert";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
 import { updateUser } from "../../redux/Slice/userSlice";
@@ -51,6 +52,7 @@ import { TextProductFavorite } from "../ProductFavoritePage/style";
 import { PayPalButton } from "react-paypal-button-v2";
 import * as PaymentService from "../../services/PaymentService";
 import RadioComponent from "../../components/InputForm/RadioCheckBox";
+import HookDebounce from "../../utils/HookDebounce";
 
 const OrderPage = () => {
   const order = useSelector((state) => state.order);
@@ -86,6 +88,8 @@ const OrderPage = () => {
   const [moneyTransportation, setMoneyTransportation] = useState(0);
 
   const [isCheckValidate, setIsCheckValidate] = useState(false);
+
+  const location = useLocation();
 
   const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -206,8 +210,8 @@ const OrderPage = () => {
     }
   };
 
-  const handleDeleteOrder = (idProduct) => {
-    dispatch(removeOrderProduct(idProduct));
+  const handleDeleteOrder = (idProduct, color, size) => {
+    dispatch(removeOrderProduct({ idProduct, color, size }));
   };
   const handleSetPhone = (e) => {
     if (e.target.value) setPhoneNew(Number(e.target.value));
@@ -229,9 +233,10 @@ const OrderPage = () => {
     }
   };
 
-  useEffect(() => {
-    dispatch(selectedOrder({ listChecked }));
-  }, [listChecked]);
+  // useEffect(() => {
+  //   console.log(":listChecked", listChecked);
+  //   dispatch(selectedOrder({ listChecked }));
+  // }, [listChecked]);
 
   // useEffect(() => {
   //   form.setFieldsValue(stateUserDetails);
@@ -264,9 +269,7 @@ const OrderPage = () => {
     isSuccess,
     isError,
   } = mutationAddOrder;
-
-  console.log("mutationAddOrder", mutationAddOrder);
-
+  const isDebouncing = HookDebounce(isLoadingAddOrder);
   useEffect(() => {
     if (isSuccess && dataAdd?.status === "OK") {
       const arrayOrdered = [];
@@ -347,8 +350,6 @@ const OrderPage = () => {
       isPaid: true,
       paidAt: details.update_time,
       email: user?.email,
-      size: order?.size,
-      colors: order?.color,
       shippingMethod: delivery,
     });
   };
@@ -408,8 +409,6 @@ const OrderPage = () => {
           phone: phoneNew,
           city: cityOrder?.name,
           paymentMethod: payment,
-          size: order?.size,
-          colors: order?.color,
           shippingPrice: moneyTransportation,
           totalPrice: order?.totalPrice,
           user: user?.id,
@@ -423,13 +422,13 @@ const OrderPage = () => {
     setIsCheckValidate(false);
   }, [isCheckValidate]);
 
-  // useEffect(() => {
-  //   if (!window.paypal) {
-  //     addPaypalScript();
-  //   } else {
-  //     setSdkReady(true);
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (!window.paypal) {
+      addPaypalScript();
+    } else {
+      setSdkReady(true);
+    }
+  }, []);
 
   return (
     <div className="containerBoxPage">
@@ -465,9 +464,9 @@ const OrderPage = () => {
 
             <WrapperListOrder>
               {order?.orderItems.length > 0 ? (
-                order?.orderItems?.map((order) => {
+                order?.orderItems?.map((order, index) => {
                   return (
-                    <WrapperItemOrder key={order?.id}>
+                    <WrapperItemOrder key={index}>
                       <div
                         style={{
                           width: "280px",
@@ -481,23 +480,19 @@ const OrderPage = () => {
                           checked={listChecked.includes(
                             order?.product
                           )}></CustomCheckbox>
-                        <img
-                          src={order?.image}
-                          style={{
-                            width: "77px",
-                            height: "79px",
-                            objectFit: "cover",
-                          }}
-                        />
-                        <div
-                          style={{
-                            width: 260,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
+                        <img src={order?.image} className="styleImg" />
+                        <BoxDetailOrder
+                          onClick={(e) => {
+                            e.preventDefault();
+                            navigate(`/product-details/${order.id}`, {
+                              state: location?.pathname,
+                            });
                           }}>
-                          {order?.name}
-                        </div>
+                          <h3>{order?.name}</h3>
+                          <p>
+                            {order?.size} - <span>{order?.color}</span>
+                          </p>
+                        </BoxDetailOrder>
                       </div>
                       <div
                         style={{
@@ -565,7 +560,13 @@ const OrderPage = () => {
                         </span>
                         <DeleteOutlined
                           style={{ cursor: "pointer" }}
-                          onClick={() => handleDeleteOrder(order?.id)}
+                          onClick={() =>
+                            handleDeleteOrder(
+                              order?.id,
+                              order?.color,
+                              order?.size
+                            )
+                          }
                         />
                       </div>
                     </WrapperItemOrder>
@@ -715,6 +716,7 @@ const OrderPage = () => {
                 </div>
               ) : (
                 <ButtonComponent
+                  isDisabled={isDebouncing}
                   type={"submit"}
                   size={40}
                   styleButton={{

@@ -1,10 +1,12 @@
-import React from "react";
+import React, { l } from "react";
 import { useState, useRef } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import { Divider, Input, Select, Space, Button, Tag } from "antd";
+import { convertTypeProduct } from "../../utils/convert";
 const { Option } = Select;
 const SelectForm = ({ ...props }) => {
   const { textButtonSelect, placeholderSelect, label, field, form } = props;
+  console.log("field select", field);
   const [selectItem, setSelectItem] = useState(field.value);
   const [nameOption, setNameOption] = useState("");
 
@@ -17,9 +19,12 @@ const SelectForm = ({ ...props }) => {
     if (nameOption.trim() !== "") {
       setSelectItem((prev) => {
         if (prev) {
-          return [...prev, { value: Math.random(), label: nameOption }];
+          return [
+            ...prev,
+            { value: convertTypeProduct(nameOption), label: nameOption },
+          ];
         } else {
-          return [{ value: Math.random(), label: nameOption }];
+          return [{ value: convertTypeProduct(nameOption), label: nameOption }];
         }
       });
       setNameOption("");
@@ -30,11 +35,9 @@ const SelectForm = ({ ...props }) => {
     e.preventDefault();
     setNameOption(e.target.value);
   };
-
   return (
     <Select
       mode="multiple"
-      {...field}
       onChange={handleChange}
       style={{
         width: "100%",

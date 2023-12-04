@@ -12,13 +12,15 @@ const SelectOption = ({
   isRequired,
 }) => {
   const optionsItems =
-    optionsItem?.length > 0 &&
-    optionsItem?.map((item) => {
-      return {
-        label: item?.name || item,
-        value: item?.code?.toString() || item,
-      };
-    });
+    optionsItem?.length > 0 && !optionsItem[0]?.value
+      ? optionsItem?.map((item) => {
+          return {
+            label: item?.name || item,
+            value: item?.code?.toString() || item,
+          };
+        })
+      : optionsItem;
+
   return (
     <Form.Item
       name={nameOption}

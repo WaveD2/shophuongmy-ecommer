@@ -21,14 +21,15 @@ const TypeProduct = ({ item }) => {
       {item?.isDown && (
         <WrapperMenuItem>
           {item.menuItem.map((item, index) => (
-            <h3
-              key={index}
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(item.href);
-              }}>
-              {item.name}
-            </h3>
+            <div key={index}>
+              <h3
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(item.href);
+                }}>
+                {item.name}
+              </h3>
+            </div>
           ))}
         </WrapperMenuItem>
       )}

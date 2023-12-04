@@ -1,9 +1,18 @@
 import axios from "axios";
 import { axiosJWT } from "./UserService";
 
-export const getAllProduct = async ({ search, limit, token, page }) => {
+export const getAllProduct = async ({
+  search,
+  limit,
+  token,
+  page,
+  price,
+  discount,
+}) => {
   let res = {};
-  if (search && search?.length > 0) {
+
+  // get products search
+  if (search && search?.length > 0 && !price && !discount) {
     res = await axios.get(
       `${process.env.REACT_APP_BASE_URL}/product/get-all?filter=name&filter=${search}&limit=${limit}&page=${page}`,
       {
@@ -12,23 +21,29 @@ export const getAllProduct = async ({ search, limit, token, page }) => {
         },
       }
     );
-  } else if (limit) {
+  } else if (price || discount) {
+    res = await axios.get(`${process.env.REACT_APP_BASE_URL}/product/get-all`, {
+      params: {
+        discount: discount,
+        price: price,
+        page: page,
+        limit: limit,
+      },
+      headers: {
+        token: `Bearer ${token}`,
+      },
+    });
+  } else {
     res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/product/get-all?limit=${limit}`,
+      `${process.env.REACT_APP_BASE_URL}/product/get-all?page=${page}`,
       {
         headers: {
           token: `Bearer ${token}`,
         },
       }
     );
-  } else {
-    res = await axios.get(`${process.env.REACT_APP_BASE_URL}/product/get-all`, {
-      headers: {
-        token: `Bearer ${token}`,
-      },
-    });
   }
-  return res.data;
+  return res.data.data;
 };
 
 export const getProductType = async ({ type, page, limit, token }) => {
@@ -113,9 +128,10 @@ export const getAllTypeProduct = async () => {
   return res.data;
 };
 
-export const getListProductType = async ({ type }) => {
+export const getListProductType = async ({ type, page }) => {
   const res = await axios.get(
-    `${process.env.REACT_APP_BASE_URL}/product/type/${type}`
+    `${process.env.REACT_APP_BASE_URL}/product/type/${type}/${page}`
   );
+
   return res.data;
 };

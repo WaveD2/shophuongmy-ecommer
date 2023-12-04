@@ -38,7 +38,7 @@ const CardComponent = (props) => {
     selled,
     id,
     size,
-    colors,
+    color,
     isIconDelete,
   } = props;
 
@@ -68,7 +68,7 @@ const CardComponent = (props) => {
           discount: discount,
           countInstock: countInStock,
           size: size,
-          color: colors,
+          color: color,
         },
       })
     );
@@ -85,8 +85,8 @@ const CardComponent = (props) => {
           id: id,
           discount: discount,
           countInstock: countInStock,
-          size: size[0],
-          color: colors[0],
+          size: size[0].value,
+          color: color[0].value,
         },
       })
     );
@@ -97,23 +97,40 @@ const CardComponent = (props) => {
       bodyStyle={{ padding: "10px" }}
       cover={<img alt="ảnh sản phẩm" src={detailImage} />}
       onClick={() => handleDetailsProduct(id)}>
-      <img
-        src={logo}
-        style={{
-          width: "68px",
-          height: "14px",
-          position: "absolute",
-          top: -1,
-          left: -1,
-          borderTopLeftRadius: "3px",
-        }}
-      />
+      <div>
+        {discount && (
+          <div
+            style={{
+              position: "absolute",
+              content: " ",
+              width: "45px",
+              height: "25px",
+              left: "10px",
+              top: "5px",
+              borderRadius: "2px",
+              background: "#f30",
+              color: "#fff",
+              textAlign: "center",
+            }}>
+            <span>{discount} %</span>
+          </div>
+        )}
+      </div>
+
       <StyleNameProduct>{name}</StyleNameProduct>
 
-      <WrapperStyleTextSell> | Da ban {selled || 1000}+</WrapperStyleTextSell>
+      <WrapperStyleTextSell>
+        {description.length > 30
+          ? `${description.slice(0, 30)}.....`
+          : description}
+      </WrapperStyleTextSell>
       <WrapperPriceText>
-        <span style={{ marginRight: "8px" }}>{convertPrice(price)}</span>
-        <WrapperDiscountText>- {discount || 5} %</WrapperDiscountText>
+        <span>
+          {convertPrice((price * discount) / 100) || convertPrice(price)}
+        </span>
+        <span style={{ textDecoration: "line-through", color: "#ebcdcd" }}>
+          {discount && convertPrice(price)}
+        </span>
       </WrapperPriceText>
 
       {!isIconDelete ? (

@@ -2,6 +2,13 @@
 @import '~slick-carousel/slick/slick-theme.css';
 @import 'antd/dist/reset.css';
 
+:root {
+    --text-primary-color: #333;
+    --box-bg-color: #47434359;
+    --box-text-hover-color: #fcfcfc;
+    --font-weight: 700: ;
+}
+
 *,
 *:before,
 *:after {
@@ -43,16 +50,16 @@ li {
     list-style: none;
 }
 
-/* :root {
-  --yellow-color: #ffa400;
-} */
 textarea {
     min-height: 120px;
 }
 
 .ant-image {
     width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
+
 .ant-carousel .slick-dots {
     margin-left: 0%;
 }
@@ -69,10 +76,8 @@ textarea {
     min-height: calc(100vh - 220px - 70px);
     max-width: 1270px;
     margin: 0 auto;
-    padding: 0 14px;
 }
-.styleIconHeader,
-.styleIconBox {
+.styleIconHeader {
     font-size: 28px;
     color: #fff;
     cursor: pointer;
@@ -80,13 +85,13 @@ textarea {
 .styleIconBox {
     font-size: 18px;
     color: #333;
-    z-index: 9999;
+    z-index: 50;
 }
 
 .styleIconHeartActive {
     font-size: 18px;
     color: #f13131;
-    z-index: 9999;
+    z-index: 100;
 }
 
 .styleImg {
@@ -96,15 +101,19 @@ textarea {
     border: 1px solid rgb(238, 238, 238);
     padding: 2px;
 }
-.ant-image {
-    height: 100%;
-}
 
 .title_text {
     font-size: 1.3rem;
     line-height: 1.3rem;
     padding-top: 10px;
     color: #fe4242;
+}
+
+.des_text {
+    font-size: 1rem;
+    font-family: revert;
+    font-weight: 400;
+    line-height: 1rem;
 }
 
 .flexBet {

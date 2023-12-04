@@ -50,23 +50,13 @@ const AdminProduct = () => {
   const [previewTitle, setPreviewTitle] = useState("");
   const [sizesProduct, setSizesProduct] = useState([]);
   const [nameSizesProduct, setNameSizesProduct] = useState("");
-  const [listSize, setListSize] = useState([]);
-  const [listColor, setListColor] = useState([]);
-
-  const handleChangeColorTag = (value) => {
-    if (value.length > 0) setListColor(value);
-  };
-
-  const handleChangeSizeTag = (value) => {
-    if (value.length > 0) setListSize(value);
-  };
 
   const user = useSelector((state) => state?.user);
 
   const searchInput = useRef(null);
 
   const [stateProductDetails, setStateProductDetails] = useState({});
-
+  console.log("stateProductDetails", stateProductDetails);
   const handleCloseDrawer = () => {
     setIsOpenDrawer(false);
     setStateProductDetails({
@@ -75,7 +65,7 @@ const AdminProduct = () => {
       description: "",
       rating: "",
       image: "",
-      type: "",
+      type: [],
       countInStock: "",
     });
   };
@@ -97,13 +87,11 @@ const AdminProduct = () => {
 
   const mutation = useMutationHooks((data) => {
     const { token, type, ...values } = data;
-    const typeProduct = convertTypeProduct({ type });
+    const typeProduct = convertTypeProduct(type);
     const res = ProductService.createProduct({
       token: token,
       data: {
         type: typeProduct,
-        colors: listColor,
-        size: listSize,
         ...values,
       },
     });
@@ -133,6 +121,12 @@ const AdminProduct = () => {
     mutationDeletedMany.mutate({ ids: ids, token: user?.access_token });
   };
 
+  //GET ALL TYPE PRODUCT
+  // useEffect(() => {
+  //   const res = ProductService.getAllTypeProduct();
+  //   if (res?.status === "OK") setListTypeProduct(res?.data);
+  // }, []);
+
   const fetchGetDetailsProduct = async (rowSelected) => {
     const res = await ProductService.getDetailsProduct({
       id: rowSelected,
@@ -146,6 +140,9 @@ const AdminProduct = () => {
         type: res?.data?.type,
         countInStock: res?.data?.countInStock,
         discount: res?.data?.discount,
+        color: res?.data?.color,
+        size: res?.data?.size,
+        _id: res?.data?._id,
       });
 
       setFileImagesList(res?.data?.images);
@@ -394,7 +391,6 @@ const AdminProduct = () => {
   };
 
   const handleOnchangeImgFile = ({ fileList }) => {
-    console.log("fileList", fileList);
     setFileImagesList(fileList);
   };
 
@@ -419,8 +415,6 @@ const AdminProduct = () => {
     mutation.mutate({
       token: user.access_token,
       images: fileImagesList,
-      colors: listColor,
-      size: listSize,
       ...values,
     });
   };
@@ -502,15 +496,6 @@ const AdminProduct = () => {
             />
           }
 
-          <TagsComponent
-            options={optionsColorsProduct}
-            handleChange={handleChangeColorTag}
-          />
-          <TagsComponent
-            options={optionsSizeProduct}
-            handleChange={handleChangeSizeTag}
-          />
-
           <FormFormik
             initialValues={fieldsCreateProduct.initialCreateProduct}
             validationSchema={ProductSchema}
@@ -552,14 +537,6 @@ const AdminProduct = () => {
                 onSubmit={onUpdateProduct}
                 fields={fieldsCreateProduct.fields}
                 textButton1={"Thay đổi"}
-              />
-              <TagsComponent
-                options={optionsColorsProduct}
-                handleChange={handleChangeColorTag}
-              />
-              <TagsComponent
-                options={optionsSizeProduct}
-                handleChange={handleChangeSizeTag}
               />
             </div>
           )}

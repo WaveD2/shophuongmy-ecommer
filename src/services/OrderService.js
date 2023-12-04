@@ -12,13 +12,19 @@ export const createOrder = async (data, access_token) => {
       },
     }
   );
-  console.log("res", res);
+
   if (res.status === "ERR")
     return Message({
       typeMes: "error",
       mes: res.message,
     });
-  else return res.data;
+  else {
+    Message({
+      typeMes: "success",
+      mes: res.data?.message,
+    });
+    return res.data;
+  }
 };
 
 export const getOrderByUserId = async ({ id, access_token }) => {

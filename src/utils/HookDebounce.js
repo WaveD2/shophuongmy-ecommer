@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
 
-const HookDebounce = ({ callback, delay }) => {
-  useEffect(() => {
-    let timeoutId = setTimeout(() => {
-      callback();
-    }, delay);
+const HookDebounce = (isLoading, delay = 2000) => {
+  const [isDebouncing, setIsDebouncing] = useState(false);
 
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [callback, delay]);
+  useEffect(() => {
+    if (isLoading) {
+      setIsDebouncing(true);
+      const timer = setTimeout(() => {
+        setIsDebouncing(false);
+      }, delay);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [isLoading, delay]);
+
+  return isDebouncing;
 };
 
 export default HookDebounce;

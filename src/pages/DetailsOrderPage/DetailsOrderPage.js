@@ -46,7 +46,7 @@ const DetailsOrderPage = () => {
     }, 0);
     return result;
   }, [data]);
-
+  console.log("priceMemo", priceMemo);
   const methodPayment = Payments?.find(
     (item) => item.value === data?.paymentMethod
   );
@@ -110,7 +110,6 @@ const DetailsOrderPage = () => {
                 <th>Mã đơn hàng</th>
                 <th>Giá</th>
                 <th>Số lượng</th>
-                <th>Giảm giá</th>
                 <th>Thanh toán</th>
               </tr>
             </thead>
@@ -138,37 +137,18 @@ const DetailsOrderPage = () => {
                   <td>{convertPrice(order?.price)}</td>
                   <td>{order?.amount}</td>
                   <td>
-                    {order?.discount
-                      ? convertPrice((priceMemo * order?.discount) / 100)
-                      : "0 VND"}
+                    {convertPrice(
+                      (order.price * order?.amount * order?.discount) / 100
+                    )}
                   </td>
-                  <td>{convertPrice(data?.totalPrice)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {/* {data?.orderItems?.map((order) => {
-              return (
-                <WrapperProduct>
-                  <WrapperNameProduct>
-                    <img
-                      src={order?.image}
-                      className="styleImg"
-                      alt="ảnh sản phẩm"
-                    />
-                    <div>{order?.name}</div>
-                  </WrapperNameProduct>
-                  <WrapperItem>{data?._id}</WrapperItem>
-                  <WrapperItem>{convertPrice(order?.price)}</WrapperItem>
-                  <WrapperItem>{order?.amount}</WrapperItem>
-                  <WrapperItem>
-                    {order?.discount
-                      ? convertPrice((priceMemo * order?.discount) / 100)
-                      : "0 VND"}
-                  </WrapperItem>
-                </WrapperProduct>
-              );
-            })} */}
+
+          <h3 className="title_text">
+            Tổng tiền : {convertPrice(data?.totalPrice)}
+          </h3>
         </div>
       </Loading>
     </div>

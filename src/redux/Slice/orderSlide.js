@@ -1,4 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+/* eslint-disable no-use-before-define */
+import { createSlice, current } from "@reduxjs/toolkit";
 import Message from "../../components/Message/Message";
 
 const initialState = {
@@ -15,8 +16,6 @@ const initialState = {
   isDelivered: false,
   deliveredAt: "",
   isSuccessOrder: false,
-  size: "",
-  color: "",
 };
 
 export const orderSlide = createSlice({
@@ -26,8 +25,8 @@ export const orderSlide = createSlice({
     addHeartProduct: (state, action) => {
       const { orderItem } = action.payload;
 
-      const itemOrder = state?.orderItemsHeart?.find(
-        (item) => item?.id === orderItem.id
+      const itemOrder = current(state).orderItemsHeart?.find(
+        (item) => item.id === orderItem.id
       );
 
       if (!itemOrder) {
@@ -58,21 +57,36 @@ export const orderSlide = createSlice({
         });
       }
     },
+
     addOrderProduct: (state, action) => {
       const { orderItem } = action.payload;
-
-      const itemOrder = state?.orderItems?.find(
-        (item) => item?.id === orderItem.id
+      console.log("orderItem", orderItem);
+      const itemOrder = current(state).orderItems?.find(
+        (item) =>
+          item.id === orderItem.id &&
+          item.size === orderItem.size &&
+          item.color === orderItem.color
       );
 
       if (itemOrder) {
-        if (itemOrder.amount <= itemOrder.countInstock) {
-          itemOrder.amount += orderItem?.amount;
-          if (orderItem.amount >= 1) {
-            state.totalPrice += itemOrder.price * orderItem.amount;
-          } else {
-            state.totalPrice += itemOrder.price;
-          }
+        if (orderItem.amount <= itemOrder.countInstock) {
+          state.orderItems.forEach((item) => {
+            if (
+              item.id === orderItem.id &&
+              item.size === orderItem.size &&
+              item.color === orderItem.color
+            ) {
+              item.amount += orderItem.amount;
+              item.countInstock -= orderItem.amount;
+
+              if (orderItem.amount >= 1) {
+                state.totalPrice += item.price * orderItem.amount;
+              } else {
+                state.totalPrice += item.price;
+              }
+            }
+          });
+
           state.isSuccessOrder = true;
           state.isErrorOrder = false;
         }
@@ -82,13 +96,14 @@ export const orderSlide = createSlice({
           mes: `${orderItem?.name?.toUpperCase()} đã được thêm vào giỏ hàng`,
         });
         state.orderItems?.push(orderItem);
-        if (orderItem.amount >= 1) {
-          state.totalPrice += orderItem.price * orderItem.amount;
-        } else {
-          state.totalPrice += orderItem.price;
-        }
+      }
+      if (orderItem.amount >= 1) {
+        state.totalPrice += orderItem.price * orderItem.amount;
+      } else {
+        state.totalPrice += orderItem.price;
       }
     },
+
     resetOrder: (state) => {
       state.isSuccessOrder = false;
       state.orderItems = [];
@@ -100,6 +115,7 @@ export const orderSlide = createSlice({
       );
 
       itemOrder.amount++;
+      itemOrder.countInstock--;
       state.totalPrice += itemOrder.price;
     },
     decreaseAmount: (state, action) => {
@@ -109,15 +125,22 @@ export const orderSlide = createSlice({
       );
 
       itemOrder.amount--;
+      itemOrder.countInstock++;
       state.totalPrice -= itemOrder.price;
     },
     removeOrderProduct: (state, action) => {
-      const itemOrderDelete = state?.orderItems.find(
-        (item) => item?.id === action.payload
+      const { idProduct, color, size } = action.payload;
+      const itemOrderDelete = current(state).orderItems.find(
+        (item) =>
+          item?.id === idProduct && item?.color === color && item?.size === size
       );
-      const itemOrder = state?.orderItems?.filter(
-        (item) => item?.id !== action.payload
-      );
+
+      const itemOrder = current(state).orderItems?.filter((item) => {
+        return (
+          item.id !== idProduct || item.color !== color || item.size !== size
+        );
+      });
+
       if (itemOrderDelete.amount) {
         state.totalPrice -= itemOrderDelete.price * itemOrderDelete.amount;
       } else {
@@ -129,7 +152,7 @@ export const orderSlide = createSlice({
     removeAllOrderProduct: (state, action) => {
       const { listChecked } = action.payload;
 
-      const itemOrders = state?.orderItems?.filter(
+      const itemOrders = current(state).orderItems?.filter(
         (item) => !listChecked.includes(item.id)
       );
       if (itemOrders.length > 0) {
@@ -150,7 +173,7 @@ export const orderSlide = createSlice({
     selectedOrder: (state, action) => {
       const { listChecked } = action.payload;
       const orderSelected = [];
-      state.orderItems.forEach((order) => {
+      current(state).orderItems.forEach((order) => {
         if (listChecked.includes(order.id)) {
           orderSelected.push(order);
         }
