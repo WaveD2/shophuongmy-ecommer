@@ -14,12 +14,7 @@ export const getAllProduct = async ({
   // get products search
   if (search && search?.length > 0 && !price && !discount) {
     res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/product/get-all?filter=name&filter=${search}&limit=${limit}&page=${page}`,
-      {
-        headers: {
-          token: `Bearer ${token}`,
-        },
-      }
+      `${process.env.REACT_APP_BASE_URL}/product/get-all?filter=name&filter=${search}&limit=${limit}&page=${page}`
     );
   } else if (price || discount) {
     res = await axios.get(`${process.env.REACT_APP_BASE_URL}/product/get-all`, {
@@ -29,18 +24,10 @@ export const getAllProduct = async ({
         page: page,
         limit: limit,
       },
-      headers: {
-        token: `Bearer ${token}`,
-      },
     });
   } else {
     res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/product/get-all?page=${page}`,
-      {
-        headers: {
-          token: `Bearer ${token}`,
-        },
-      }
+      `${process.env.REACT_APP_BASE_URL}/product/get-all?page=${page}`
     );
   }
   return res.data.data;
@@ -49,12 +36,7 @@ export const getAllProduct = async ({
 export const getProductType = async ({ type, page, limit, token }) => {
   if (type) {
     const res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/product/get-all?filter=${type}&limit=${limit}&page=${page}`,
-      {
-        headers: {
-          token: `Bearer ${token}`,
-        },
-      }
+      `${process.env.REACT_APP_BASE_URL}/product/get-all?filter=${type}&limit=${limit}&page=${page}`
     );
     return res.data;
   }
