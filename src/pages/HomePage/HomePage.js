@@ -51,10 +51,14 @@ const HomePage = () => {
         const res = await ProductService.getAllProduct({
           page,
         });
-        if (res.data.length > 0 && res.status === "OK")
+        if (res.data.length > 0 || res.status === "OK")
           setListProduct((prev) => [...prev, ...res.data]);
-        else {
+        else if (res.data.length > 0 && res.status === "OK") {
+          return;
+        } else {
           setIsCallApi(false);
+          setIsLoading(true);
+          return;
         }
         setIsLoading(false);
       } catch (error) {
@@ -62,6 +66,7 @@ const HomePage = () => {
       }
     };
     if (isCallApi) {
+      setIsLoading(true);
       fetchAllTypeProduct();
     }
   }, [page]);
@@ -74,43 +79,41 @@ const HomePage = () => {
         })}
       </WrapperTypeProduct>
 
-      <Loading isLoading={isLoading}>
-        <ContainerOrder>
-          <ContainerHome>
-            <SliderComponent arrImages={[slider1, slider2, slider3]} />
+      <ContainerHome>
+        <SliderComponent arrImages={[slider1, slider2, slider3]} />
 
-            {listProduct.length > 0 && (
-              <ContainerProducts>
-                <TextTitleComponent
-                  text={"Sản phẩm nổi bật"}
-                  style={{ fontSize: "18px", margin: 0 }}
-                />
+        {listProduct.length > 0 && (
+          <ContainerProducts>
+            <TextTitleComponent
+              text={"Sản phẩm nổi bật"}
+              className="text_header_container"
+            />
 
-                <WrapperProducts>
-                  {listProduct?.map((product, index) => {
-                    return (
-                      <CardComponent
-                        key={index}
-                        countInStock={product?.countInStock}
-                        description={product?.description}
-                        images={product?.images}
-                        name={product?.name}
-                        price={product?.price}
-                        type={product?.type}
-                        discount={product?.discount}
-                        size={product?.size}
-                        color={product?.color}
-                        id={product?._id}
-                        isIconDelete={false}
-                      />
-                    );
-                  })}
-                </WrapperProducts>
-              </ContainerProducts>
-            )}
-          </ContainerHome>
-        </ContainerOrder>
-      </Loading>
+            <Loading isLoading={isLoading}>
+              <WrapperProducts>
+                {listProduct?.map((product, index) => {
+                  return (
+                    <CardComponent
+                      key={index}
+                      countInStock={product?.countInStock}
+                      description={product?.description}
+                      images={product?.images}
+                      name={product?.name}
+                      price={product?.price}
+                      type={product?.type}
+                      discount={product?.discount}
+                      size={product?.size}
+                      color={product?.color}
+                      id={product?._id}
+                      isIconDelete={false}
+                    />
+                  );
+                })}
+              </WrapperProducts>
+            </Loading>
+          </ContainerProducts>
+        )}
+      </ContainerHome>
     </ContainerHome>
   );
 };

@@ -15,7 +15,9 @@ const ButtonComponent = ({
       disabled={isDisabled}
       style={{
         ...styleButton,
-        background: isDisabled ? "#ccc" : styleButton.background,
+        background: isDisabled
+          ? "#ccc"
+          : styleButton?.background || "rgb(178 228 245)",
       }}
       size={size}
       type={type}

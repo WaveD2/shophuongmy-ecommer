@@ -24,8 +24,10 @@ export const WrapperTextHeader = styled(Link)`
   font-weight: bold;
   text-align: left;
   &:hover {
-    font-size: 18px;
-    color: #fff;
+    color: #ccc;
+  }
+  @media only screen and (max-width: 830px) {
+    font-size: 14px;
   }
 `;
 
@@ -87,5 +89,16 @@ export const BoxTippy = styled.div`
 
   &:hover {
     background: "#e7d0d0";
+  }
+`;
+
+export const SettingUser = styled.div`
+  cursor: pointer;
+  max-width: 100%pointer;
+  text-overflow: ellipsispointer;
+  height: 40px;
+
+  @media only screen and (max-width: 830px) {
+    display: none;
   }
 `;

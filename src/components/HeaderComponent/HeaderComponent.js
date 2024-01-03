@@ -8,6 +8,7 @@ import {
   ContainerHeader,
   BoxTippy,
   WrapperTippy,
+  SettingUser,
 } from "./style";
 import {
   UserOutlined,
@@ -207,37 +208,31 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
             style={{ display: "flex", gap: "15px", alignItems: "center" }}>
             <WrapperHeaderAccout>
               {user?.access_token && userAvatar ? (
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "10px",
-                    alignItems: "center",
-                  }}>
-                  <Avatar
-                    src={userAvatar}
+                <Popover
+                  content={content}
+                  onOpenChange={handleOpenChange}
+                  trigger="click"
+                  open={isOpenPopup}>
+                  <div
                     style={{
-                      height: "40px",
-                      width: "40px",
-                      objectFit: "cover",
-                    }}
-                  />
-                  <Popover
-                    content={content}
-                    onOpenChange={handleOpenChange}
-                    trigger="click"
-                    open={isOpenPopup}>
-                    <div
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                    }}>
+                    <Avatar
+                      src={userAvatar}
                       style={{
-                        cursor: "pointer",
-                        maxWidth: 100,
-                        textOverflow: "ellipsis",
                         height: "40px",
-                      }}>
+                        width: "40px",
+                        objectFit: "cover",
+                      }}
+                    />
+                    <SettingUser>
                       <h3>{user?.name || user?.email || "Not Name"}</h3>
                       <p>Cài đặt</p>
-                    </div>
-                  </Popover>
-                </div>
+                    </SettingUser>
+                  </div>
+                </Popover>
               ) : (
                 <TooltipComponent
                   children={

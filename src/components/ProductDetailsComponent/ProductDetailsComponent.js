@@ -10,7 +10,6 @@ import { useQuery } from "@tanstack/react-query";
 import * as ProductService from "../../services/ProductService";
 
 import { addOrderProduct, addHeartProduct } from "../../redux/Slice/orderSlide";
-
 import { PlusOutlined, MinusOutlined, HeartOutlined } from "@ant-design/icons";
 import {
   WrapperStyleImageSmall,
@@ -30,11 +29,11 @@ import { ContainerProducts, WrapperProducts } from "../../pages/HomePage/style";
 import Loading from "../LoadingComponent/LoadingComponent";
 import LoadingForComponentLazy from "../LoadingComponent/LoadingForComponentLazy";
 import { LogIn } from "../../services/UserService";
+import Message from "../Message/Message";
 
 const ButtonComponent = lazy(() =>
   import("../ButtonComponent/ButtonComponent")
 );
-const Message = lazy(() => import("../Message/Message"));
 const TooltipComponent = lazy(() =>
   import("../TooltipComponent/TooltipComponent")
 );
@@ -342,17 +341,6 @@ const ProductDetailsComponent = () => {
               ))}
             </div>
 
-            <div style={{ display: "flex" }}>
-              <Suspense fallback={<LoadingForComponentLazy />}>
-                <SelectOption
-                  styleWidth={"120px"}
-                  handleChange={(value) => setSizeProduct(value)}
-                  placeholder={"Chọn size"}
-                  optionsItem={detailProduct?.size}
-                />
-              </Suspense>
-            </div>
-
             <BoxInDecrease>
               <span>Số lượng</span>
               <WrapperQualityProduct>
@@ -394,6 +382,15 @@ const ProductDetailsComponent = () => {
                   <PlusOutlined style={{ color: "#000", fontSize: "20px" }} />
                 </button>
               </WrapperQualityProduct>
+
+              <Suspense fallback={<LoadingForComponentLazy />}>
+                <SelectOption
+                  styleWidth={"120px"}
+                  handleChange={(value) => setSizeProduct(value)}
+                  placeholder={"Chọn size"}
+                  optionsItem={detailProduct?.size}
+                />
+              </Suspense>
             </BoxInDecrease>
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <div>

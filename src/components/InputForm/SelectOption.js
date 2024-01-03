@@ -10,6 +10,7 @@ const SelectOption = ({
   nameOption,
   labelOption,
   isRequired,
+  isLoading,
 }) => {
   const optionsItems =
     optionsItem?.length > 0 && !optionsItem[0]?.value
@@ -23,14 +24,16 @@ const SelectOption = ({
 
   return (
     <Form.Item
+      style={{ marginBottom: 0 }}
       name={nameOption}
       label={labelOption}
       rules={[{ required: isRequired }]}>
       <Space wrap>
         <Select
+          loading={isLoading}
           allowClear
           placeholder={placeholder}
-          style={{ width: styleWidth, margin: "0 4px" }}
+          style={{ width: styleWidth, margin: "8px 4px" }}
           onChange={handleChange}
           options={optionsItems}
           {...props}

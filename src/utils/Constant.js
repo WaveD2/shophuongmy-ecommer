@@ -183,3 +183,9 @@ export const optionsSizeProduct = [
 ];
 
 export const optionNavBarPrice = [];
+
+export const valueDiscount = [
+  { key: "GIAMGIA50", discount: 50 },
+  { key: "GIAMGIA20", discount: 20 },
+  { key: "GIAMGIA10", discount: 10 },
+];

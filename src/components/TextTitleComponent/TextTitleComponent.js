@@ -1,7 +1,11 @@
 import React from "react";
 
-const TextTitleComponent = ({ text, style }) => {
-  return <p style={style}>{text}</p>;
+const TextTitleComponent = ({ text, style, ...rest }) => {
+  return (
+    <p style={style} {...rest}>
+      {text}
+    </p>
+  );
 };
 
 export default TextTitleComponent;

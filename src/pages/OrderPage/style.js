@@ -44,9 +44,14 @@ export const WrapperStyleHeaderDilivery = styled.div`
   margin-bottom: 4px;
 `;
 
-export const WrapperLeft = styled(Col)``;
+export const WrapperLeft = styled(Col)`
+  width: 100%;
+  min-width: 600px;
+`;
 
-export const WrapperListOrder = styled.div``;
+export const WrapperListOrder = styled.div`
+  width: 100%;
+`;
 
 export const WrapperItemOrder = styled.div`
   display: flex;

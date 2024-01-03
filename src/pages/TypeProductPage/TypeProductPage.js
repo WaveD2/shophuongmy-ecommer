@@ -45,7 +45,7 @@ const TypeProductPage = () => {
 
   const fetchMyOrder = async ({ queryKey }) => {
     const { type, page } = queryKey[1];
-    console.log("queryKey ", queryKey);
+
     setIsLoadingFetch(true);
     const res = await ProductService.getListProductType({
       type,
@@ -75,6 +75,7 @@ const TypeProductPage = () => {
   };
 
   useEffect(() => {
+    setIsLoadingProduct(true);
     try {
       ProductService.getAllProduct({
         price: optionPrice,
@@ -109,6 +110,7 @@ const TypeProductPage = () => {
                   padding: "10px",
                   marginRight: "16px",
                   borderRadius: "6px",
+                  height: "100%",
                 }}>
                 <RadioComponent
                   title={"Theo giá tiền"}

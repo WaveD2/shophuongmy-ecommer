@@ -10,7 +10,8 @@ const ProductDetailsPage = () => {
     <ContainerHome>
       <TextTitleComponent
         text={"Chi tiết sản phẩm"}
-        style={{ fontSize: "18px", margin: "8px" }}
+        className="text_header_container"
+        style={{ margin: "12px 0" }}
       />
       <ProductDetailsComponent />
     </ContainerHome>
