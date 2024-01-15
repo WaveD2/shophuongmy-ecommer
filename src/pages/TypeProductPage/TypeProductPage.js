@@ -140,7 +140,7 @@ const TypeProductPage = () => {
                           type={product?.type}
                           discount={product?.discount}
                           size={product?.size}
-                          colors={product?.colors}
+                          colors={product?.color}
                           id={product?._id}
                           isIconDelete={false}
                         />

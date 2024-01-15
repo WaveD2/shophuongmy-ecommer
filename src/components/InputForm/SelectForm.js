@@ -6,7 +6,6 @@ import { convertTypeProduct } from "../../utils/convert";
 const { Option } = Select;
 const SelectForm = ({ ...props }) => {
   const { textButtonSelect, placeholderSelect, label, field, form } = props;
-  console.log("field select", field);
   const [selectItem, setSelectItem] = useState(field.value);
   const [nameOption, setNameOption] = useState("");
 

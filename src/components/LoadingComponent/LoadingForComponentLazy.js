@@ -1,4 +1,4 @@
 import { Spin } from "antd";
-export default function LoadingForComponentLazy({ children }) {
-  return <Spin tip="Loading">{children}</Spin>;
+export default function LoadingForComponentLazy() {
+  return <Spin tip="Loading" />;
 }

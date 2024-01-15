@@ -5,6 +5,7 @@ import Message from "../../components/Message/Message";
 const initialState = {
   orderItems: [],
   orderItemsHeart: [],
+  orderBuyFast: [],
   shippingAddress: {},
   paymentMethod: "",
   shippingPrice: 0,
@@ -60,7 +61,6 @@ export const orderSlide = createSlice({
 
     addOrderProduct: (state, action) => {
       const { orderItem } = action.payload;
-      console.log("orderItem", orderItem);
       const itemOrder = current(state).orderItems?.find(
         (item) =>
           item.id === orderItem.id &&
@@ -180,6 +180,14 @@ export const orderSlide = createSlice({
       });
       state.orderItemsSelected = orderSelected;
     },
+    addOrderBuyFast: (state, action) => {
+      const { orderItem } = action.payload;
+      console.log("orderItem", action.payload);
+      state.orderBuyFast?.push(orderItem);
+    },
+    removeOrderBuyFast: (state, action) => {
+      state.orderBuyFast = [];
+    },
   },
 });
 
@@ -193,6 +201,8 @@ export const {
   removeAllOrderProduct,
   selectedOrder,
   resetOrder,
+  addOrderBuyFast,
+  removeOrderBuyFast,
 } = orderSlide.actions;
 
 export default orderSlide.reducer;

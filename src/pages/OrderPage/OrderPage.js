@@ -24,6 +24,7 @@ import {
   decreaseAmount,
   increaseAmount,
   removeAllOrderProduct,
+  removeOrderBuyFast,
   removeOrderProduct,
   selectedOrder,
 } from "../../redux/Slice/orderSlide";
@@ -56,6 +57,11 @@ import { Provinces, DressByProvinces } from "../../services/PlaceService";
 
 const OrderPage = () => {
   const order = useSelector((state) => state.order);
+  console.log("order ", order);
+
+  let listProductOrder =
+    order?.orderBuyFast?.length > 0 ? order?.orderBuyFast : order?.orderItems;
+
   const user = useSelector((state) => state.user);
   const { name, phone, address } = user;
   const [listChecked, setListChecked] = useState([]);
@@ -97,6 +103,22 @@ const OrderPage = () => {
   const [form] = Form.useForm();
 
   const dispatch = useDispatch();
+
+  //Clear orderBuyFast
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (order?.orderBuyFast?.length > 0) {
+        dispatch(removeOrderBuyFast());
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    // Hủy đăng ký sự kiện khi component unmount
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   //Call Options Dress
   useEffect(() => {
@@ -234,18 +256,19 @@ const OrderPage = () => {
         (item) => item.key === textDiscount
       );
 
-      if (isDiscount) setDiscount(isDiscount.discount);
-      return Message({
-        typeMes: "error",
-        mes: "Mã giảm giá chưa chính xác",
-      });
+      if (isDiscount) return setDiscount(isDiscount.discount);
+      else
+        return Message({
+          typeMes: "error",
+          mes: "Mã giảm giá chưa chính xác",
+        });
     }
   };
 
   const handleOnchangeCheckAll = (e) => {
     if (e.target.checked) {
       const newListChecked = [];
-      order?.orderItems?.forEach((item) => {
+      listProductOrder?.forEach((item) => {
         newListChecked.push(item?.id);
       });
 
@@ -254,15 +277,6 @@ const OrderPage = () => {
       setListChecked([]);
     }
   };
-
-  // useEffect(() => {
-  //   console.log(":listChecked", listChecked);
-  //   dispatch(selectedOrder({ listChecked }));
-  // }, [listChecked]);
-
-  // useEffect(() => {
-  //   form.setFieldsValue(stateUserDetails);
-  // }, [form, stateUserDetails]);
 
   useEffect(() => {
     if (isOpenModalUpdateInfo) {
@@ -296,7 +310,7 @@ const OrderPage = () => {
   useEffect(() => {
     if (isSuccess && dataAdd?.status === "OK") {
       const arrayOrdered = [];
-      order?.orderItems?.forEach((element) => {
+      listProductOrder?.forEach((element) => {
         arrayOrdered.push(element.id);
       });
       dispatch(removeAllOrderProduct({ listChecked: arrayOrdered }));
@@ -310,7 +324,7 @@ const OrderPage = () => {
         state: {
           delivery,
           payment,
-          orders: order?.orderItems,
+          orders: listProductOrder,
           totalPriceMemo: order?.totalPrice,
         },
       });
@@ -362,7 +376,7 @@ const OrderPage = () => {
     setIsLoadingComponent(true);
     mutationAddOrder.mutate({
       token: user?.access_token,
-      orderItems: order?.orderItems,
+      orderItems: listProductOrder,
       fullName: user?.name,
       province: provinceOrder?.name,
       district: districtOrder?.name,
@@ -390,7 +404,7 @@ const OrderPage = () => {
 
   useEffect(() => {
     if (isCheckValidate) {
-      if (!order?.orderItems?.length > 0) {
+      if (!listProductOrder?.length > 0) {
         Message({ typeMes: "error", mes: "Vui lòng chọn sản phẩm" });
       } else if (!kiemTraSoDienThoai(phoneNew))
         Message({
@@ -411,7 +425,7 @@ const OrderPage = () => {
         const currentTime = new Date();
         mutationAddOrder.mutate({
           token: user?.access_token,
-          orderItems: order?.orderItems,
+          orderItems: listProductOrder,
           fullName: user?.name,
           province: provinceOrder?.name,
           district: districtOrder?.name,
@@ -448,9 +462,9 @@ const OrderPage = () => {
                     <CustomCheckbox
                       onChange={handleOnchangeCheckAll}
                       checked={
-                        listChecked?.length === order?.orderItems?.length
+                        listChecked?.length === listProductOrder?.length
                       }></CustomCheckbox>
-                    <span> Tất cả ({order?.orderItems?.length} sản phẩm)</span>
+                    <span> Tất cả ({listProductOrder?.length} sản phẩm)</span>
                   </span>
                   <div className="flexBet">
                     <span>Đơn giá</span>
@@ -464,8 +478,8 @@ const OrderPage = () => {
                 </WrapperStyleHeader>
 
                 <WrapperListOrder>
-                  {order?.orderItems.length > 0 ? (
-                    order?.orderItems?.map((order, index) => {
+                  {listProductOrder.length > 0 ? (
+                    listProductOrder?.map((order, index) => {
                       return (
                         <WrapperItemOrder key={index}>
                           <div
@@ -613,8 +627,11 @@ const OrderPage = () => {
                       }}>
                       {discount
                         ? convertPrice(
-                            (order?.totalPrice + moneyTransportation) /
-                              (100 - discount)
+                            order?.totalPrice +
+                              moneyTransportation -
+                              ((order?.totalPrice + moneyTransportation) *
+                                (100 - discount)) /
+                                100
                           )
                         : 0}
                     </span>
@@ -631,10 +648,9 @@ const OrderPage = () => {
                       }}>
                       {discount
                         ? convertPrice(
-                            order?.totalPrice +
-                              moneyTransportation -
-                              (order?.totalPrice + moneyTransportation) /
-                                (100 - discount)
+                            ((order?.totalPrice + moneyTransportation) *
+                              (100 - discount)) /
+                              100
                           )
                         : convertPrice(order?.totalPrice + moneyTransportation)}
                     </span>

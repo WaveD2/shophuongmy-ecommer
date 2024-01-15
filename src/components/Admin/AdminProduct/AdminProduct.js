@@ -390,8 +390,18 @@ const AdminProduct = () => {
     setIsModalOpen(false);
   };
 
-  const handleOnchangeImgFile = ({ fileList }) => {
-    setFileImagesList(fileList);
+  const handleOnchangeImgFile = ({ file }) => {
+    const { originFileObj, thumbUrl, status, name } = file;
+    let newFileProduct;
+    if (status === "removed") {
+      newFileProduct = fileImagesList.filter(
+        (imgProduct) => imgProduct?.originFileObj?.uid !== originFileObj?.uid
+      );
+      setFileImagesList(newFileProduct);
+    } else {
+      newFileProduct = { originFileObj, thumbUrl, name };
+      setFileImagesList((prev) => [...prev, newFileProduct]);
+    }
   };
 
   useEffect(() => {
@@ -419,15 +429,6 @@ const AdminProduct = () => {
     });
   };
 
-  const handleAddSizeProduct = (e) => {
-    e.preventDefault();
-    setSizesProduct([...sizesProduct, nameSizesProduct]);
-    setNameSizesProduct("");
-  };
-  const handleOnChangeNameSizeProduct = (event) => {
-    setNameSizesProduct(event.target.value);
-  };
-
   // Preview Images
   const handleCancelPreview = () => setPreviewOpen(false);
   const handlePreview = async (file) => {
@@ -437,7 +438,7 @@ const AdminProduct = () => {
     setSrcPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
     setPreviewTitle(
-      file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
+      file.name || file?.url?.substring(file.url.lastIndexOf("/") + 1)
     );
   };
 

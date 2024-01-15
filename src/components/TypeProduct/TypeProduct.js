@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { WrapperType, WrapperMenuItem } from "./styled";
 import { DownOutlined } from "@ant-design/icons";
 
-const TypeProduct = ({ item }) => {
+const TypeProduct = ({ item, styleContainer = {} }) => {
   const navigate = useNavigate();
 
   return (
     <WrapperType
+      style={styleContainer}
       onClick={(e) => {
         e.preventDefault();
         navigate(item.href);

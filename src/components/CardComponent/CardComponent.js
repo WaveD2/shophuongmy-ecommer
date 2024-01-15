@@ -38,7 +38,7 @@ const CardComponent = (props) => {
     selled,
     id,
     size,
-    color,
+    colors,
     isIconDelete,
   } = props;
 
@@ -68,12 +68,13 @@ const CardComponent = (props) => {
           discount: discount,
           countInstock: countInStock,
           size: size,
-          color: color,
+          color: colors,
         },
       })
     );
   };
   const handleAddProductOrder = (e) => {
+    console.log("props", props);
     e.stopPropagation();
     dispatch(
       addOrderProduct({
@@ -86,7 +87,7 @@ const CardComponent = (props) => {
           discount: discount,
           countInstock: countInStock,
           size: size[0].value,
-          color: color[0].value,
+          color: colors[0].value,
         },
       })
     );
@@ -120,13 +121,14 @@ const CardComponent = (props) => {
       <StyleNameProduct>{name}</StyleNameProduct>
 
       <WrapperStyleTextSell>
-        {description.length > 30
+        {description?.length > 30
           ? `${description.slice(0, 30)}.....`
           : description}
       </WrapperStyleTextSell>
       <WrapperPriceText>
         <span>
-          {convertPrice((price * discount) / 100) || convertPrice(price)}
+          {convertPrice((price * (100 - discount)) / 100) ||
+            convertPrice(price)}
         </span>
         <span style={{ textDecoration: "line-through", color: "#ebcdcd" }}>
           {discount && convertPrice(price)}

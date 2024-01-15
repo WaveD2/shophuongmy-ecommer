@@ -24,6 +24,7 @@ import { resetUser } from "../../redux/Slice/userSlice";
 import Loading from "../LoadingComponent/LoadingComponent";
 import TooltipComponent from "../TooltipComponent/TooltipComponent";
 import avatarDefault from "../../assets/images/avatar_default.png";
+import logoHuongMy from "../../assets/images/sunLogo.png";
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
@@ -158,9 +159,11 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
             justifyContent: "space-between",
           }}>
           <Col style={{ textAlign: "center" }}>
-            <WrapperTextHeader to="/">SHOP HƯỜNG MỸ</WrapperTextHeader>
+            <WrapperTextHeader to="/">
+              <img src={logoHuongMy} alt="shop hường mỹ" className="styleImg" />
+            </WrapperTextHeader>
           </Col>
-          <Col span={12}>
+          <Col span={10}>
             {!isHiddenSearch && (
               <div>
                 <div style={{ position: "relative" }}>
@@ -174,6 +177,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                     onKeyPress={handleEnterPress}
                     autoClearSearchValue={true}
                   />
+
                   {isLoading ? <Spin /> : null}
                   {searchResult?.data?.length > 0 && (
                     <WrapperTippy>
@@ -213,7 +217,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                   onOpenChange={handleOpenChange}
                   trigger="click"
                   open={isOpenPopup}>
-                  <div
+                  <divz
                     style={{
                       display: "flex",
                       gap: "10px",
@@ -231,7 +235,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                       <h3>{user?.name || user?.email || "Not Name"}</h3>
                       <p>Cài đặt</p>
                     </SettingUser>
-                  </div>
+                  </divz>
                 </Popover>
               ) : (
                 <TooltipComponent

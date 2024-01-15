@@ -1,24 +1,11 @@
-import { Card } from "antd";
 import styled from "styled-components";
 
-export const WrapperCardStyle = styled(Card)`
-  position: relative;
-  width: 200px;
-  & img {
-    height: 200px;
-    width: 100%;
-  }
-  position: relative;
-  background-color: ${(props) => (props.disabled ? "#ccc" : "#fff")};
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-`;
 export const WrapperIconProduct = styled.div`
   position: absolute;
   top: 8px;
   right: 10px;
   display: flex;
   align-items: center;
-  gap: 12px;
 `;
 export const StyleNameProduct = styled.div`
   font-size: 14px;

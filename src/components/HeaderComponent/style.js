@@ -6,7 +6,7 @@ export const ContainerHeader = styled.div`
   display: flex;
   background: #1e1e1e;
   justify-content: center;
-  height: 70px;
+  height: 60px;
 `;
 
 export const WrapperHeader = styled(Row)`
@@ -95,7 +95,7 @@ export const BoxTippy = styled.div`
 export const SettingUser = styled.div`
   cursor: pointer;
   max-width: 100%pointer;
-  text-overflow: ellipsispointer;
+
   height: 40px;
 
   @media only screen and (max-width: 830px) {

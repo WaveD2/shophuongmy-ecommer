@@ -2,29 +2,26 @@ import React, { useState, useEffect } from "react";
 import slider1 from "../../assets/images/slider1.webp";
 import slider2 from "../../assets/images/slider2.webp";
 import slider3 from "../../assets/images/slider3.webp";
-import { useQuery } from "@tanstack/react-query";
-import { useSelector } from "react-redux";
 import {
-  WrapperButtonMore,
   WrapperProducts,
   WrapperTypeProduct,
   ContainerProducts,
   ContainerHome,
+  BoxTypeProduct,
 } from "./style";
-import TypeProduct from "../../components/TypeProduct/TypeProduct";
 import SliderComponent from "../../components/SliderComponent/SliderComponent";
 import CardComponent from "../../components/CardComponent/CardComponent";
 import { MenuHeader } from "../../utils/Constant";
 import * as ProductService from "../../services/ProductService";
-import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
-import { ContainerOrder } from "../OrderPage/style";
-import HookInfiniteScroll from "../../utils/HookScroll";
 import TextTitleComponent from "../../components/TextTitleComponent/TextTitleComponent";
+import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
+import TypeProduct from "../../components/TypeProduct/TypeProduct";
 
 const HomePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isCallApi, setIsCallApi] = useState(true);
+  const [isOpenNavbar, setIsOpenNavbar] = useState(false);
   const [listProduct, setListProduct] = useState([]);
   const [page, setPage] = useState(1);
 
@@ -46,11 +43,13 @@ const HomePage = () => {
   }, [isLoading]);
 
   useEffect(() => {
+    let maxPage = 1;
     const fetchAllTypeProduct = async () => {
       try {
         const res = await ProductService.getAllProduct({
           page,
         });
+        maxPage = res?.page;
         if (res.data.length > 0 || res.status === "OK")
           setListProduct((prev) => [...prev, ...res.data]);
         else if (res.data.length > 0 && res.status === "OK") {
@@ -62,36 +61,58 @@ const HomePage = () => {
         }
         setIsLoading(false);
       } catch (error) {
-        setIsLoading(true);
+        setIsLoading(false);
       }
     };
-    if (isCallApi) {
+    if (isCallApi && page <= maxPage) {
       setIsLoading(true);
       fetchAllTypeProduct();
     }
+
+    return () => {
+      fetchAllTypeProduct();
+    };
   }, [page]);
 
   return (
     <ContainerHome>
       <WrapperTypeProduct>
-        {MenuHeader.map((item, index) => {
-          return <TypeProduct item={item} key={index} />;
-        })}
+        <div style={{ display: "flex" }}>
+          {MenuHeader.map((item, index) => {
+            return <TypeProduct item={item} key={index} />;
+          })}
+        </div>
+        <BoxTypeProduct onClick={() => setIsOpenNavbar((prev) => !prev)}>
+          {isOpenNavbar ? (
+            <CloseOutlined size={16} className="iconAbsolute" />
+          ) : (
+            <MenuOutlined size={16} className="iconAbsolute" />
+          )}
+
+          <div
+            style={{
+              display: `${isOpenNavbar ? "block" : "none"}`,
+            }}>
+            {MenuHeader.map((item, index) => {
+              return <TypeProduct item={item} key={index} />;
+            })}
+          </div>
+        </BoxTypeProduct>
       </WrapperTypeProduct>
 
       <ContainerHome>
         <SliderComponent arrImages={[slider1, slider2, slider3]} />
 
-        {listProduct.length > 0 && (
-          <ContainerProducts>
-            <TextTitleComponent
-              text={"Sản phẩm nổi bật"}
-              className="text_header_container"
-            />
+        <ContainerProducts>
+          <TextTitleComponent
+            text={"Sản phẩm nổi bật"}
+            className="text_header_container"
+          />
 
-            <Loading isLoading={isLoading}>
-              <WrapperProducts>
-                {listProduct?.map((product, index) => {
+          <Loading isLoading={isLoading}>
+            <WrapperProducts>
+              {listProduct.length > 0 &&
+                listProduct?.map((product, index) => {
                   return (
                     <CardComponent
                       key={index}
@@ -109,10 +130,9 @@ const HomePage = () => {
                     />
                   );
                 })}
-              </WrapperProducts>
-            </Loading>
-          </ContainerProducts>
-        )}
+            </WrapperProducts>
+          </Loading>
+        </ContainerProducts>
       </ContainerHome>
     </ContainerHome>
   );

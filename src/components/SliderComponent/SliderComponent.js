@@ -22,7 +22,7 @@ const SliderComponent = ({ arrImages }) => {
           alt="slider"
           preview={false}
           width="100%"
-          height="247px"
+          height="249px"
         />
       ))}
     </Carousel>

@@ -1,19 +1,69 @@
-import { Col, Image, InputNumber } from "antd";
+import { Col, Image, InputNumber, Row } from "antd";
 import styled from "styled-components";
 
 export const WrapperStyleImageSmall = styled(Image)`
   height: 100%;
   width: 100%;
-  object-fit: none;
-`;
-
-export const WrapperStyleColImage = styled(Col)`
-  display: flex;
   max-width: 100px;
   min-width: 100px;
   min-height: 100px;
   max-height: 100px;
+  object-fit: none;
+  @media only screen and (max-width: 450px) {
+    max-width: calc(100vw / 5 - 10px);
+    min-width: calc(100vw / 5 - 10px);
+    width: 70px !important;
+    height: auto;
+  }
+`;
+export const WrapperStyleImageBig = styled(Image)`
+  height: 100%;
+  width: 100%;
+  object-fit: none;
+
+  @media only screen and (max-width: 850px) {
+    object-fit: contain;
+  }
+  @media only screen and (max-width: 450px) {
+    width: 350px !important;
+  }
+`;
+
+export const ContainerDetailProduct = styled(Row)`
+  padding: 0 10px;
+  background: "#fff";
+  border-radius: 4px;
+  height: 100%;
+  flex-flow: unset;
+  @media only screen and (max-width: 850px) {
+    flex-direction: column;
+  }
+`;
+export const WrapperColImage = styled(Row)`
+  flex-direction: column;
+  gap: 4px;
+  margin-right: 30px;
+  @media only screen and (max-width: 850px) {
+    flex-direction: row;
+  }
+`;
+export const ContainerColImage = styled(Col)`
+  border-right: 1px solid #e5e5e5;
+  display: flex;
+  min-width: 670px;
+
+  @media only screen and (max-width: 850px) {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+`;
+export const WrapperStyleColImage = styled(Col)`
+  display: flex;
   object-fit: cover;
+
+  @media only screen and (max-width: 450px) {
+    flex: none !important;
+  }
 `;
 
 export const WrapperStyleNameProduct = styled.h1`
@@ -32,14 +82,12 @@ export const WrapperStyleTextSell = styled.span`
 `;
 
 export const WrapperPriceProduct = styled.div`
-  background: rgb(250, 250, 250);
   border-radius: 4px;
 `;
 
 export const WrapperPriceTextProduct = styled.div`
   display: flex;
   gap: 18px;
-  margin-right: 8px;
   margin-top: 10px;
   align-items: center;
 `;
