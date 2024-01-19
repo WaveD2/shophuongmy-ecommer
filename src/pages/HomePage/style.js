@@ -8,7 +8,6 @@ export const ContainerHome = styled.div`
 `;
 
 export const BoxTypeProduct = styled.section`
-  background: #cccccced;
   padding: 8px;
   position: fixed;
   left: 0px;
@@ -16,7 +15,6 @@ export const BoxTypeProduct = styled.section`
   border-radius: 2px;
   color: rgb(51, 51, 51);
   z-index: 99;
-  height: 100%;
   width: 80%;
 `;
 
@@ -45,11 +43,12 @@ export const WrapperTypeProduct = styled.div`
     & > section > div {
       position: absolute;
       left: 0;
-      top: 50px;
+      top: 0;
       width: 70vw;
-      height: 80vh;
+      height: 100vh;
       z-index: 80;
-
+      background: #cccccce8;
+      padding-top: 50px;
       animation-name: my-animation;
       animation-duration: 0.6s;
       animation-direction: alternate;

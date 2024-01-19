@@ -63,20 +63,8 @@ const FormFormik = ({
                 disabled={!dirty || !isValid}
                 type="submit"
                 size={40}
-                styleButton={{
-                  background: "rgb(255, 57, 69)",
-                  height: "48px",
-                  width: "100%",
-                  border: "none",
-                  borderRadius: "4px",
-                  margin: "26px 0 10px",
-                }}
+                className="boxBtn"
                 textButton={textButton1}
-                styleTextButton={{
-                  color: "#fff",
-                  fontSize: "15px",
-                  fontWeight: "700",
-                }}
               />
             )}
             {isButton2 && (
@@ -84,20 +72,8 @@ const FormFormik = ({
                 onClick={handleDelete}
                 type="button"
                 size={40}
-                styleButton={{
-                  background: "#ccc",
-                  height: "48px",
-                  width: "100%",
-                  border: "none",
-                  borderRadius: "4px",
-                  margin: "26px 0 10px",
-                }}
+                className="boxBtn"
                 textButton={textButton2}
-                styleTextButton={{
-                  color: "#fff",
-                  fontSize: "15px",
-                  fontWeight: "700",
-                }}
               />
             )}
           </div>

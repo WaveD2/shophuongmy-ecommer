@@ -9,6 +9,7 @@ import {
   BoxTippy,
   WrapperTippy,
   SettingUser,
+  WrapperMenuRight,
 } from "./style";
 import {
   UserOutlined,
@@ -28,6 +29,7 @@ import logoHuongMy from "../../assets/images/sunLogo.png";
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
+import SearchComponent from "../SearchComponent/SearchComponent";
 
 const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const navigate = useNavigate();
@@ -42,7 +44,6 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isTippy, setIsTippy] = useState(false);
 
   const handleNavigateLogin = () => {
     navigate("/sign-in");
@@ -107,47 +108,23 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
     setIsOpenPopup(false);
   };
 
-  const onSearch = (value) => {
+  const handleSearch = async (value) => {
+    setSearchTerm(value);
+    setIsLoading(true);
+
     if (value) {
-      setSearchTerm(value);
-    } else {
-      setSearchResult([]);
-    }
-  };
-
-  const handleEnterPress = (event) => {
-    if (event.key === "Enter") {
-      navigate("/search/product");
-    }
-  };
-
-  useEffect(() => {
-    let timer;
-    const fetchData = async () => {
-      setIsLoading(true);
-
-      if (searchTerm) {
-        const data = await ProductService.getAllProduct({
-          search: searchTerm,
-          limit: 10,
-          page: 0,
-        });
-        if (data?.data?.length > 0) {
-          setSearchResult(data);
-          setIsTippy(true);
-        }
-        setIsLoading(false);
+      const data = await ProductService.getAllProduct({
+        search: value,
+        limit: 10,
+        page: 0,
+      });
+      console.log("Da ta ", data);
+      if (data?.data?.length > 0) {
+        setSearchResult(data);
       }
-    };
-    if (searchTerm) {
-      timer = setTimeout(() => {
-        fetchData();
-      }, 1200);
+      setIsLoading(false);
     }
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [searchTerm]);
+  };
 
   return (
     <Loading isLoading={loading}>
@@ -165,51 +142,25 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
           </Col>
           <Col span={10}>
             {!isHiddenSearch && (
-              <div>
-                <div style={{ position: "relative" }}>
-                  <AutoComplete
-                    onSelect={(e) => {
-                      console.log("select", e?.target.value);
-                    }}
-                    style={{ width: "100%" }}
-                    placeholder="Search"
-                    onSearch={onSearch}
-                    onKeyPress={handleEnterPress}
-                    autoClearSearchValue={true}
-                  />
-
-                  {isLoading ? <Spin /> : null}
-                  {searchResult?.data?.length > 0 && (
-                    <WrapperTippy>
-                      {searchResult?.data?.map((result, index) => (
-                        <BoxTippy
-                          loading={isLoading}
-                          key={index}
-                          onClick={() => {
-                            navigate(`/product-details/${result?._id}`);
-                            setSearchResult([]);
-                          }}>
-                          <img
-                            className=""
-                            src={result?.images[0]?.thumbUrl}
-                            alt="ảnh sản phẩm"
-                            style={{ width: "80px", height: "60px" }}
-                          />
-                          <span style={{ fontSize: "16px" }}>
-                            {result?.name}
-                          </span>
-                        </BoxTippy>
-                      ))}
-                    </WrapperTippy>
-                  )}
-                </div>
+              <div style={{ position: "relative" }}>
+                <SearchComponent
+                  dataOptions={searchResult?.data}
+                  style={{ width: "100%" }}
+                  placeholder="Tìm kiếm sản phẩm"
+                  handlerSearch={handleSearch}
+                  handlerSelect={(idProduct) => {
+                    navigate(`/product-details/${idProduct}`);
+                    setSearchResult([]);
+                    setSearchTerm("");
+                  }}
+                  valueSearch={searchTerm}
+                  autoClearSearchValue={true}
+                />
               </div>
             )}
           </Col>
 
-          <Col
-            span={6}
-            style={{ display: "flex", gap: "15px", alignItems: "center" }}>
+          <WrapperMenuRight span={6}>
             <WrapperHeaderAccout>
               {user?.access_token && userAvatar ? (
                 <Popover
@@ -217,7 +168,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                   onOpenChange={handleOpenChange}
                   trigger="click"
                   open={isOpenPopup}>
-                  <divz
+                  <div
                     style={{
                       display: "flex",
                       gap: "10px",
@@ -235,7 +186,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                       <h3>{user?.name || user?.email || "Not Name"}</h3>
                       <p>Cài đặt</p>
                     </SettingUser>
-                  </divz>
+                  </div>
                 </Popover>
               ) : (
                 <TooltipComponent
@@ -276,7 +227,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                 }
               />
             )}
-          </Col>
+          </WrapperMenuRight>
         </WrapperHeader>
       </ContainerHeader>
     </Loading>

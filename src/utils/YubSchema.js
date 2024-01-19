@@ -40,7 +40,7 @@ export const fieldsSignUp = {
       type: "text",
     },
     {
-      label: "Số điện thoại",
+      label: "Điện thoại",
       name: "phone",
       type: "number",
     },
@@ -53,11 +53,13 @@ export const fieldsSignUp = {
       label: "Mật khẩu",
       name: "password",
       type: "password",
+      component: InputPassword,
     },
     {
       label: "Nhập lại mật khẩu",
       name: "confirmPassword",
       type: "password",
+      component: InputPassword,
     },
   ],
 };

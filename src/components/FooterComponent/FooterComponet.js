@@ -1,6 +1,5 @@
 import React from "react";
-import { ContainerFooter, WrapperFooter } from "./style";
-import { Col, Row } from "antd";
+import "./style.css";
 import {
   EnvironmentOutlined,
   FacebookFilled,
@@ -11,45 +10,94 @@ import {
 } from "@ant-design/icons";
 
 const FooterComponent = () => {
+  const dataFooter = [
+    {
+      title: "Hỗ trợ khách hàng",
+      lists: [
+        {
+          href: "search",
+          text: "Tìm kiếm",
+        },
+        {
+          href: "sign-in",
+          text: "Đăng nhập",
+        },
+        {
+          href: "sign-up",
+          text: "Đăng ký",
+        },
+        {
+          href: "order",
+          text: "Giỏ hàng",
+        },
+      ],
+    },
+    {
+      title: "Chính sách Shop Hường Mỹ",
+      lists: [
+        {
+          href: "/",
+          text: "Chính sách bảo mật",
+        },
+        {
+          href: "/",
+          text: "Chính sách vận chuyển",
+        },
+        {
+          href: "/",
+          text: "Chính sách đổi trả",
+        },
+        {
+          href: "/",
+          text: "Quy định sử dụng",
+        },
+      ],
+    },
+    {
+      title: "Thông tin liên lạc",
+      lists: [
+        {
+          href: "/",
+          text: "Địa chỉ : Thị Trấn, Đô Lương, Nghệ An",
+        },
+        {
+          href: "/",
+          // text: `${(<PhoneOutlined />)}: 098823352*`,
+          text: `Điện thoại: 098823352*`,
+        },
+        {
+          href: "/",
+          text: `Gmail : 
+              tungdev64@gmail.com `,
+        },
+        {
+          href: "/",
+          text: `Facebook : Đăng Tùng`,
+        },
+      ],
+    },
+  ];
   return (
-    <ContainerFooter>
-      <Row>
-        <Col span={9}>
-          <p className="">
-            “Đặt sự hài lòng của khách hàng là ưu tiên số 1 trong mọi suy nghĩ
-            hành động của mình” là sứ mệnh, là triết lý, chiến lược.. luôn cùng
-            Shop Hường Mỹ tiến bước .<br></br>Đến với Sop Hường Mỹ, quý khách sẽ
-            được cập nhật liên tục các mẫu thời trang trẻ em mới và hot nhất với
-            giá cả hợp lý nhất. Quý khách được kiểm tra hàng trước khi thanh
-            toán và được đổi trả hàng trong trường hợp lỗi hỏng
-          </p>
-        </Col>
-        <Col span={6}>
-          <h3>HỖ TRỢ KHÁCH HÀNG</h3>
-          <p>Hướng dẫn Chọn size</p>
-          <p>Chính sách Khách hàng thân thiết</p>
-          <p>Chính sách Bảo hành, đổi/trả</p>
-          <p>Chính sách Thanh toán, giao nhận</p>
-        </Col>
-        <Col span={8}>
-          <h3>SHOP QUẦN ÁO HƯỜNG MỸ</h3>
-          <p>
-            <EnvironmentOutlined />
-            <span>Khu đô thị Thị Trấn-Đà Sơn-Đô Lương-Nghệ An</span>
-          </p>
-          <p>
-            <PhoneOutlined /> <span>Liện hệ : 09882335**</span>
-          </p>
-          <p>
-            <GoogleOutlined /> <span>tungdev64@gmail.com</span>
-          </p>
-          <p>
-            <FacebookOutlined />
-            <span style={{ marginLeft: "4px" }}>Đăng Tùng</span>
-          </p>
-        </Col>
-      </Row>
-    </ContainerFooter>
+    <footer className="footer">
+      <div className="container">
+        <div className="row">
+          {dataFooter.map((items) => (
+            <div className="footer-col">
+              <h4>{items.title}</h4>
+              <ul>
+                {items.lists.map((item) => (
+                  <li>
+                    <a href={item.href}>
+                      <span>{item.text}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </footer>
   );
 };
 

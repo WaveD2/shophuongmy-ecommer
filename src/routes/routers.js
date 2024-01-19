@@ -7,7 +7,6 @@ import OrderPage from "../pages/OrderPage/OrderPage";
 import OrderSucess from "../pages/OrderSuccess/OrderSuccess";
 import ProductFavoritePage from "../pages/ProductFavoritePage/ProductFavoritePage";
 import ProductDetailsPage from "../pages/ProductDetailsPage/ProductDetailsPage";
-import SearchProductsPage from "../pages/SearchProductsPage/SearchProductsPage";
 import ProfilePage from "../pages/ProfilePage/ProfilePage";
 import SignInPage from "../pages/SignInPage/SignInPage";
 import SignUpPage from "../pages/SignUpPage/SignUpPage";
@@ -48,11 +47,6 @@ export const routes = [
   {
     path: "/orderSuccess",
     page: OrderSucess,
-    isShowHeader: true,
-  },
-  {
-    path: "/search/product",
-    page: SearchProductsPage,
     isShowHeader: true,
   },
   {

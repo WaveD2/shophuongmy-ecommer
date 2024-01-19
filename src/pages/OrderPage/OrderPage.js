@@ -701,8 +701,8 @@ const OrderPage = () => {
                   />
                   <Form.Item
                     style={{ display: "flex", flexDirection: "column" }}
-                    name="Số điện thoại"
-                    label="Số điện thoại"
+                    name="Điện thoại"
+                    label="Điện thoại"
                     rules={[{ required: true }]}>
                     <Input
                       value={phoneNew}

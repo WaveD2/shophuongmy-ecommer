@@ -2,18 +2,30 @@
     display: -ms-flexbox; /* IE10 */
     display: flex;
     width: 100%;
-    margin: 15px 0;
-    align-items: center;
+}
+.input-container > input {
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    outline: none;
+    width: 100%;
+    padding: 8px;
+    padding-left: 10px;
+}
+.input-container > input:focus {
+    background-color: rgb(232, 240, 254);
 }
 
 .icon {
     padding: 10px;
     color: #6b6969;
-    background-color: azure;
     min-width: 50px;
     text-align: center;
+    border-bottom: 2px solid #767676;
 }
-
+.input-container > input:focus ~ .icon {
+    background-color: rgb(232, 240, 254);
+}
 .icon:hover {
     cursor: pointer;
 }

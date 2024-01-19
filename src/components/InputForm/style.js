@@ -4,6 +4,9 @@ import { Formik, Field } from "formik";
 
 export const ContainerInput = styled.div`
   display: flex;
+  @media only screen and (max-width: 830px) {
+    display: block;
+  }
 `;
 
 export const WrapperInputStyle = styled(Field)`
@@ -12,9 +15,13 @@ export const WrapperInputStyle = styled(Field)`
   border-left: none;
   outline: none;
   width: 100%;
+  padding: 8px;
   padding-left: 10px;
   &:focus {
     background-color: rgb(232, 240, 254);
+  }
+  @media only screen and (max-width: 830px) {
+    width: 100%;
   }
 `;
 
@@ -25,8 +32,12 @@ export const LabelInput = styled.label`
   font-weight: 600;
   display: inline-block;
   margin: 10px 0;
-  width: 280px;
+  min-width: 100px;
+  max-width: 180px;
   /* white-space: nowrap; */
+  @media only screen and (max-width: 830px) {
+    width: 100%;
+  }
 `;
 export const MessError = styled.div`
   margin: 4px 0;

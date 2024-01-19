@@ -10,11 +10,7 @@ import TabsComponent from "../TabsComponent/TabsComponent";
 
 import * as ProductService from "../../services/ProductService";
 
-import {
-  addOrderProduct,
-  addHeartProduct,
-  addOrderBuyFast,
-} from "../../redux/Slice/orderSlide";
+import { addOrderProduct, addHeartProduct } from "../../redux/Slice/orderSlide";
 import { PlusOutlined, MinusOutlined, HeartOutlined } from "@ant-design/icons";
 import {
   WrapperStyleImageSmall,
@@ -142,7 +138,7 @@ const ProductDetailsComponent = () => {
     } else {
       navigate("/order");
       dispatch(
-        addOrderBuyFast({
+        addOrderProduct({
           orderItem: {
             name: detailProduct?.name,
             amount: numProduct,

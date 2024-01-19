@@ -84,7 +84,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="containerBoxPage">
+    <div className="containerBoxPage" style={{ padding: "0 14px" }}>
       <WrapperHeader className="title_text">Thông tin người dùng</WrapperHeader>
       <WrapperForm>
         <FormImage

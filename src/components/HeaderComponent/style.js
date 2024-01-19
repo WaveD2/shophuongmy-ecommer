@@ -1,18 +1,29 @@
-import { Row } from "antd";
+import { Row, Col } from "antd";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
+export const WrapperMenuRight = styled(Col)`
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  @media only screen and (max-width: 830px) {
+    gap: 5px;
+  }
+`;
 export const ContainerHeader = styled.div`
+  position: fixed;
   display: flex;
   background: #1e1e1e;
-  justify-content: center;
+  justify-content: space-evenly;
   height: 60px;
+  z-index: 99;
+  width: 100%;
 `;
 
 export const WrapperHeader = styled(Row)`
   background-color: var(--primary-color);
   align-items: center;
-  gap: 16px;
+  gap: 10px;
   flex-wrap: nowrap;
   width: 1270px;
   padding: 10px 0;

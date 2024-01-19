@@ -1,10 +1,15 @@
 import styled from "styled-components";
 
 export const WrapperContainerLeft = styled.div`
+  width: max-content;
   flex: 1;
   padding: 30px;
   display: flex;
   flex-direction: column;
+
+  @media only screen and (max-width: 830px) {
+    width: 90vw;
+  }
 `;
 
 export const WrapperContainerRight = styled.div`

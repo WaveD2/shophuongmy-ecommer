@@ -14,7 +14,7 @@ export const getAllProduct = async ({
   // get products search
   if (search && search?.length > 0 && !price && !discount) {
     res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/product/get-all?filter=name&filter=${search}&limit=${limit}&page=${page}`
+      `${process.env.REACT_APP_BASE_URL}/product/get-all?filter=${search}&limit=${limit}&page=${page}`
     );
   } else if (price || discount) {
     res = await axios.get(`${process.env.REACT_APP_BASE_URL}/product/get-all`, {
