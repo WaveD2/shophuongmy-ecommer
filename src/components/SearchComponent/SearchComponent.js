@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { AutoComplete } from "antd";
 const SearchComponent = ({
   style = {},
@@ -21,6 +21,8 @@ const SearchComponent = ({
         };
       });
       setDataRenderOptions(listOptions);
+    } else {
+      setDataRenderOptions([]);
     }
   }, [dataOptions]);
 
@@ -31,7 +33,6 @@ const SearchComponent = ({
       style={style}
       value={valueSearch}
       options={dataRenderOptions}
-      filterOption={true}
       placeholder={placeholder}
       onSelect={handlerSelect}
       onSearch={handlerSearch}

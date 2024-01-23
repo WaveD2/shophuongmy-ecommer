@@ -271,9 +271,23 @@ const ProductDetailsComponent = () => {
             <Col style={{ paddingLeft: "10px" }}>
               <WrapperStyleNameProduct>
                 {detailProduct?.name}
+                {detailProduct?.countInStock === 0 && (
+                  <span
+                    style={{
+                      display: "inline-block",
+                      padding: "6px",
+                      background: "#f79e9e",
+                      borderRadius: "16px",
+                      color: "#fff",
+                    }}>
+                    Đã hết hàng
+                  </span>
+                )}
               </WrapperStyleNameProduct>
               <div>
-                <WrapperStyleTextSell>Đã bán 1000+</WrapperStyleTextSell>
+                <WrapperStyleTextSell>
+                  Đã bán {`${detailProduct?.selled || "100+"} chiếc`}{" "}
+                </WrapperStyleTextSell>
               </div>
 
               <WrapperPriceTextProduct>
@@ -335,6 +349,7 @@ const ProductDetailsComponent = () => {
                 <span>Số lượng</span>
                 <WrapperQualityProduct>
                   <button
+                    disabled={detailProduct?.countInStock === 0}
                     style={{
                       border: "none",
                       background: "transparent",
@@ -360,6 +375,7 @@ const ProductDetailsComponent = () => {
                   </Suspense>
 
                   <button
+                    disabled={detailProduct?.countInStock === 0}
                     style={{
                       border: "none",
                       background: "transparent",

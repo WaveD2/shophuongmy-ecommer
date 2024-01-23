@@ -316,10 +316,6 @@ const OrderPage = () => {
       dispatch(removeAllOrderProduct({ listChecked: arrayOrdered }));
 
       setMoneyTransportation(0);
-      Message({
-        typeMes: "success",
-        mes: "Đặt hàng thành công",
-      });
       navigate("/orderSuccess", {
         state: {
           delivery,

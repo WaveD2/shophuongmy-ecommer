@@ -73,6 +73,9 @@ export const WrapperStyleNameProduct = styled.h1`
   line-height: 32px;
   word-break: break-word;
   text-transform: capitalize;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 export const WrapperStyleTextSell = styled.span`

@@ -121,9 +121,13 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
       console.log("Da ta ", data);
       if (data?.data?.length > 0) {
         setSearchResult(data);
+      } else {
+        setSearchResult([]);
       }
-      setIsLoading(false);
+    } else {
+      setSearchResult([]);
     }
+    setIsLoading(false);
   };
 
   return (
