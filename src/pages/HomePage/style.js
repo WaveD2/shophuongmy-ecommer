@@ -90,7 +90,6 @@ export const WrapperProducts = styled.div`
   flex-wrap: wrap;
   margin-top: 10px;
   width: 100%;
-  justify-content: space-between;
 
   @media only screen and (max-width: 830px) {
     justify-content: center;

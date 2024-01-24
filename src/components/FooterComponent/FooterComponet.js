@@ -36,19 +36,19 @@ const FooterComponent = () => {
       title: "Chính sách Shop Hường Mỹ",
       lists: [
         {
-          href: "/",
+          href: "/pages",
           text: "Chính sách bảo mật",
         },
         {
-          href: "/",
+          href: "/pages",
           text: "Chính sách vận chuyển",
         },
         {
-          href: "/",
+          href: "/pages",
           text: "Chính sách đổi trả",
         },
         {
-          href: "/",
+          href: "/pages",
           text: "Quy định sử dụng",
         },
       ],
@@ -57,21 +57,21 @@ const FooterComponent = () => {
       title: "Thông tin liên lạc",
       lists: [
         {
-          href: "/",
+          href: "/pages",
           text: "Địa chỉ : Thị Trấn, Đô Lương, Nghệ An",
         },
         {
-          href: "/",
+          href: "/pages",
           // text: `${(<PhoneOutlined />)}: 098823352*`,
           text: `Điện thoại: 098823352*`,
         },
         {
-          href: "/",
+          href: "/pages",
           text: `Gmail : 
               tungdev64@gmail.com `,
         },
         {
-          href: "/",
+          href: "/pages",
           text: `Facebook : Đăng Tùng`,
         },
       ],
@@ -95,6 +95,19 @@ const FooterComponent = () => {
               </ul>
             </div>
           ))}
+          <div className="footer-col">
+            <h4>Panpage</h4>
+
+            <iframe
+              src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fshophuongmy37&tabs=timeline&width=350&height=50&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId=301954856157171"
+              width="100%"
+              height="100%"
+              style={{ border: "none", overflow: "hidden" }}
+              scrolling="no"
+              frameborder="0"
+              allowfullscreen="true"
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+          </div>
         </div>
       </div>
     </footer>

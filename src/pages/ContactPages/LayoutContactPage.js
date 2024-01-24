@@ -11,7 +11,7 @@ const { Header, Content, Footer, Sider } = Layout;
 
 const menuOptions = [
   {
-    label: "Giới thiệu Shop Hường Mỹ",
+    label: "Giới thiệu",
     key: 1,
   },
   {
@@ -88,15 +88,11 @@ const LayoutContactPage = () => {
   const [keyTitle, setKeyTitle] = useState(1);
 
   let renderContentByMenu = contentMenrOptions[keyTitle - 1].content;
-  console.log(renderContentByMenu);
+
   return (
-    <Content style={{ padding: "0 48px" }}>
-      <Layout
-        style={{
-          padding: "24px 0",
-          background: "#333333",
-        }}>
-        <Sider style={{ background: "#ccc" }} width={200}>
+    <Content style={{ minHeight: "60vh", marginTop: "20px" }}>
+      <Layout>
+        <Sider width={200}>
           <Menu
             onClick={(e) => {
               setKeyTitle(Number(e.key));
@@ -108,27 +104,56 @@ const LayoutContactPage = () => {
             items={menuOptions}
           />
         </Sider>
-        <Content style={{ padding: "0 24px", minHeight: 280 }}>
-          <h2>{renderContentByMenu.title}</h2>
-          <br />
-          {renderContentByMenu?.labels?.map((item, index) => (
-            <div key={index}>
-              <br />
-              <label>{item}</label>
+        <Content
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            background: "#fff",
+            padding: "0 24px",
+            minHeight: 280,
+          }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexDirection: "column",
+            }}>
+            <h2 className="title_text">{renderContentByMenu.title}</h2>
+
+            {renderContentByMenu?.labels?.map((item, index) => (
+              <div key={index}>
+                <label className="des_text">{item}</label>
+              </div>
+            ))}
+            {renderContentByMenu?.contacts &&
+              renderContentByMenu?.contacts?.map((contact, index) => {
+                return (
+                  <div key={index}>
+                    <h2>{contact?.title}</h2>
+                    {contact?.labels?.map((item, index) => (
+                      <label key={index} className="des_text">
+                        {item}
+                      </label>
+                    ))}
+                  </div>
+                );
+              })}
+            <h3 style={{ textDecoration: "underline" }}>
+              {renderContentByMenu.signature}
+            </h3>
+          </div>
+          {keyTitle === 3 && (
+            <div style={{}}>
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3174.154671221992!2d105.31024467719928!3d18.89917440354328!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3139e33e0b86a27b%3A0x8215ab880c58bf37!2zQ2jhu6MgbeG7m2kgxJDDtCBMxrDGoW5n!5e0!3m2!1svi!2s!4v1706103249615!5m2!1svi!2s"
+                width="600"
+                height="450"
+                style={{ border: 0 }}
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
-          ))}
-          {renderContentByMenu?.contacts &&
-            renderContentByMenu?.contacts?.map((contact, index) => {
-              return (
-                <div key={index}>
-                  <h2>{contact?.title}</h2>
-                  {contact?.labels?.map((item, index) => (
-                    <label key={index}>{item}</label>
-                  ))}
-                </div>
-              );
-            })}
-          <h3>{renderContentByMenu.signature}</h3>
+          )}
         </Content>
       </Layout>
     </Content>

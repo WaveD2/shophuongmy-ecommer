@@ -314,7 +314,7 @@ const OrderPage = () => {
         arrayOrdered.push(element.id);
       });
       dispatch(removeAllOrderProduct({ listChecked: arrayOrdered }));
-
+      setIsLoadingComponent(false);
       setMoneyTransportation(0);
       navigate("/orderSuccess", {
         state: {
@@ -418,6 +418,7 @@ const OrderPage = () => {
           mes: "Kiểm tra lại thông tin. Vui lòng điền đầy đủ thông tin",
         });
       } else {
+        setIsLoadingComponent(true);
         const currentTime = new Date();
         mutationAddOrder.mutate({
           token: user?.access_token,
@@ -826,12 +827,6 @@ const OrderPage = () => {
           />
         </Loading>
       </ModalComponent>
-
-      {/* <ModalComponent
-        title={`Xóa tất cả sản phẩm `}
-        open={isOpenModalDeleteAllProduct}
-        handleCancel={() => setIsOpenModalDeleteAllProduct(false)}
-        handleOk={() => ()}></ModalComponent> */}
     </div>
   );
 };
