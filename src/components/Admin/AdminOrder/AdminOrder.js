@@ -175,7 +175,7 @@ const AdminOrder = () => {
         totalPrice: convertPrice(order?.totalPrice),
       };
     });
-
+  console.log("orders page", orders);
   return (
     <div>
       <WrapperHeader>Quản lý đơn hàng</WrapperHeader>

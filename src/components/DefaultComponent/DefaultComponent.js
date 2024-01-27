@@ -1,19 +1,19 @@
-import React from "react";
+import React, { Fragment } from "react";
 import HeaderComponent from "../HeaderComponent/HeaderComponent";
 import FooterComponent from "../FooterComponent/FooterComponet";
 
 const DefaultComponent = ({ children }) => {
   return (
-    <div style={{ overflow: "hidden" }}>
+    <Fragment>
       <div
         style={{
           height: "60px",
         }}>
         <HeaderComponent />
       </div>
-      {children}
+      <main> {children}</main>
       <FooterComponent />
-    </div>
+    </Fragment>
   );
 };
 

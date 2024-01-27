@@ -11,6 +11,7 @@ const TableComponent = (props) => {
     isLoading = false,
     columns = [],
     handleDeleteMany,
+    titleExcel,
   } = props;
   const [rowSelectedKeys, setRowSelectedKeys] = useState([]);
   const newColumnExport = useMemo(() => {
@@ -23,11 +24,11 @@ const TableComponent = (props) => {
       setRowSelectedKeys(selectedRowKeys);
     },
 
-    // getCheckboxProps: (record) => ({
-    //   disabled: record.name === 'Disabled User',
-    //   // Column configuration not to be checked
-    //   name: record.name,
-    // }),
+    getCheckboxProps: (record) => ({
+      disabled: record.name === "Disabled User",
+      // Column configuration not to be checked
+      name: record.name,
+    }),
   };
   const handleDeleteAll = () => {
     handleDeleteMany(rowSelectedKeys);
@@ -41,11 +42,11 @@ const TableComponent = (props) => {
       .addDataSource(dataSource, {
         str2Percent: true,
       })
-      .saveAs("Excel.xlsx");
+      .saveAs(titleExcel);
   };
   return (
     <Loading isLoading={isLoading}>
-      {rowSelectedKeys.length > 0 && (
+      {rowSelectedKeys.length === dataSource.length && (
         <div
           style={{
             background: "#1ccc",
@@ -72,7 +73,7 @@ const TableComponent = (props) => {
             background: "#ccc",
             margin: "12px 0",
           }}>
-          Export Excel
+          Xuất file Excel
         </button>
         <button
           type="primary"
@@ -83,7 +84,7 @@ const TableComponent = (props) => {
             background: "#ccc",
             margin: "12px 0",
           }}>
-          Reload
+          Load lại
         </button>
       </div>
       <Table

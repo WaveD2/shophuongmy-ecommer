@@ -1,5 +1,5 @@
 import { Menu } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { getItem } from "../../utils/getBase64";
 import {
   UserOutlined,
@@ -94,8 +94,10 @@ const AdminPage = () => {
   };
 
   return (
-    <>
-      <HeaderComponent isHiddenSearch isHiddenCart />
+    <Fragment>
+      <div style={{ height: "60px" }}>
+        <HeaderComponent isHiddenSearch isHiddenCart />
+      </div>
       <ContainerAdminPage>
         {items?.length === 3 && (
           <WrapperMenuLeft>
@@ -115,7 +117,7 @@ const AdminPage = () => {
           {renderPage(keySelected)}
         </div>
       </ContainerAdminPage>
-    </>
+    </Fragment>
   );
 };
 

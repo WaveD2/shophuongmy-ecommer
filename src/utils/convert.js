@@ -1,4 +1,5 @@
 import { orderConstant } from "./Constant";
+import { Random_rgba } from "./RanDomColorRgba";
 
 export const convertPrice = (price) => {
   try {
@@ -8,26 +9,23 @@ export const convertPrice = (price) => {
     return null;
   }
 };
+
 export const convertDataChart = (data, type) => {
   try {
-    const object = {};
-    Array.isArray(data) &&
-      data.forEach((opt) => {
-        if (!object[opt[type]]) {
-          object[opt[type]] = 1;
-        } else {
-          object[opt[type]] += 1;
-        }
-      });
-    const results =
-      Array.isArray(Object.keys(object)) &&
-      Object.keys(object).map((item) => {
-        return {
-          name: orderConstant.payment[item],
-          value: object[item],
-        };
-      });
-    return results;
+    const countMap = {};
+
+    data.forEach((item) => {
+      const value = item[type];
+      countMap[value] = (countMap[value] || 0) + 1;
+    });
+    console.log("result", Object.entries(countMap));
+
+    const result = Object.entries(countMap).map(([name, value]) => ({
+      [type]: name,
+      value,
+      color: Random_rgba(),
+    }));
+    return result;
   } catch (e) {
     return [];
   }

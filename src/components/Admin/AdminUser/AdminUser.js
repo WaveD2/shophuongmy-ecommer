@@ -215,7 +215,7 @@ const AdminUser = () => {
 
   const columns = [
     {
-      title: "Name",
+      title: "Tên người dùng",
       dataIndex: "name",
       sorter: (a, b) => a?.name?.length - b?.name?.length,
       ...getColumnSearchProps("name"),
@@ -229,7 +229,7 @@ const AdminUser = () => {
       ...getColumnSearchProps("email"),
     },
     {
-      title: "Address",
+      title: "Địa chỉ",
       dataIndex: "address",
       sorter: (a, b) => {
         if (!a.address && !b.address) {
@@ -241,27 +241,13 @@ const AdminUser = () => {
       ...getColumnSearchProps("address"),
     },
     {
-      title: "Admin",
-      dataIndex: "isAdmin",
-      filters: [
-        {
-          text: "True",
-          value: true,
-        },
-        {
-          text: "False",
-          value: false,
-        },
-      ],
-    },
-    {
-      title: "Phone",
+      title: "Số điện thoại",
       dataIndex: "phone",
       sorter: (a, b) => a?.phone - b?.phone,
       ...getColumnSearchProps("phone"),
     },
     {
-      title: "Action",
+      title: "Thao tác",
       dataIndex: "action",
       render: renderAction,
     },
@@ -360,6 +346,7 @@ const AdminUser = () => {
       <WrapperHeader>Quản lý người dùng</WrapperHeader>
       <div style={{ marginTop: "20px" }}>
         <TableComponent
+          titleExcel="QLND.xlsx"
           handleDeleteMany={handleDeleteManyUsers}
           columns={columns}
           isLoading={isFetchingUser || isLoadingUpdated || isLoadingDeleteMany}

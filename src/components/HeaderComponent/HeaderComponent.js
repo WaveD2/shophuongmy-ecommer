@@ -118,7 +118,6 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
         limit: 10,
         page: 0,
       });
-      console.log("Da ta ", data);
       if (data?.data?.length > 0) {
         setSearchResult(data);
       } else {

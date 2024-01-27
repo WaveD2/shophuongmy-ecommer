@@ -49,14 +49,19 @@ const AdminProduct = () => {
   const [rowSelected, setRowSelected] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
   const [sizesProduct, setSizesProduct] = useState([]);
-  const [nameSizesProduct, setNameSizesProduct] = useState("");
+  const [listTypeProduct, setListTypeProduct] = useState([]);
+  const [valuesCreateProduct, setValuesCreateProduct] = useState(
+    fieldsCreateProduct.initialCreateProduct
+  );
+
+  const DEFAULT_VALUES_CREATE_PRODUCT =
+    fieldsCreateProduct.initialCreateProduct;
 
   const user = useSelector((state) => state?.user);
 
   const searchInput = useRef(null);
 
   const [stateProductDetails, setStateProductDetails] = useState({});
-  console.log("stateProductDetails", stateProductDetails);
   const handleCloseDrawer = () => {
     setIsOpenDrawer(false);
     setStateProductDetails({
@@ -122,10 +127,10 @@ const AdminProduct = () => {
   };
 
   //GET ALL TYPE PRODUCT
-  // useEffect(() => {
-  //   const res = ProductService.getAllTypeProduct();
-  //   if (res?.status === "OK") setListTypeProduct(res?.data);
-  // }, []);
+  useEffect(() => {
+    const res = ProductService.getAllTypeProduct();
+    if (res?.status === "OK") setListTypeProduct(res?.data);
+  }, []);
 
   const fetchGetDetailsProduct = async (rowSelected) => {
     const res = await ProductService.getDetailsProduct({
@@ -184,7 +189,6 @@ const AdminProduct = () => {
   // get all product
   useEffect(() => {
     getAllProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isLoading || isLoadingUpdated || isLoadingDeleted || isLoadingDeletedMany,
   ]);
@@ -299,7 +303,7 @@ const AdminProduct = () => {
       ...getColumnSearchProps("name"),
     },
     {
-      title: "Gía tiền",
+      title: "Gía",
       dataIndex: "price",
       sorter: (a, b) => a.price - b.price,
       filters: [
@@ -383,11 +387,13 @@ const AdminProduct = () => {
     setStateProductDetails({});
     setFileImagesList([]);
     setRowSelected();
+    setValuesCreateProduct(DEFAULT_VALUES_CREATE_PRODUCT);
   };
 
   const handleCancelCreateProduct = () => {
     setFileImagesList([]);
     setIsModalOpen(false);
+    setValuesCreateProduct(DEFAULT_VALUES_CREATE_PRODUCT);
   };
 
   const handleOnchangeImgFile = ({ file }) => {
@@ -427,6 +433,8 @@ const AdminProduct = () => {
       images: fileImagesList,
       ...values,
     });
+
+    setFileImagesList([]);
   };
 
   // Preview Images
@@ -498,7 +506,7 @@ const AdminProduct = () => {
           }
 
           <FormFormik
-            initialValues={fieldsCreateProduct.initialCreateProduct}
+            initialValues={valuesCreateProduct}
             validationSchema={ProductSchema}
             onSubmit={onCreateProduct}
             fields={fieldsCreateProduct.fields}
