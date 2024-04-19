@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
-import { Select } from "antd";
-import { Provinces } from "../../services/DresService";
+import {Select} from "antd";
+import {Provinces} from "../../services/DresService";
 import SelectOption from "../InputForm/SelectOption";
 
 const ChooseDressComponent = () => {
@@ -14,23 +14,29 @@ const ChooseDressComponent = () => {
   const [selectedDistrict, setSelectedDistrict] = useState("");
 
   useEffect(() => {
-    axios.get("https://provinces.open-api.vn/api/?depth=1").then((response) => {
-      setProvinces([{ code: 0, name: "Chọn tỉnh/thành" }, ...response.data]);
-    });
+    axios
+      .get(
+        "https://vnprovinces.pythonanywhere.com/api/provinces/?basic=true&limit=100"
+      )
+      .then(response => {
+        setProvinces([{id: 0, name: "Chọn tỉnh/thành"}, ...response.data]);
+      });
   }, []);
 
   useEffect(() => {
     if (selectedProvince !== "0" || Number(selectedProvince) !== 0) {
       axios
-        .get(`https://provinces.open-api.vn/api/p/${selectedProvince}?depth=2`)
-        .then((response) => {
-          if (response?.data.districts?.length > 0) {
+        .get(
+          `https://vnprovinces.pythonanywhere.com/api/districts/?province_id=${selectedProvince}&basic=true&limit=100`
+        )
+        .then(response => {
+          if (response?.data.results?.length > 0) {
             setCities([
-              { code: 0, name: "Chọn quận/huyện" },
-              ...response?.data.districts,
+              {id: 0, name: "Chọn quận/huyện"},
+              ...response?.data.results,
             ]);
           } else {
-            setCities([{ code: 0, name: "Chọn quận/huyện" }]);
+            setCities([{id: 0, name: "Chọn quận/huyện"}]);
           }
         });
     } else {
@@ -41,15 +47,17 @@ const ChooseDressComponent = () => {
   useEffect(() => {
     if (selectedCity !== "0" || Number(selectedCity) !== 0) {
       axios
-        .get(`https://provinces.open-api.vn/api/d/${selectedCity}?depth=2`)
-        .then((response) => {
-          if (response?.data.wards?.length > 0) {
+        .get(
+          `https://vnprovinces.pythonanywhere.com/api/wards/?district_id=${selectedCity}&basic=true&limit=100`
+        )
+        .then(response => {
+          if (response?.data.results?.length > 0) {
             setDistricts([
-              { code: 0, name: "Chọn xã/phường" },
-              ...response?.data.wards,
+              {id: 0, name: "Chọn xã/phường"},
+              ...response?.data.results,
             ]);
           } else {
-            setDistricts([{ code: 0, name: "Chọn xã/phường" }]);
+            setDistricts([{id: 0, name: "Chọn xã/phường"}]);
           }
         });
     } else {
@@ -57,16 +65,16 @@ const ChooseDressComponent = () => {
     }
   }, [selectedCity]);
 
-  const handleProvinceChange = (e) => {
+  const handleProvinceChange = e => {
     setSelectedProvince(e.target.value);
     setDistricts([]);
   };
 
-  const handleCityChange = (e) => {
+  const handleCityChange = e => {
     setSelectedCity(e.target.value);
   };
 
-  const handleDistrictChange = (e) => {
+  const handleDistrictChange = e => {
     setSelectedDistrict(e.target.value);
   };
   return (
@@ -82,7 +90,7 @@ const ChooseDressComponent = () => {
             <option
               value={item?.code}
               key={item?.code}
-              defaultChecked="0"
+              defaultChecked='0'
               label={item?.name}>
               {item?.name}
             </option>
@@ -95,7 +103,7 @@ const ChooseDressComponent = () => {
             <option
               value={item?.code}
               label={item?.name}
-              defaultChecked="0"
+              defaultChecked='0'
               key={item?.code}>
               {item?.name}
             </option>
@@ -105,7 +113,7 @@ const ChooseDressComponent = () => {
       {districts?.length > 1 && (
         <select onChange={handleDistrictChange}>
           {districts?.map((item, index) => (
-            <option value={item?.code} defaultChecked="0" key={item?.code}>
+            <option value={item?.code} defaultChecked='0' key={item?.code}>
               {item?.name}
             </option>
           ))}

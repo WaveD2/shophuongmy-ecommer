@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { PlusOutlined } from "@ant-design/icons";
-import { Modal, Upload } from "antd";
-
-const getBase64 = (file) =>
+import React, {useState} from "react";
+import {PlusOutlined} from "@ant-design/icons";
+import {Modal, Upload} from "antd";
+import ImageComponent from "../../ImageComponent/ImageComponent";
+const getBase64 = file =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
+    reader.onerror = error => reject(error);
   });
 
 const ImageModal = () => {
@@ -17,7 +17,7 @@ const ImageModal = () => {
   const [fileList, setFileList] = useState([]);
 
   const handleCancel = () => setPreviewOpen(false);
-  const handlePreview = async (file) => {
+  const handlePreview = async file => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
     }
@@ -27,7 +27,7 @@ const ImageModal = () => {
       file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
     );
   };
-  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+  const handleChange = ({fileList: newFileList}) => setFileList(newFileList);
   const uploadButton = (
     <div>
       <PlusOutlined />
@@ -43,7 +43,7 @@ const ImageModal = () => {
   return (
     <>
       <Upload
-        listType="picture-card"
+        listType='picture-card'
         multiple
         maxCount={6}
         onPreview={handlePreview}
@@ -55,8 +55,8 @@ const ImageModal = () => {
         title={previewTitle}
         footer={null}
         onCancel={handleCancel}>
-        <img
-          alt="example"
+        <ImageComponent
+          alt='example'
           style={{
             width: "100%",
           }}

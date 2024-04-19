@@ -78,15 +78,15 @@ const FooterComponent = () => {
     },
   ];
   return (
-    <footer className="footer">
-      <div className="container">
-        <div className="row">
-          {dataFooter.map((items) => (
-            <div className="footer-col">
+    <footer className='footer'>
+      <div className='container'>
+        <div className='row'>
+          {dataFooter.map(items => (
+            <div className='footer-col'>
               <h4>{items.title}</h4>
               <ul>
-                {items.lists.map((item) => (
-                  <li>
+                {items.lists.map((item, index) => (
+                  <li key={index}>
                     <a href={item.href}>
                       <span>{item.text}</span>
                     </a>
@@ -95,18 +95,18 @@ const FooterComponent = () => {
               </ul>
             </div>
           ))}
-          <div className="footer-col">
+          <div className='footer-col'>
             <h4>Panpage</h4>
 
             <iframe
-              src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fshophuongmy37&tabs=timeline&width=350&height=50&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId=301954856157171"
-              width="100%"
-              height="100%"
-              style={{ border: "none", overflow: "hidden" }}
-              scrolling="no"
-              frameborder="0"
-              allowfullscreen="true"
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+              src='https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fshophuongmy37&tabs=timeline&width=350&height=50&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId=301954856157171'
+              width='100%'
+              height='100%'
+              style={{border: "none", overflow: "hidden"}}
+              scrolling='no'
+              frameBorder='0'
+              allowfullscreen='true'
+              allow='autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share'></iframe>
           </div>
         </div>
       </div>

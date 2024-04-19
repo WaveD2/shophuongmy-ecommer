@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { Form, Input } from "antd";
-import React, { useEffect, useState } from "react";
+import {Form, Input} from "antd";
+import React, {useEffect, useState} from "react";
 import {
   BoxDetailOrder,
   ContainerOrder,
@@ -16,10 +16,10 @@ import {
   WrapperStyleHeader,
   WrapperTotal,
 } from "./style";
-import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
-import { WrapperInputNumber } from "../../components/ProductDetailsComponent/style";
+import {DeleteOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
+import {WrapperInputNumber} from "../../components/ProductDetailsComponent/style";
 import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
-import { useDispatch, useSelector } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {
   decreaseAmount,
   increaseAmount,
@@ -29,13 +29,13 @@ import {
   selectedOrder,
 } from "../../redux/Slice/orderSlide";
 import ModalComponent from "../../components/ModalComponent/ModalComponent";
-import { useMutationHooks } from "../../hooks/useMutationHook";
+import {useMutationHooks} from "../../hooks/useMutationHook";
 import * as UserService from "../../services/UserService";
 import * as OrderService from "../../services/OrderService";
-import { useNavigate, useLocation } from "react-router-dom";
-import { convertPrice } from "../../utils/convert";
+import {useNavigate, useLocation} from "react-router-dom";
+import {convertPrice} from "../../utils/convert";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
-import { updateUser } from "../../redux/Slice/userSlice";
+import {updateUser} from "../../redux/Slice/userSlice";
 import FormFormik from "../../components/InputForm/FormFormik";
 import {
   CreateDressOrderSchema,
@@ -45,25 +45,25 @@ import {
   kiemTraSoDienThoai,
   kiemTraObjectKhongRong,
 } from "../../utils/CheckCondition";
-import { Payments, orderConstant, valueDiscount } from "../../utils/Constant";
+import {Payments, orderConstant, valueDiscount} from "../../utils/Constant";
 import Message from "../../components/Message/Message";
 import axios from "axios";
 import SelectOption from "../../components/InputForm/SelectOption";
-import { TextProductFavorite } from "../ProductFavoritePage/style";
+import {TextProductFavorite} from "../ProductFavoritePage/style";
 import RadioComponent from "../../components/InputForm/RadioCheckBox";
 import HookDebounce from "../../utils/HookDebounce";
 import PayPal from "../../utils/PayPal";
-import { Provinces, DressByProvinces } from "../../services/PlaceService";
+import {Provinces, DressByProvinces} from "../../services/PlaceService";
 
 const OrderPage = () => {
-  const order = useSelector((state) => state.order);
+  const order = useSelector(state => state.order);
   console.log("order ", order);
 
   let listProductOrder =
     order?.orderBuyFast?.length > 0 ? order?.orderBuyFast : order?.orderItems;
 
-  const user = useSelector((state) => state.user);
-  const { name, phone, address } = user;
+  const user = useSelector(state => state.user);
+  const {name, phone, address} = user;
   const [listChecked, setListChecked] = useState([]);
   const [isOpenModalUpdateInfo, setIsOpenModalUpdateInfo] = useState(false);
 
@@ -122,29 +122,33 @@ const OrderPage = () => {
 
   //Call Options Dress
   useEffect(() => {
-    axios.get("https://provinces.open-api.vn/api/?depth=1").then((response) => {
-      setProvinces([{ code: 0, name: "Chọn tỉnh/thành" }, ...response.data]);
-    });
+    axios
+      .get(
+        "https://vnprovinces.pythonanywhere.com/api/provinces/?basic=true&limit=100"
+      )
+      .then(response => {
+        setProvinces([
+          {code: 0, name: "Chọn tỉnh/thành"},
+          ...response.data.results,
+        ]);
+      });
   }, []);
 
   useEffect(() => {
     setDistricts([]);
-    if (
-      selectedProvince !== "0" &&
-      Number(selectedProvince) !== 0 &&
-      typeof selectedProvince !== "undefined"
-    ) {
+    if (selectedProvince) {
+      // call districts
       async function fetchData() {
-        const response = await DressByProvinces({
-          key: "p",
-          param: selectedProvince,
-          //typeValue = {key : name , value : {code : 0 , name : 'Chọn xã/phường'}}
+        // https://vnprovinces.pythonanywhere.com/api/districts/?province_id=24&basic=true&limit=100
+        const listCities = await DressByProvinces({
+          key: "districts",
+          param: `province_id=${selectedProvince}`,
           typeValue: {
             key: "districts",
-            value: { code: 0, name: "Chọn quận/huyện" },
+            value: {id: 0, name: "Chọn quận/huyện"},
           },
         });
-        setCities(response);
+        setCities(listCities);
       }
       fetchData();
     } else {
@@ -153,19 +157,17 @@ const OrderPage = () => {
   }, [selectedProvince]);
 
   useEffect(() => {
-    if (
-      selectedCity !== "0" &&
-      Number(selectedCity) !== 0 &&
-      typeof selectedCity !== "undefined"
-    ) {
+    if (selectedCity) {
       async function fetchData() {
+        //https://vnprovinces.pythonanywhere.com/api/wards/?district_id=219&basic=true&limit=100
+
         const response = await DressByProvinces({
-          key: "d",
-          param: selectedProvince,
-          //typeValue = {key : name , value : {code : 0 , name : 'Chọn xã/phường'}}
+          key: "wards",
+          param: `district_id=${selectedCity}`, //district_id = id
+          //typeValue = {key : id , value : {code : 0 , name : 'Chọn xã/phường'}}
           typeValue: {
             key: "wards",
-            value: { code: 0, name: "Chọn xã/phường" },
+            value: {id: 0, name: "Chọn xã/phường"},
           },
         });
         setDistricts(response);
@@ -176,29 +178,32 @@ const OrderPage = () => {
     }
   }, [selectedCity]);
 
-  const handleProvinceChange = (value) => {
-    const provinceUser = provinces?.find((item) => item.code === +value);
+  const handleProvinceChange = value => {
+    const provinceUser = provinces?.find(item => item.id === +value);
+    // huyen
     setProvinceOrder(provinceUser);
+
+    //xet huyen select
     setSelectedProvince(value);
   };
 
-  const handleCityChange = (value) => {
+  const handleCityChange = value => {
     setSelectedCity(value);
-    const cityUser = cities?.find((item) => item.code === +value);
-    setCityOrder(cityUser || {});
+    const cityUser = cities?.find(item => item.id === +value);
+    setCityOrder(cityUser);
   };
 
-  const handleDistrictChange = (value) => {
+  const handleDistrictChange = value => {
     setDistrictOrder(value);
-    const districtUser = districts?.find((item) => item.code === +value);
+    const districtUser = districts?.find(item => item.id === +value);
     setDistrictOrder(districtUser || {});
   };
 
   useEffect(() => {
-    if (provinceOrder?.code > 0 && provinceOrder?.code) {
+    if (provinceOrder?.id > 0 && provinceOrder?.id) {
       const shipper =
-        0 <= Number(provinceOrder?.code) <= 12 ||
-        28 <= Number(provinceOrder?.code) <= 45
+        0 <= Number(provinceOrder?.id) <= 12 ||
+        28 <= Number(provinceOrder?.id) <= 45
           ? 20000
           : 30000;
       const shipDelivery = delivery === "fast" ? 10000 : 5000;
@@ -206,10 +211,10 @@ const OrderPage = () => {
     }
   }, [provinceOrder]);
 
-  const onChange = (e) => {
+  const onChange = e => {
     if (listChecked.includes(e.target.value)) {
       const newListChecked = listChecked.filter(
-        (item) => item !== e.target.value
+        item => item !== e.target.value
       );
       setListChecked(newListChecked);
     } else {
@@ -220,41 +225,39 @@ const OrderPage = () => {
   const handleChangeCount = (type, idProduct, limited) => {
     if (type === "increase") {
       if (!limited) {
-        dispatch(increaseAmount({ idProduct }));
+        dispatch(increaseAmount({idProduct}));
       }
     } else {
       if (!limited) {
-        dispatch(decreaseAmount({ idProduct }));
+        dispatch(decreaseAmount({idProduct}));
       }
     }
   };
-  const handleRemoveAllOrder = (e) => {
+  const handleRemoveAllOrder = e => {
     if (listChecked?.length >= 1) {
       setIsOpenModalDeleteAllProduct(false);
-      dispatch(removeAllOrderProduct({ listChecked }));
+      dispatch(removeAllOrderProduct({listChecked}));
     }
   };
 
   const handleDeleteOrder = (idProduct, color, size) => {
-    dispatch(removeOrderProduct({ idProduct, color, size }));
+    dispatch(removeOrderProduct({idProduct, color, size}));
   };
-  const handleSetPhone = (e) => {
+  const handleSetPhone = e => {
     if (e.target.value) setPhoneNew(Number(e.target.value));
   };
-  const handleAddDress = (e) => {
+  const handleAddDress = e => {
     if (e.target.value) setDressDis(e.target.value);
   };
 
-  const handleAddDiscount = (e) => {
+  const handleAddDiscount = e => {
     setTextDiscount(String(e.target.value));
   };
 
-  const handleCheckDiscount = (e) => {
+  const handleCheckDiscount = e => {
     e.preventDefault();
     if (textDiscount.length > 8) {
-      const isDiscount = valueDiscount.find(
-        (item) => item.key === textDiscount
-      );
+      const isDiscount = valueDiscount.find(item => item.key === textDiscount);
 
       if (isDiscount) return setDiscount(isDiscount.discount);
       else
@@ -265,10 +268,10 @@ const OrderPage = () => {
     }
   };
 
-  const handleOnchangeCheckAll = (e) => {
+  const handleOnchangeCheckAll = e => {
     if (e.target.checked) {
       const newListChecked = [];
-      listProductOrder?.forEach((item) => {
+      listProductOrder?.forEach(item => {
         newListChecked.push(item?.id);
       });
 
@@ -293,9 +296,10 @@ const OrderPage = () => {
     setIsCheckValidate(true);
   };
 
-  const mutationAddOrder = useMutationHooks((data) => {
-    const { token, ...rests } = data;
-    const res = OrderService.createOrder({ ...rests }, token);
+  const mutationAddOrder = useMutationHooks(data => {
+    console.log("data", data);
+    const {token, ...rests} = data;
+    const res = OrderService.createOrder({...rests}, token);
     return res;
   });
 
@@ -310,10 +314,10 @@ const OrderPage = () => {
   useEffect(() => {
     if (isSuccess && dataAdd?.status === "OK") {
       const arrayOrdered = [];
-      listProductOrder?.forEach((element) => {
+      listProductOrder?.forEach(element => {
         arrayOrdered.push(element.id);
       });
-      dispatch(removeAllOrderProduct({ listChecked: arrayOrdered }));
+      dispatch(removeAllOrderProduct({listChecked: arrayOrdered}));
       setIsLoadingComponent(false);
       setMoneyTransportation(0);
       navigate("/orderSuccess", {
@@ -333,13 +337,13 @@ const OrderPage = () => {
     setIsLoadingComponent(false);
   }, [isSuccess, isError]);
 
-  const mutationUpdate = useMutationHooks((data) => {
-    const { id, token, ...rests } = data;
-    const res = UserService.UpdateUser(id, { ...rests }, token);
+  const mutationUpdate = useMutationHooks(data => {
+    const {id, token, ...rests} = data;
+    const res = UserService.UpdateUser(id, {...rests}, token);
     return res;
   });
 
-  const { isLoading, data } = mutationUpdate;
+  const {isLoading, data} = mutationUpdate;
 
   const handleCancleUpdate = () => {
     setStateUserDetails({
@@ -353,13 +357,13 @@ const OrderPage = () => {
   };
 
   const handleUpdateInforUser = () => {
-    const { name, address, city, phone } = stateUserDetails;
+    const {name, address, city, phone} = stateUserDetails;
     if (name && address && city && phone) {
       mutationUpdate.mutate(
-        { id: user?.id, token: user?.access_token, ...stateUserDetails },
+        {id: user?.id, token: user?.access_token, ...stateUserDetails},
         {
           onSuccess: () => {
-            dispatch(updateUser({ name, address, city, phone }));
+            dispatch(updateUser({name, address, city, phone}));
             setIsOpenModalUpdateInfo(false);
           },
         }
@@ -390,18 +394,18 @@ const OrderPage = () => {
     });
   };
 
-  const handleChangePayment = (e) => {
+  const handleChangePayment = e => {
     setPayment(e.target.value.toString());
   };
 
-  const handleChangeShipOrder = (e) => {
+  const handleChangeShipOrder = e => {
     setDelivery(e.target.value.toString());
   };
 
   useEffect(() => {
     if (isCheckValidate) {
       if (!listProductOrder?.length > 0) {
-        Message({ typeMes: "error", mes: "Vui lòng chọn sản phẩm" });
+        Message({typeMes: "error", mes: "Vui lòng chọn sản phẩm"});
       } else if (!kiemTraSoDienThoai(phoneNew))
         Message({
           typeMes: "error",
@@ -444,18 +448,18 @@ const OrderPage = () => {
   }, [isCheckValidate]);
 
   return (
-    <div className="containerBoxPage">
+    <div className='containerBoxPage'>
       <Loading
         isLoading={isLoadingComponent}
         children={
           <ContainerOrder>
-            <h3 className="text_header_container" style={{ margin: "12px 0" }}>
+            <h3 className='text_header_container' style={{margin: "12px 0"}}>
               Giỏ hàng
             </h3>
             <WrapperOrder>
               <WrapperLeft>
                 <WrapperStyleHeader>
-                  <span style={{ display: "inline-block", width: "280px" }}>
+                  <span style={{display: "inline-block", width: "280px"}}>
                     <CustomCheckbox
                       onChange={handleOnchangeCheckAll}
                       checked={
@@ -463,12 +467,12 @@ const OrderPage = () => {
                       }></CustomCheckbox>
                     <span> Tất cả ({listProductOrder?.length} sản phẩm)</span>
                   </span>
-                  <div className="flexBet">
+                  <div className='flexBet'>
                     <span>Đơn giá</span>
                     <span>Số lượng</span>
                     <span>Thành tiền</span>
                     <DeleteOutlined
-                      style={{ cursor: "pointer" }}
+                      style={{cursor: "pointer"}}
                       onClick={handleRemoveAllOrder}
                     />
                   </div>
@@ -492,9 +496,9 @@ const OrderPage = () => {
                               checked={listChecked.includes(
                                 order?.product
                               )}></CustomCheckbox>
-                            <img src={order?.image} className="styleImg" />
+                            <img src={order?.image} className='styleImg' />
                             <BoxDetailOrder
-                              onClick={(e) => {
+                              onClick={e => {
                                 e.preventDefault();
                                 navigate(`/product-details/${order.id}`, {
                                   state: location?.pathname,
@@ -506,10 +510,10 @@ const OrderPage = () => {
                               </p>
                             </BoxDetailOrder>
                           </div>
-                          <div className="flexBet">
+                          <div className='flexBet'>
                             <span>
                               <span
-                                style={{ fontSize: "13px", color: "#242424" }}>
+                                style={{fontSize: "13px", color: "#242424"}}>
                                 {convertPrice(order?.price)}
                               </span>
                             </span>
@@ -528,13 +532,13 @@ const OrderPage = () => {
                                   )
                                 }>
                                 <MinusOutlined
-                                  style={{ color: "#000", fontSize: "10px" }}
+                                  style={{color: "#000", fontSize: "10px"}}
                                 />
                               </button>
                               <WrapperInputNumber
                                 defaultValue={order?.amount}
                                 value={order?.amount}
-                                size="small"
+                                size='small'
                                 min={1}
                                 max={order?.countInstock}
                               />
@@ -553,7 +557,7 @@ const OrderPage = () => {
                                   )
                                 }>
                                 <PlusOutlined
-                                  style={{ color: "#000", fontSize: "10px" }}
+                                  style={{color: "#000", fontSize: "10px"}}
                                 />
                               </button>
                             </WrapperCountOrder>
@@ -566,7 +570,7 @@ const OrderPage = () => {
                               {convertPrice(order?.price * order?.amount)}
                             </span>
                             <DeleteOutlined
-                              style={{ cursor: "pointer" }}
+                              style={{cursor: "pointer"}}
                               onClick={() =>
                                 handleDeleteOrder(
                                   order?.id,
@@ -587,7 +591,7 @@ const OrderPage = () => {
                 </WrapperListOrder>
 
                 <WrapperInfo>
-                  <div className="flexBet">
+                  <div className='flexBet'>
                     <span>Tạm tính</span>
                     <span
                       style={{
@@ -598,7 +602,7 @@ const OrderPage = () => {
                       {convertPrice(order?.totalPrice)}
                     </span>
                   </div>
-                  <div className="flexBet">
+                  <div className='flexBet'>
                     <span>Phí giao hàng</span>
                     <span
                       style={{
@@ -636,7 +640,7 @@ const OrderPage = () => {
                 </WrapperInfo>
                 <WrapperTotal>
                   <span>Tổng tiền</span>
-                  <span style={{ display: "flex", flexDirection: "column" }}>
+                  <span style={{display: "flex", flexDirection: "column"}}>
                     <span
                       style={{
                         color: "rgb(254, 56, 52)",
@@ -651,7 +655,7 @@ const OrderPage = () => {
                           )
                         : convertPrice(order?.totalPrice + moneyTransportation)}
                     </span>
-                    <span style={{ color: "#000", fontSize: "11px" }}>
+                    <span style={{color: "#000", fontSize: "11px"}}>
                       (Đã bao gồm VAT nếu có)
                     </span>
                   </span>
@@ -659,13 +663,13 @@ const OrderPage = () => {
               </WrapperLeft>
               <WrapperRight>
                 <h3
-                  className="text_header_container"
-                  style={{ fontSize: "18px" }}>
+                  className='text_header_container'
+                  style={{fontSize: "18px"}}>
                   Địa chỉ giao hàng
                 </h3>
                 <Form
                   onFinish={handlePayment}
-                  layout="vertical"
+                  layout='vertical'
                   style={{
                     display: "flex",
                     flexWrap: "wrap",
@@ -677,45 +681,45 @@ const OrderPage = () => {
                     optionsItem={provinces}
                     handleChange={handleProvinceChange}
                     placeholder={"Chọn tỉnh/thành"}
-                    nameOption="Tỉnh thành"
-                    labelOption="Tỉnh/thành"
+                    nameOption='Tỉnh thành'
+                    labelOption='Tỉnh/thành'
                   />
                   <SelectOption
                     styleWidth={"270px"}
                     optionsItem={cities}
                     handleChange={handleCityChange}
                     placeholder={"Chọn quận/huyện"}
-                    nameOption="Quận/huyện"
-                    labelOption="Quận/huyện"
+                    nameOption='Quận/huyện'
+                    labelOption='Quận/huyện'
                   />
                   <SelectOption
                     styleWidth={"270px"}
                     optionsItem={districts}
                     handleChange={handleDistrictChange}
                     placeholder={"Chọn xã/phường"}
-                    nameOption="Xã/phường"
-                    labelOption="Xã/phường"
+                    nameOption='Xã/phường'
+                    labelOption='Xã/phường'
                   />
                   <Form.Item
-                    style={{ display: "flex", flexDirection: "column" }}
-                    name="Điện thoại"
-                    label="Điện thoại"
-                    rules={[{ required: true }]}>
+                    style={{display: "flex", flexDirection: "column"}}
+                    name='Điện thoại'
+                    label='Điện thoại'
+                    rules={[{required: true}]}>
                     <Input
                       value={phoneNew}
-                      style={{ width: "270px", margin: "8px 0" }}
+                      style={{width: "270px", margin: "8px 0"}}
                       onChange={handleSetPhone}
                       placeholder={"Nhập số điện thoại"}
                     />
                   </Form.Item>
                   <Form.Item
-                    style={{ display: "flex", flexDirection: "column" }}
-                    name="Địa chỉ"
-                    label="Địa chỉ"
-                    rules={[{ required: true }]}>
+                    style={{display: "flex", flexDirection: "column"}}
+                    name='Địa chỉ'
+                    label='Địa chỉ'
+                    rules={[{required: true}]}>
                     <Input
                       value={dressDis}
-                      style={{ width: "580px" }}
+                      style={{width: "580px"}}
                       onChange={handleAddDress}
                       placeholder={"Nhập địa chỉ"}
                     />
@@ -723,8 +727,8 @@ const OrderPage = () => {
 
                   <WrapperInfo>
                     <h3
-                      className="text_header_container"
-                      style={{ fontSize: "18px" }}>
+                      className='text_header_container'
+                      style={{fontSize: "18px"}}>
                       Phương thức vận chuyển
                     </h3>
                     <RadioComponent
@@ -747,12 +751,12 @@ const OrderPage = () => {
                           zIndex: "99",
                           left: "30px",
                         }}
-                        src="https://theme.hstatic.net/1000290074/1001116344/14/coupon-icon.png?v=2803"
-                        alt="mã giảm giá"
+                        src='https://theme.hstatic.net/1000290074/1001116344/14/coupon-icon.png?v=2803'
+                        alt='mã giảm giá'
                       />
                       <Input
                         onChange={handleAddDiscount}
-                        style={{ paddingLeft: "40px" }}
+                        style={{paddingLeft: "40px"}}
                         value={textDiscount.toUpperCase()}
                         placeholder={"Nhập mã giá giá"}
                       />
@@ -773,8 +777,8 @@ const OrderPage = () => {
                   </WrapperInfo>
                   <WrapperInfo>
                     <h3
-                      className="text_header_container"
-                      style={{ fontSize: "18px" }}>
+                      className='text_header_container'
+                      style={{fontSize: "18px"}}>
                       Phương thức thanh toán
                     </h3>
                     <RadioComponent
@@ -788,7 +792,7 @@ const OrderPage = () => {
                     <PayPal onSuccessPaypal={onSuccessPaypal} />
                   ) : (
                     <ButtonComponent
-                      isDisabled={isDebouncing}
+                      // isDisabled={isDebouncing}
                       type={"submit"}
                       size={40}
                       styleButton={{
@@ -814,13 +818,13 @@ const OrderPage = () => {
       />
 
       <ModalComponent
-        title="Cập nhật thông tin giao hàng"
+        title='Cập nhật thông tin giao hàng'
         open={isOpenModalUpdateInfo}
         handleCancel={handleCancleUpdate}
         handleOk={handleUpdateInforUser}>
         <Loading isLoading={isLoading}>
           <FormFormik
-            initialValues={{ name, phone, address, noteToAdmin: "" }}
+            initialValues={{name, phone, address, noteToAdmin: ""}}
             validationSchema={CreateDressOrderSchema}
             // onSubmit={onUpdateUser}
             fields={fieldsDressOrderSchema.fields}

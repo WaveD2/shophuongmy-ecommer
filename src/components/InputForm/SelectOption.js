@@ -1,5 +1,5 @@
 import React from "react";
-import { Select, Space, Form } from "antd";
+import {Select, Space, Form} from "antd";
 
 const SelectOption = ({
   optionsItem,
@@ -13,27 +13,27 @@ const SelectOption = ({
   isLoading,
 }) => {
   const optionsItems =
-    optionsItem?.length > 0 && !optionsItem[0]?.value
-      ? optionsItem?.map((item) => {
+    optionsItem?.length > 0
+      ? optionsItem?.map(item => {
           return {
-            label: item?.name || item,
-            value: item?.code?.toString() || item,
+            label: item?.name || item.label,
+            value: item?.id?.toString() || item.value,
           };
         })
-      : optionsItem;
+      : [{label: "Không có dữ liệu", value: "0"}];
 
   return (
     <Form.Item
-      style={{ marginBottom: 0 }}
+      style={{marginBottom: 0}}
       name={nameOption}
       label={labelOption}
-      rules={[{ required: isRequired }]}>
+      rules={[{required: isRequired}]}>
       <Space wrap>
         <Select
           loading={isLoading}
           allowClear
           placeholder={placeholder}
-          style={{ width: styleWidth, margin: "8px 4px" }}
+          style={{width: styleWidth, margin: "8px 4px"}}
           onChange={handleChange}
           options={optionsItems}
           {...props}

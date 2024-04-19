@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
   LaptopOutlined,
   NotificationOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Breadcrumb, Layout, Menu, theme } from "antd";
-import { render } from "react-dom";
+import {Breadcrumb, Layout, Menu, theme} from "antd";
+import {render} from "react-dom";
 
-const { Header, Content, Footer, Sider } = Layout;
+const {Header, Content, Footer, Sider} = Layout;
 
 const menuOptions = [
   {
@@ -90,17 +90,17 @@ const LayoutContactPage = () => {
   let renderContentByMenu = contentMenrOptions[keyTitle - 1].content;
 
   return (
-    <Content style={{ minHeight: "60vh", marginTop: "20px" }}>
+    <Content style={{minHeight: "60vh", marginTop: "20px"}}>
       <Layout>
         <Sider width={200}>
           <Menu
-            onClick={(e) => {
+            onClick={e => {
               setKeyTitle(Number(e.key));
             }}
-            mode="inline"
+            mode='inline'
             defaultSelectedKeys={keyTitle}
             defaultOpenKeys={keyTitle}
-            style={{ height: "100%" }}
+            style={{height: "100%"}}
             items={menuOptions}
           />
         </Sider>
@@ -118,11 +118,11 @@ const LayoutContactPage = () => {
               justifyContent: "space-between",
               flexDirection: "column",
             }}>
-            <h2 className="title_text">{renderContentByMenu.title}</h2>
+            <h2 className='title_text'>{renderContentByMenu.title}</h2>
 
             {renderContentByMenu?.labels?.map((item, index) => (
               <div key={index}>
-                <label className="des_text">{item}</label>
+                <label className='des_text'>{item}</label>
               </div>
             ))}
             {renderContentByMenu?.contacts &&
@@ -131,27 +131,27 @@ const LayoutContactPage = () => {
                   <div key={index}>
                     <h2>{contact?.title}</h2>
                     {contact?.labels?.map((item, index) => (
-                      <label key={index} className="des_text">
+                      <label key={index} className='des_text'>
                         {item}
                       </label>
                     ))}
                   </div>
                 );
               })}
-            <h3 style={{ textDecoration: "underline" }}>
+            <h3 style={{textDecoration: "underline"}}>
               {renderContentByMenu.signature}
             </h3>
           </div>
           {keyTitle === 3 && (
             <div style={{}}>
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3174.154671221992!2d105.31024467719928!3d18.89917440354328!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3139e33e0b86a27b%3A0x8215ab880c58bf37!2zQ2jhu6MgbeG7m2kgxJDDtCBMxrDGoW5n!5e0!3m2!1svi!2s!4v1706103249615!5m2!1svi!2s"
-                width="600"
-                height="450"
-                style={{ border: 0 }}
-                allowfullscreen=""
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"></iframe>
+                src='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3174.154671221992!2d105.31024467719928!3d18.89917440354328!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3139e33e0b86a27b%3A0x8215ab880c58bf37!2zQ2jhu6MgbeG7m2kgxJDDtCBMxrDGoW5n!5e0!3m2!1svi!2s!4v1706103249615!5m2!1svi!2s'
+                width='600'
+                height='450'
+                style={{border: 0}}
+                allowfullscreen=''
+                loading='lazy'
+                referrerpolicy='no-referrer-when-downgrade'></iframe>
             </div>
           )}
         </Content>
